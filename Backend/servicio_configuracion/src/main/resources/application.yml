@@ -10,7 +10,7 @@ spring:
         git:
           uri: https://github.com/Moises-Mestas/AquiNomas2.git
           searchPaths: config-data
-          default-label: main
+          default-label: pastor
   security:
     user:
       name: root
