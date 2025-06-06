@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="servicio_configuracion" />
+        <module name="servicio-gateway" />
+        <module name="servicio-auth" />
+        <module name="servicio-descubrimiento" />
+      </profile>
+      <profile name="Annotation profile for producto_db" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="servicio-cliente" />
+        <module name="servicio-compra" />
+        <module name="servicio-venta" />
+        <module name="servicio-producto" />
+        <module name="servicio-pedido" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="servicio-auth" options="-parameters" />
+      <module name="servicio-cliente" options="-parameters" />
+      <module name="servicio-compra" options="-parameters" />
+      <module name="servicio-descubrimiento" options="-parameters" />
+      <module name="servicio-gateway" options="-parameters" />
+      <module name="servicio-pedido" options="-parameters" />
+      <module name="servicio-producto" options="-parameters" />
+      <module name="servicio-venta" options="-parameters" />
+      <module name="servicio_configuracion" options="-parameters" />
+    </option>
+  </component>
+</project>

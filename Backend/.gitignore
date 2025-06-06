@@ -1,0 +1,28 @@
+# IntelliJ IDEA (para Java y Spring)
+.idea/
+*.iml
+*.iws
+out/
+
+# Dependencias de Python (Flask)
+venv/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Archivos de configuración de Flask (si aplica)
+instance/
+*.db
+*.sqlite
+
+# Archivos de logsw
+*.log
+
+# Archivos de configuración del sistema operativo (si aplica)
+.DS_Store
+Thumbs.db
+
+# Archivos generados por el sistema de construcción (Maven, Gradle, etc.)
+target/
+build/

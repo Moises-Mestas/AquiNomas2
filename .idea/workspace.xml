@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3f3cd6ba-a31c-499c-a98e-a1fd856788ec" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/.idea/config-data.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-auth.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-cliente.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-compra.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-descubrimiento.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-gateway.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-inventario.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-pedido.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-producto.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-proveedor.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-data/servicio-venta.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/AuthDbApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/controller/AuthUserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/dto/AuthUser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/dto/AuthUserDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/entity/TokenDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/repository/AuthUserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/security/JwtProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/security/PasswordEncoderConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/security/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/service/AuthUserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/java/com/example/auth_db/service/impl/AuthUserServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-auth/src/test/java/com/example/auth_db/AuthDbApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/ServicioClienteApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/config/OpenApiConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/controller/ClienteController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/entity/Cliente.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/repostory/ClienteRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/service/ClienteService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/java/com/upeu/serviciocliente/service/impl/ClienteServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-cliente/src/test/java/com/upeu/serviciocliente/ServicioClienteApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/ServicioCompraApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/config/OpenApiConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/controller/CompraController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/dto/CompraDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/dto/DetalleCompraDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/dto/ProveedorDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/entity/Compra.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/entity/DetalleCompra.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/feign/ProveedorClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/feign/ProveedorFallback.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/repository/CompraRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/repository/DetalleCompraRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/service/CompraService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/java/com/upeu/serviciocompra/service/impl/CompraServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-compra/src/test/java/com/upeu/serviciocompra/ServicioCompraApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/src/main/java/com/example/serviciodescubrimiento/ServicioDescubrimientoApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-descubrimiento/src/test/java/com/example/serviciodescubrimiento/ServicioDescubrimientoApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/src/main/java/com/example/serviciogateway/ServicioGatewayApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/src/main/java/com/example/serviciogateway/config/AuthFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/src/main/java/com/example/serviciogateway/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/src/main/java/com/example/serviciogateway/dto/TokenDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-gateway/src/test/java/com/example/serviciogateway/ServicioGatewayApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-inventario/ajustesInventario.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-inventario/app.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-inventario/inventario.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-inventario/movimientosInventario.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/PedidoDbApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/config/AppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/config/OpenAPIConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/controller/PedidoController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/dto/Categoria.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/dto/Cliente.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/dto/Inventario.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/dto/InventarioUpdateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/dto/Producto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/entity/DetallePedido.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/entity/Pedido.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/feign/ClienteFeign.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/feign/InventarioFeign.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/feign/ProductoFeign.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/repository/PedidoRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/service/PedidoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/java/com/example/pedido_db/service/impl/PedidoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-pedido/src/test/java/com/example/pedido_db/PedidoDbApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/ProductoDbApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/config/OpenAPIConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/controller/CategoriaController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/controller/ProductoController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/dto/Inventario.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/dto/ProductoDisponibleDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/entity/Categoria.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/entity/Producto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/feign/InventarioFeign.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/repository/CategoriaRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/repository/ProductoRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/service/CategoriaService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/service/ProductoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/service/impl/CategoriaServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/java/com/example/producto_db/service/impl/ProductoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-producto/src/test/java/com/example/producto_db/ProductoDbApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-proveedor/app.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-proveedor/comprasProveedores.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-proveedor/detalleComprasProveedores.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-proveedor/productosProveedores.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-proveedor/proveedores.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/ServicioVentaApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/config/OpenApiConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/config/RestTemplateConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/controller/ComprobantePagoController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/controller/VentaController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/controller/VentaDetalleController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/dto/Cliente.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/dto/Detalle_pedido.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/dto/Pedido.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/dto/Producto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/entity/Comprobante_pago.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/entity/Detalle_Venta.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/entity/Venta.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/repository/ComprobantePagoRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/repository/VentaDetalleRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/repository/VentaRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/ComprobantePagoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/VentaDetalleService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/VentaService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/ClienteService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/ComprobantePagoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/DetallePedidoServiceimpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/PedidoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/ProductoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/VentaDetalleServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/service/impl/VentaServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/java/com/example/servicioventa/util/DataSeeder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio-venta/src/test/java/com/example/servicioventa/ServicioVentaApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/src/main/java/com/example/servicio_configuracion/ServicioConfiguracionApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servicio_configuracion/src/test/java/com/example/servicio_configuracion/ServicioConfiguracionApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2y417QNauBchrPKnJafkZq8N4gC" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/UPEU.2025 5to ciclo/AquiNomas/AquiNomasFinal/AquiNomas/Backend/servicio_configuracion",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.configurations.included.in.services": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.PedidoDbApplication">
+    <configuration name="PedidoDbApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="servicio-pedido" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.pedido_db.PedidoDbApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProductoDbApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="servicio-producto" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.producto_db.ProductoDbApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServicioClienteApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="servicio-cliente" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.upeu.serviciocliente.ServicioClienteApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServicioConfiguracionApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="servicio_configuracion" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.servicio_configuracion.ServicioConfiguracionApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServicioDescubrimientoApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="servicio-descubrimiento" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.serviciodescubrimiento.ServicioDescubrimientoApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServicioGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="servicio-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.serviciogateway.ServicioGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.387" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.387" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3f3cd6ba-a31c-499c-a98e-a1fd856788ec" name="Changes" comment="" />
+      <created>1749078864169</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1749078864169</updated>
+      <workItem from="1749078865182" duration="1767000" />
+      <workItem from="1749080641099" duration="30000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
