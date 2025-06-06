@@ -1,28 +1,50 @@
-# IntelliJ IDEA (para Java y Spring)
+# ================================
+# IDEs y editores
+# ================================
 .idea/
 *.iml
 *.iws
-out/
+.vscode/
 
-# Dependencias de Python (Flask)
+# ================================
+# Entornos virtuales
+# ================================
 venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# ================================
+# Archivos compilados de Python
+# ================================
 *.pyc
 *.pyo
 *.pyd
 __pycache__/
 
-# Archivos de configuración de Flask (si aplica)
+# ================================
+# Archivos de configuración de Flask
+# ================================
 instance/
 *.db
 *.sqlite
 
-# Archivos de logsw
+# ================================
+# Logs y temporales
+# ================================
 *.log
+*.tmp
+*.bak
 
-# Archivos de configuración del sistema operativo (si aplica)
+# ================================
+# Archivos del sistema
+# ================================
 .DS_Store
 Thumbs.db
 
-# Archivos generados por el sistema de construcción (Maven, Gradle, etc.)
+# ================================
+# Herramientas de construcción Java/Maven/Gradle (si usas)
+# ================================
 target/
 build/
