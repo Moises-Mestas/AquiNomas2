@@ -9,7 +9,7 @@ eureka_registered = False
 def registrar_en_eureka(puerto):
     global eureka_registered
     if not eureka_registered:
-        ip = "127.0.0.1"  # o usa: socket.gethostbyname(socket.gethostname())
+        ip = "127.0.0.1"  
 
         import py_eureka_client.eureka_client as eureka_client
         eureka_client.init(

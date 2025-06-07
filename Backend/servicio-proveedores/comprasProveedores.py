@@ -82,7 +82,7 @@ UNIDADES_CONVERSION = {
 }
 
 def crear_compra_proveedor(proveedor_id, producto_id, cantidad, unidad_medida):
-    """Crea una nueva compra de proveedor en la base de datos."""
+    """Crea una nueva compra de proveedor en la base de datos y la registra en bodega."""
     if not isinstance(proveedor_id, int) or not isinstance(producto_id, int):
         raise ValueError("IDs de proveedor y producto deben ser enteros.")
     if not isinstance(cantidad, (int, float)) or cantidad <= 0:
@@ -94,21 +94,34 @@ def crear_compra_proveedor(proveedor_id, producto_id, cantidad, unidad_medida):
     try:
         conexion = obtener_conexion()
         with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("SELECT precio FROM producto WHERE id = %s", (producto_id,))
+            # Obtener el precio del producto
+            cursor.execute("SELECT precio, tipo_insumo, duracion_insumo FROM producto WHERE id = %s", (producto_id,))
             producto = cursor.fetchone()
             if not producto:
                 raise ValueError("El producto con el ID proporcionado no existe.")
             
-            precio_unitario = Decimal(producto['precio'])  
+            precio_unitario = Decimal(producto['precio'])
+            tipo_insumo = producto['tipo_insumo']
+            duracion_insumo = producto['duracion_insumo']
+            
             cantidad_decimal = Decimal(cantidad) * Decimal(UNIDADES_CONVERSION[unidad_medida])  # Convertir a unidad base
             total = cantidad_decimal * precio_unitario  
 
+            # Crear la compra en la base de datos
             cursor.execute("""
                 INSERT INTO compra_proveedor (proveedor_id, producto_id, cantidad, unidad_medida, total)
                 VALUES (%s, %s, %s, %s, %s)
             """, (proveedor_id, producto_id, cantidad, unidad_medida, total))
             conexion.commit()
-            print("Compra de proveedor creada exitosamente.")
+            compra_proveedor_id = cursor.lastrowid  # Obtener el ID de la compra recién creada
+
+        # Registrar la compra en la bodega del servicio-inventario
+        resultado_bodega = crear_registro_en_bodega_desde_proveedor(compra_proveedor_id)
+        if "error" in resultado_bodega:
+            print(f"Error al registrar en bodega: {resultado_bodega['error']}")
+
+        print("Compra de proveedor creada y registrada en bodega exitosamente.")
+        return compra_proveedor_id
     except mysql.connector.Error as e:
         print(f"Error al crear la compra de proveedor: {e}")
         raise
@@ -170,46 +183,41 @@ def obtener_compra_proveedor_por_id(compra_id):
 
 
 
-import requests
-import xml.etree.ElementTree as ET
 
 URL_SERVICIO_INVENTARIO = None
 
 def obtener_url_servicio_inventario():
     global URL_SERVICIO_INVENTARIO
     try:
-        response = requests.get("http://localhost:8090/eureka/apps/SERVICIO-INVENTARIO")
+        response = requests.get("http://localhost:8090/eureka/apps/SERVICIO-INVENTARIO", headers={"Accept": "application/xml"})
         if response.status_code == 200:
             root = ET.fromstring(response.content)
-            instance = root.find('instance')
-            if instance is not None:
-                host = instance.find('hostName').text
-                port = instance.find('port').text
-                URL_SERVICIO_INVENTARIO = f"http://{host}:{port}"
-                print(f"URL servicio-inventario actualizada: {URL_SERVICIO_INVENTARIO}")
-                return URL_SERVICIO_INVENTARIO
-            else:
-                print("No se encontró la instancia en la respuesta de Eureka.")
-                URL_SERVICIO_INVENTARIO = None
+
+            # Busca todas las instancias registradas bajo ese nombre
+            instances = root.findall('.//instance')
+            if not instances:
+                print("No se encontraron instancias registradas para SERVICIO-INVENTARIO.")
                 return None
+
+            # Toma la primera instancia disponible
+            instance = instances[0]
+            host = instance.find('hostName').text
+            port = instance.find('port').text
+            URL_SERVICIO_INVENTARIO = f"http://{host}:{port}"
+            print(f"[DEBUG] URL_SERVICIO_INVENTARIO: {URL_SERVICIO_INVENTARIO}")
+            return URL_SERVICIO_INVENTARIO
         else:
-            print(f"Error al consultar Eureka: status {response.status_code}")
-            URL_SERVICIO_INVENTARIO = None
+            print(f"[ERROR] Código de estado al consultar Eureka: {response.status_code}")
             return None
     except Exception as e:
-        print(f"Error al obtener URL del servicio-inventario: {e}")
-        URL_SERVICIO_INVENTARIO = None
+        print(f"[EXCEPCIÓN] Error al obtener URL del servicio-inventario: {e}")
         return None
 
-# Inicializar la URL al cargar el módulo
+# Llama a la función para testear
 obtener_url_servicio_inventario()
 
 
-def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo, duracion_insumo):
-    """
-    Esta función hace un POST al servicio-inventario para que se cree el registro
-    en la tabla bodega, enviando los datos necesarios.
-    """
+def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=None, duracion_insumo=None):
     global URL_SERVICIO_INVENTARIO
     if not URL_SERVICIO_INVENTARIO:
         if not obtener_url_servicio_inventario():
@@ -217,19 +225,19 @@ def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo, d
 
     url_bodega = f"{URL_SERVICIO_INVENTARIO}/bodega"
     payload = {
-        "compra_proveedor_id": compra_proveedor_id,
-        "tipo_insumo": tipo_insumo,
-        "duracion_insumo": duracion_insumo
+        "compra_proveedor_id": compra_proveedor_id
     }
+
+    print("DEBUG: Payload enviado al servicio-inventario:", payload)
 
     try:
         response = requests.post(url_bodega, json=payload, timeout=5)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return {"error": f"Error al crear registro en bodega: status {response.status_code}"}
-    except Exception as e:
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.Timeout:
+        print("Error: La solicitud al servicio-inventario excedió el tiempo de espera.")
+        return {"error": "Timeout al contactar con servicio-inventario"}
+    except requests.exceptions.RequestException as e:
         print(f"Error al contactar con servicio-inventario: {e}")
-        obtener_url_servicio_inventario()  # Reintenta actualizar URL
-        return {"error": "Error al contactar con servicio-inventario"}
-
+        obtener_url_servicio_inventario()
+        return {"error": f"Error al contactar con servicio-inventario: {str(e)}"}

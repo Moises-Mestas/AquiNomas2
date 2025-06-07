@@ -26,11 +26,12 @@ def crear_producto():
         nombre = data.get('nombre')
         descripcion = data.get('descripcion')
         precio = data.get('precio')
-        productos.crear_producto(nombre, descripcion, precio)
+        tipo_insumo = data.get('tipo_insumo')
+        duracion_insumo = data.get('duracion_insumo')
+        productos.crear_producto(nombre, descripcion, precio, tipo_insumo, duracion_insumo)
         return jsonify({"mensaje": "Producto creado exitosamente"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
 
 # Ruta para obtener todos los productos
 @app.route('/productos', methods=['GET'])
@@ -58,7 +59,6 @@ def obtener_producto_por_id(producto_id):
         return jsonify({"error": str(e)}), 500
 
 
-# Ruta para editar un producto
 @app.route('/productos/<int:producto_id>', methods=['PUT'])
 def editar_producto(producto_id):
     data = request.json
@@ -66,11 +66,12 @@ def editar_producto(producto_id):
         nombre = data.get('nombre')
         descripcion = data.get('descripcion')
         precio = data.get('precio')
-        productos.editar_producto(producto_id, nombre, descripcion, precio)
+        tipo_insumo = data.get('tipo_insumo')
+        duracion_insumo = data.get('duracion_insumo')
+        productos.editar_producto(producto_id, nombre, descripcion, precio, tipo_insumo, duracion_insumo)
         return jsonify({"mensaje": "Producto actualizado exitosamente"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
 
 # Ruta para eliminar un producto por ID
 @app.route('/productos/<int:producto_id>', methods=['DELETE'])
@@ -167,23 +168,22 @@ def crear_compra_proveedor():
         producto_id = data.get('producto_id')
         cantidad = data.get('cantidad')
         unidad_medida = data.get('unidad_medida')
-
         if not proveedor_id or not producto_id or not cantidad or not unidad_medida:
             raise ValueError("Todos los campos (proveedor_id, producto_id, cantidad, unidad_medida) son obligatorios.")
         compra_proveedor_id = comprasProveedores.crear_compra_proveedor(proveedor_id, producto_id, cantidad, unidad_medida)
-        tipo_insumo = "EjemploTipo" 
-        duracion_insumo = 30  
+        producto = productos.obtener_producto_por_id(producto_id)
+        if not producto:
+            raise ValueError("El producto con el ID proporcionado no existe.")
+        tipo_insumo = producto.get('tipo_insumo')
+        duracion_insumo = producto.get('duracion_insumo')
+        if not tipo_insumo or not duracion_insumo:
+            raise ValueError("El producto no tiene configurados los campos tipo_insumo o duracion_insumo.")
         resultado_bodega = crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo, duracion_insumo)
-
         if "error" in resultado_bodega:
             return jsonify({"mensaje": "Compra creada pero error al registrar en bodega", "detalle": resultado_bodega["error"]}), 500
-
         return jsonify({"mensaje": "Compra de proveedor creada y registrada en bodega exitosamente"}), 201
-
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-
 
 # Ruta para obtener todas las compras de proveedores
 @app.route('/compras-proveedores', methods=['GET'])
@@ -221,11 +221,9 @@ def editar_compra_proveedor(compra_id):
         cantidad = data.get('cantidad')
         unidad_medida = data.get('unidad_medida')
 
-        # Validar los datos
         if not cantidad and not unidad_medida and not proveedor_id and not producto_id:
             raise ValueError("Debe proporcionar al menos un campo para actualizar.")
 
-        # Llamar a la función para editar la compra
         comprasProveedores.editar_compra_proveedor(compra_id, proveedor_id, producto_id, cantidad, unidad_medida)
         return jsonify({"mensaje": "Compra de proveedor actualizada exitosamente"}), 200
     except Exception as e:

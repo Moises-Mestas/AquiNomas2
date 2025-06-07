@@ -2,7 +2,7 @@
 import mysql.connector
 import requests
 import py_eureka_client.eureka_client as eureka_client
-
+import datetime
 eureka_registered = False
 
 
@@ -67,6 +67,3 @@ def obtener_conexion():
         password=password,
         database=database
     )
-
-
-

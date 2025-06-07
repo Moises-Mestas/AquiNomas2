@@ -121,13 +121,18 @@ def obtener_compra_proveedor_por_id(compra_proveedor_id):
 
 
 def obtener_producto_por_id_desde_servicio(producto_id):
-    url = f"http://localhost:PUERTO_PRODUCTOS/productos/{producto_id}"
+    global URL_SERVICIO_PROVEEDOR
+    if not URL_SERVICIO_PROVEEDOR:
+        if not obtener_url_servicio_proveedor():
+            return {"error": "No se pudo resolver la URL del servicio-proveedor"}
+
     try:
-        response = requests.get(url)
+        url = f"{URL_SERVICIO_PROVEEDOR}/productos/{producto_id}"
+        response = requests.get(url, timeout=5)
         if response.status_code == 200:
-            return response.json()  # Retorna el dict con producto
+            return response.json()  # Retorna el dict con el producto
         elif response.status_code == 404:
-            print("Producto no encontrado")
+            print(f"Producto con ID {producto_id} no encontrado en el servicio-proveedor")
             return None
         else:
             print(f"Error al obtener producto: {response.status_code}")
@@ -169,43 +174,64 @@ def obtener_todos_bodega():
 
 
 def convertir_a_kg(cantidad, unidad_medida):
-    if unidad_medida.lower() == 'g':
+    if unidad_medida.lower() == 'g': 
         return cantidad / 1000.0
-    elif unidad_medida.lower() == 'kg':
+    elif unidad_medida.lower() == 'kg':  
         return cantidad
+    elif unidad_medida.lower() == 'l': 
+        return cantidad
+    elif unidad_medida.lower() == 'ml':  
+        return cantidad / 1000.0
     else:
         raise ValueError(f"Unidad de medida no soportada: {unidad_medida}")
-
 
 def parse_fecha_compra(fecha_str):
     fecha_str_clean = fecha_str.replace('Sat, ', '').replace(' GMT', '')
     fecha_dt = datetime.strptime(fecha_str_clean, '%d %b %Y %H:%M:%S')
     return fecha_dt.strftime('%Y-%m-%d %H:%M:%S')
-def crear_bodega(compra_proveedor_id, tipo_insumo, duracion_insumo):
+
+
+def crear_bodega(compra_proveedor_id):
     conexion = None
     try:
+        # Obtener los datos de la compra desde el servicio-proveedor
         compra = obtener_compra_proveedor_por_id(compra_proveedor_id)
-        print("Compra obtenida:", compra)
+        print("DEBUG compra:", compra)
 
         if "error" in compra:
             return {"error": compra["error"]}
 
-        cantidad = float(compra.get("cantidad"))
+        # Dividir la cantidad entre 2 para evitar duplicaciones
+        cantidad = float(compra.get("cantidad")) / 2
         unidad_medida = compra.get("unidad_medida")
         fecha_compra = compra.get("fecha_compra")
         producto_id = compra.get("producto_id")
 
-        print(f"cantidad: {cantidad}, unidad_medida: {unidad_medida}, fecha_compra: {fecha_compra}, producto_id: {producto_id}")
+        print(f"DEBUG cantidad ajustada: {cantidad}, unidad_medida: {unidad_medida}, fecha_compra: {fecha_compra}, producto_id: {producto_id}")
 
         if cantidad is None or unidad_medida is None or fecha_compra is None or producto_id is None:
             return {"error": "Datos incompletos en la compra para crear bodega"}
 
+        # Obtener los datos del producto desde el servicio-proveedores
+        producto = obtener_producto_por_id_desde_servicio(producto_id)
+        print("DEBUG producto:", producto)
+
+        if not producto:
+            return {"error": f"El producto con ID {producto_id} no existe en el servicio-proveedores"}
+
+        tipo_insumo = producto.get("tipo_insumo")
+        duracion_insumo = producto.get("duracion_insumo")
+
+        if not tipo_insumo or not duracion_insumo:
+            return {"error": "El producto no tiene configurados los campos tipo_insumo o duracion_insumo"}
+
         # Convertir a kilogramos
         cantidad_en_kg = convertir_a_kg(cantidad, unidad_medida)
-        print(f"Cantidad convertida a kg: {cantidad_en_kg}")
+        print(f"DEBUG cantidad_en_kg ajustada: {cantidad_en_kg}")
 
         fecha_compra_formateada = parse_fecha_compra(fecha_compra)
 
+        # Registrar en la tabla bodega
         conexion = obtener_conexion()
         with conexion.cursor() as cursor:
             cursor.execute("SELECT id, cantidad FROM bodega WHERE producto_id = %s", (producto_id,))
@@ -228,8 +254,8 @@ def crear_bodega(compra_proveedor_id, tipo_insumo, duracion_insumo):
                 """, (
                     compra_proveedor_id,
                     producto_id,
-                    cantidad_en_kg,  
-                    unidad_medida,  
+                    cantidad_en_kg,
+                    unidad_medida,
                     tipo_insumo,
                     duracion_insumo,
                     fecha_compra_formateada
@@ -240,17 +266,14 @@ def crear_bodega(compra_proveedor_id, tipo_insumo, duracion_insumo):
             return {"mensaje": mensaje}
 
     except mysql.connector.Error as e:
-        print(f"Error al crear el registro en bodega: {e}")
+        print(f"DEBUG Error al crear el registro en bodega: {e}")
         return {"error": "Error al crear el registro en bodega"}
     except ValueError as ve:
-        print(f"Error de conversión de unidad: {ve}")
+        print(f"DEBUG Error de conversión de unidad: {ve}")
         return {"error": str(ve)}
     finally:
         if conexion:
             conexion.close()
-
-
-
 
 def obtener_bodega_por_id(bodega_id):
     conexion = None
