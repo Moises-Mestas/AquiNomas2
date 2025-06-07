@@ -1,12 +1,11 @@
 package com.example.serviciopedido.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
-import java.math.BigDecimal; // Importa BigDecimal
+
+import java.math.BigDecimal;
 
 @Entity
-@Data
+@Table(name = "menu")
 public class Menu {
 
     @Id
@@ -16,29 +15,21 @@ public class Menu {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion", length = 255)
+    @Column(name = "descripcion", nullable = true, length = 255)
     private String descripcion;
 
-    // Cambia a BigDecimal en lugar de Double
-    @Column(name = "precio", precision = 10, scale = 2)
+    @Column(name = "precio", nullable = true, precision = 10, scale = 2)
     private BigDecimal precio;
 
-    @Column(name = "tipo", length = 100)
+    @Column(name = "tipo", nullable = true, length = 100)
     private String tipo;
 
-    @Column(name = "imagen", columnDefinition = "TEXT")
+    @Column(name = "imagen", nullable = true, columnDefinition = "TEXT")
     private String imagen;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receta_id", nullable = false)
-
-    @JsonIgnore
-    private Receta receta;
-
     public Menu() {
-    }
 
-    // Getters and Setters
+    }
 
     public Integer getId() {
         return id;
@@ -88,22 +79,13 @@ public class Menu {
         this.imagen = imagen;
     }
 
-    public Receta getReceta() {
-        return receta;
-    }
-
-    public void setReceta(Receta receta) {
-        this.receta = receta;
-    }
-
-    public Menu(Integer id, String nombre, String descripcion, BigDecimal precio, String tipo, String imagen, Receta receta) {
+    public Menu(Integer id, String nombre, String descripcion, BigDecimal precio, String tipo, String imagen) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.tipo = tipo;
         this.imagen = imagen;
-        this.receta = receta;
     }
 
     @Override
@@ -115,7 +97,6 @@ public class Menu {
                 ", precio=" + precio +
                 ", tipo='" + tipo + '\'' +
                 ", imagen='" + imagen + '\'' +
-                ", receta=" + receta +
                 '}';
     }
 }

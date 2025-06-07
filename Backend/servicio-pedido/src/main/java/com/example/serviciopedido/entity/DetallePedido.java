@@ -1,48 +1,36 @@
 package com.example.serviciopedido.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.serviciopedido.dto.Cliente;
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Entity
-@Data
+@Table(name = "detalle_pedido")
 public class DetallePedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id", nullable = false)
-    @JsonIgnore
-    private Pedido pedido;
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id", nullable = true)
+    private Cliente cliente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id", nullable = false)
-    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
     private Menu menu;
 
-    @Column(name = "cantidad")
+    @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 
-    @Column(name = "precio_unitario", precision = 10, scale = 2)
+    @Column(name = "precio_unitario", nullable = true, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
     public DetallePedido() {
-        // Constructor por defecto
+
     }
 
-    public DetallePedido(Integer id, Pedido pedido, Menu menu, Integer cantidad, BigDecimal precioUnitario) {
-        this.id = id;
-        this.pedido = pedido;
-        this.menu = menu;
-        this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-    }
-
-    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -51,12 +39,12 @@ public class DetallePedido {
         this.id = id;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public Menu getMenu() {
@@ -83,11 +71,19 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
+    public DetallePedido(Integer id, Menu menu, Cliente cliente, Integer cantidad, BigDecimal precioUnitario) {
+        this.id = id;
+        this.menu = menu;
+        this.cliente = cliente;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
+    }
+
     @Override
     public String toString() {
         return "DetallePedido{" +
                 "id=" + id +
-                ", pedido=" + pedido +
+                ", cliente=" + cliente +
                 ", menu=" + menu +
                 ", cantidad=" + cantidad +
                 ", precioUnitario=" + precioUnitario +

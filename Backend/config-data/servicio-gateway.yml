@@ -25,3 +25,9 @@ spring:
           predicates:
             - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
 
+        #========servicio pedido=======#
+        - id: servicio-cliente
+          uri: lb://servicio-cliente
+          predicates:
+            - Path=/clientes/**, /administradores/**
+

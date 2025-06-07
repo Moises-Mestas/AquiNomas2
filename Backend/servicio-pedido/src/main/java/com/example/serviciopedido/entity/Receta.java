@@ -1,10 +1,9 @@
 package com.example.serviciopedido.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
-@Data
+@Table(name = "receta")
 public class Receta {
 
     @Id
@@ -14,26 +13,18 @@ public class Receta {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion", columnDefinition = "TEXT")
+    @Column(name = "descripcion", nullable = true, columnDefinition = "TEXT")
     private String descripcion;
 
-    @Column(name = "cantidad")
+    @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 
-    @Column(name = "unidad_medida", length = 50)
+    @Column(name = "unidad_medida", nullable = true, length = 50)
     private String unidadMedida;
 
-    public Receta() {
-        // Default constructor
-    }
-
-    public Receta(Integer id, String nombre, String descripcion, Integer cantidad, String unidadMedida) {
-        this.id = id;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.cantidad = cantidad;
-        this.unidadMedida = unidadMedida;
-    }
+    @ManyToOne
+    @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
+    private Menu menu;
 
     // Getters and Setters
 
@@ -77,6 +68,14 @@ public class Receta {
         this.unidadMedida = unidadMedida;
     }
 
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
+
     @Override
     public String toString() {
         return "Receta{" +
@@ -85,6 +84,7 @@ public class Receta {
                 ", descripcion='" + descripcion + '\'' +
                 ", cantidad=" + cantidad +
                 ", unidadMedida='" + unidadMedida + '\'' +
+                ", menu=" + menu +
                 '}';
     }
 }

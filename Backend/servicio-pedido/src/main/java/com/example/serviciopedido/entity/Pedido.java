@@ -1,36 +1,33 @@
 package com.example.serviciopedido.entity;
 
+import com.example.serviciopedido.dto.Administrador;
 import jakarta.persistence.*;
-import lombok.Data;
+import java.sql.Timestamp;
 
 @Entity
-@Data
+@Table(name = "pedido")
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "cliente_id", nullable = false)
-    private Integer clienteId;
+    @ManyToOne
+    @JoinColumn(name = "administrador_id", referencedColumnName = "id", nullable = true)
+    private Administrador administrador;
 
-    @Column(name = "fecha_pedido", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private java.sql.Timestamp fechaPedido;
+    @ManyToOne
+    @JoinColumn(name = "detalle_pedido_id", referencedColumnName = "id", nullable = true)
+    private DetallePedido detallePedido;
+
+    @Column(name = "fecha_pedido", nullable = true, insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Timestamp fechaPedido;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_pedido", nullable = false, columnDefinition = "ENUM('pendiente', 'iniciado', 'completado', 'cancelado') DEFAULT 'pendiente'")
+    @Column(name = "estado_pedido", nullable = true, columnDefinition = "ENUM('PENDIENTE', 'INICIADO', 'COMPLETADO', 'CANCELADO') DEFAULT 'PENDIENTE'")
     private EstadoPedido estadoPedido;
 
-    public Pedido() {
-        // Default constructor
-    }
-
-    public Pedido(Integer id, Integer clienteId, java.sql.Timestamp fechaPedido, EstadoPedido estadoPedido) {
-        this.id = id;
-        this.clienteId = clienteId;
-        this.fechaPedido = fechaPedido;
-        this.estadoPedido = estadoPedido;
-    }
+    // Getters and Setters
 
     public Integer getId() {
         return id;
@@ -40,19 +37,27 @@ public class Pedido {
         this.id = id;
     }
 
-    public Integer getClienteId() {
-        return clienteId;
+    public Administrador getAdministrador() {
+        return administrador;
     }
 
-    public void setClienteId(Integer clienteId) {
-        this.clienteId = clienteId;
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
     }
 
-    public java.sql.Timestamp getFechaPedido() {
+    public DetallePedido getDetallePedido() {
+        return detallePedido;
+    }
+
+    public void setDetallePedido(DetallePedido detallePedido) {
+        this.detallePedido = detallePedido;
+    }
+
+    public Timestamp getFechaPedido() {
         return fechaPedido;
     }
 
-    public void setFechaPedido(java.sql.Timestamp fechaPedido) {
+    public void setFechaPedido(Timestamp fechaPedido) {
         this.fechaPedido = fechaPedido;
     }
 
@@ -68,7 +73,8 @@ public class Pedido {
     public String toString() {
         return "Pedido{" +
                 "id=" + id +
-                ", clienteId=" + clienteId +
+                ", administrador=" + administrador +
+                ", detallePedido=" + detallePedido +
                 ", fechaPedido=" + fechaPedido +
                 ", estadoPedido=" + estadoPedido +
                 '}';
