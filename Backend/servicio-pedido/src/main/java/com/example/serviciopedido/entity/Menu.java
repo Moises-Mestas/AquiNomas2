@@ -1,5 +1,6 @@
 package com.example.serviciopedido.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal; // Importa BigDecimal
@@ -30,6 +31,8 @@ public class Menu {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receta_id", nullable = false)
+
+    @JsonIgnore
     private Receta receta;
 
     public Menu() {

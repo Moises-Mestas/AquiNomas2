@@ -18,7 +18,7 @@ public class Pedido {
     private java.sql.Timestamp fechaPedido;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_pedido", nullable = false, columnDefinition = "ENUM('pendiente', 'en preparación', 'completado') DEFAULT 'pendiente'")
+    @Column(name = "estado_pedido", nullable = false, columnDefinition = "ENUM('pendiente', 'iniciado', 'completado', 'cancelado') DEFAULT 'pendiente'")
     private EstadoPedido estadoPedido;
 
     public Pedido() {
