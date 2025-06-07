@@ -27,9 +27,13 @@ CREATE TABLE compra_proveedor (
 );
 
 
--- Base de datos insumo_db
-CREATE DATABASE insumo_db;
-USE insumo_db;
+
+
+
+-- Base de datos inventario_db
+CREATE DATABASE inventario_db;
+
+USE inventario_db;
 
 CREATE TABLE bodega (
     id INT PRIMARY KEY,
@@ -44,9 +48,6 @@ CREATE TABLE bodega (
 );
 
 
--- Base de datos inventario_db
-CREATE DATABASE inventario_db;
-USE inventario_db;
 
 CREATE TABLE inventario_cocina (
     id INT PRIMARY KEY,
@@ -68,26 +69,6 @@ CREATE TABLE inventario_barra (
     FOREIGN KEY (bodega_id) REFERENCES insumo_db.bodega(id)
 );
 
-CREATE TABLE receta (
-    id INT PRIMARY KEY,
-    inventario_cocina_id INT,
-    inventario_barra_id INT,
-    cantidad INT,
-    unidad_medida VARCHAR(100),
-    FOREIGN KEY (inventario_cocina_id) REFERENCES inventario_cocina(id),
-    FOREIGN KEY (inventario_barra_id) REFERENCES inventario_barra(id)
-);
-
-CREATE TABLE menu (
-    id INT PRIMARY KEY,
-    nombre VARCHAR(100),
-    recetas_id INT,
-    descripcion VARCHAR(100),
-    precio DECIMAL(10,2),
-    tipo VARCHAR(100),
-    imagen TEXT,
-    FOREIGN KEY (recetas_id) REFERENCES receta(id)
-);
 
 
 -- Base de datos pedido_db
@@ -114,6 +95,26 @@ CREATE TABLE detalle_pedido (
     FOREIGN KEY (menu_id) REFERENCES inventario_db.menu(id)
 );
 
+CREATE TABLE receta (
+    id INT PRIMARY KEY,
+    inventario_cocina_id INT,
+    inventario_barra_id INT,
+    cantidad INT,
+    unidad_medida VARCHAR(100),
+    FOREIGN KEY (inventario_cocina_id) REFERENCES inventario_cocina(id),
+    FOREIGN KEY (inventario_barra_id) REFERENCES inventario_barra(id)
+);
+
+CREATE TABLE menu (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(100),
+    recetas_id INT,
+    descripcion VARCHAR(100),
+    precio DECIMAL(10,2),
+    tipo VARCHAR(100),
+    imagen TEXT,
+    FOREIGN KEY (recetas_id) REFERENCES receta(id)
+);
 
 -- Base de datos cliente_db
 CREATE DATABASE cliente_db;
