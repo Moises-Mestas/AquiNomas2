@@ -3,6 +3,8 @@ package com.example.serviciopedido.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 public class DetallePedido {
@@ -23,13 +25,13 @@ public class DetallePedido {
     private Integer cantidad;
 
     @Column(name = "precio_unitario", precision = 10, scale = 2)
-    private Double precioUnitario;
+    private BigDecimal precioUnitario;
 
     public DetallePedido() {
         // Constructor por defecto
     }
 
-    public DetallePedido(Integer id, Pedido pedido, Menu menu, Integer cantidad, Double precioUnitario) {
+    public DetallePedido(Integer id, Pedido pedido, Menu menu, Integer cantidad, BigDecimal precioUnitario) {
         this.id = id;
         this.pedido = pedido;
         this.menu = menu;
@@ -38,7 +40,6 @@ public class DetallePedido {
     }
 
     // Getters y Setters
-
     public Integer getId() {
         return id;
     }
@@ -71,11 +72,11 @@ public class DetallePedido {
         this.cantidad = cantidad;
     }
 
-    public Double getPrecioUnitario() {
+    public BigDecimal getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(Double precioUnitario) {
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 

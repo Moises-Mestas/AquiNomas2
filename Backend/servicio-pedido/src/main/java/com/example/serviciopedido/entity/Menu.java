@@ -2,6 +2,7 @@ package com.example.serviciopedido.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.math.BigDecimal; // Importa BigDecimal
 
 @Entity
 @Data
@@ -17,8 +18,9 @@ public class Menu {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
+    // Cambia a BigDecimal en lugar de Double
     @Column(name = "precio", precision = 10, scale = 2)
-    private Double precio;
+    private BigDecimal precio;
 
     @Column(name = "tipo", length = 100)
     private String tipo;
@@ -31,7 +33,6 @@ public class Menu {
     private Receta receta;
 
     public Menu() {
-
     }
 
     // Getters and Setters
@@ -60,11 +61,11 @@ public class Menu {
         this.descripcion = descripcion;
     }
 
-    public Double getPrecio() {
+    public BigDecimal getPrecio() {
         return precio;
     }
 
-    public void setPrecio(Double precio) {
+    public void setPrecio(BigDecimal precio) {
         this.precio = precio;
     }
 
@@ -92,7 +93,7 @@ public class Menu {
         this.receta = receta;
     }
 
-    public Menu(Integer id, String nombre, String descripcion, Double precio, String tipo, String imagen, Receta receta) {
+    public Menu(Integer id, String nombre, String descripcion, BigDecimal precio, String tipo, String imagen, Receta receta) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
