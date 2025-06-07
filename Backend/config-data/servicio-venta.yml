@@ -37,7 +37,7 @@ eureka:
 resilience4j.circuitbreaker:
   instances:
 
-    pedidoCircuitBreaker:
+    pedidoCircuitBreaker:  # Nombre del Circuit Breaker para pedido p
       registerHealthIndicator: true
       slidingWindowSize: 10
       permittedNumberOfCallsInHalfOpenState: 3

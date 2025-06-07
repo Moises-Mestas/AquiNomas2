@@ -11,4 +11,6 @@ public interface VentaService {
     public Venta actualizar(Venta venta);
     public Optional<Venta> listarPorId(Integer id);
     public void eliminarPorId(Integer id);
+    public List<Venta> buscarPorMetodoPago(String metodoPago);
+    public List<Venta> buscarPorClienteId(Integer clienteId);
 }

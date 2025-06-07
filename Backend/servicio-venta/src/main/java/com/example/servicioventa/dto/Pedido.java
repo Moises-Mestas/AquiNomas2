@@ -10,7 +10,7 @@ public class Pedido {
 
     // Enum para estado del pedido
     public enum EstadoPedido {
-        PENDIENTE, EN_PREPARACION, COMPLETADO, CANCELADO
+        CANCELADO, COMPLETADO, INICIADO, PENDIENTE
     }
 
     public Integer getId() {

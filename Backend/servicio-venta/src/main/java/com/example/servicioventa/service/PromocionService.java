@@ -12,4 +12,5 @@ public interface PromocionService {
     public Promocion actualizar(Promocion promocion);
     public Optional<Promocion> listarPorId(Integer id);
     public void eliminarPorId(Integer id);
+    public List<Promocion> buscarPorMotivo(String motivo);
 }

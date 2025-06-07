@@ -38,4 +38,96 @@ public class ComprobantePago {
     public enum TipoComprobante {
         BOLETA, FACTURA
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Venta getVenta() {
+        return venta;
+    }
+
+    public void setVenta(Venta venta) {
+        this.venta = venta;
+    }
+
+    public TipoComprobante getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoComprobante tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getNumeroSerie() {
+        return numeroSerie;
+    }
+
+    public void setNumeroSerie(String numeroSerie) {
+        this.numeroSerie = numeroSerie;
+    }
+
+    public String getNumeroComprobante() {
+        return numeroComprobante;
+    }
+
+    public void setNumeroComprobante(String numeroComprobante) {
+        this.numeroComprobante = numeroComprobante;
+    }
+
+    public LocalDateTime getFechaEmision() {
+        return fechaEmision;
+    }
+
+    public void setFechaEmision(LocalDateTime fechaEmision) {
+        this.fechaEmision = fechaEmision;
+    }
+
+    public BigDecimal getIgv() {
+        return igv;
+    }
+
+    public void setIgv(BigDecimal igv) {
+        this.igv = igv;
+    }
+
+    public BigDecimal getMontoNeto() {
+        return montoNeto;
+    }
+
+    public void setMontoNeto(BigDecimal montoNeto) {
+        this.montoNeto = montoNeto;
+    }
+
+    public ComprobantePago() {
+    }
+
+    @Override
+    public String toString() {
+        return "ComprobantePago{" +
+                "id=" + id +
+                ", venta=" + venta +
+                ", tipo=" + tipo +
+                ", numeroSerie='" + numeroSerie + '\'' +
+                ", numeroComprobante='" + numeroComprobante + '\'' +
+                ", fechaEmision=" + fechaEmision +
+                ", igv=" + igv +
+                ", montoNeto=" + montoNeto +
+                '}';
+    }
+
+    public ComprobantePago(Integer id, Venta venta, TipoComprobante tipo, String numeroSerie, String numeroComprobante, LocalDateTime fechaEmision, BigDecimal igv, BigDecimal montoNeto) {
+        this.id = id;
+        this.venta = venta;
+        this.tipo = tipo;
+        this.numeroSerie = numeroSerie;
+        this.numeroComprobante = numeroComprobante;
+        this.fechaEmision = fechaEmision;
+        this.igv = igv;
+        this.montoNeto = montoNeto;
+    }
 }

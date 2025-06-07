@@ -8,8 +8,9 @@ import java.util.Optional;
 
 public interface ComprobantePagoService {
     public List<ComprobantePago> listar();
-    public ComprobantePago guardarVenta(ComprobantePago comprobantePago);
+    public ComprobantePago guardarComprobante(ComprobantePago comprobantePago);
     public ComprobantePago actualizar(ComprobantePago comprobantePago);
     public Optional<ComprobantePago> listarPorId(Integer id);
     public void eliminarPorId(Integer id);
+    public List<ComprobantePago> buscarPorNumeroSerie(String numeroSerie);
 }
