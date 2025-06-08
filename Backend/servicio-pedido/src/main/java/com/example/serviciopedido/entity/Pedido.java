@@ -1,5 +1,6 @@
 package com.example.serviciopedido.entity;
 
+
 import com.example.serviciopedido.dto.Administrador;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
@@ -12,12 +13,12 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "administrador_id", referencedColumnName = "id", nullable = true)
-    private Administrador administrador;
+    @ManyToOne  // Relación con Administrador
+    @JoinColumn(name = "administrador_id", referencedColumnName = "id", nullable = false)
+    private Administrador administrador;  // Cambiado a la entidad Administrador
 
     @ManyToOne
-    @JoinColumn(name = "detalle_pedido_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "detalle_pedido_id", referencedColumnName = "id", nullable = false)
     private DetallePedido detallePedido;
 
     @Column(name = "fecha_pedido", nullable = true, insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -27,8 +28,10 @@ public class Pedido {
     @Column(name = "estado_pedido", nullable = true, columnDefinition = "ENUM('PENDIENTE', 'INICIADO', 'COMPLETADO', 'CANCELADO') DEFAULT 'PENDIENTE'")
     private EstadoPedido estadoPedido;
 
-    // Getters and Setters
+    public Pedido() {
+    }
 
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -80,3 +83,5 @@ public class Pedido {
                 '}';
     }
 }
+
+

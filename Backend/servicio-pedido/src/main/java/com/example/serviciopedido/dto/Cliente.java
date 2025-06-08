@@ -1,42 +1,35 @@
 package com.example.serviciopedido.dto;
 
+import com.example.serviciopedido.entity.DetallePedido;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
+    @OneToMany(mappedBy = "cliente")
+    private List<DetallePedido> detallesPedido;
 
-    @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
-
-    @Column(name = "apellido", nullable = false, length = 100)
     private String apellido;
-
-    @Column(name = "dni", nullable = false, length = 15)
     private String dni;
-
-    @Column(name = "telefono", length = 20)
     private String telefono;
-
-    @Column(name = "email", length = 100)
     private String email;
-
-    @Column(name = "direccion", length = 255)
     private String direccion;
 
-    @Column(name = "fecha_registro")
+    @Column(name = "fecha_registro", updatable = false)
     private Timestamp fechaRegistro;
 
-    // Constructor sin parámetros
-    public Cliente() {}
+    // Constructor vacío
+    public Cliente() {
+    }
 
-    // Constructor con todos los parámetros
-    public Cliente(int id, String nombre, String apellido, String dni, String telefono, String email, String direccion, Timestamp fechaRegistro) {
-        this.id = id;
+    // Constructor con argumentos
+    public Cliente(String nombre, String apellido, String dni, String telefono, String email, String direccion, Timestamp fechaRegistro) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
@@ -47,11 +40,11 @@ public class Cliente {
     }
 
     // Getters y Setters
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -111,6 +104,7 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
+    // toString
     @Override
     public String toString() {
         return "Cliente{" +

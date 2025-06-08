@@ -14,8 +14,9 @@ public class DetallePedido {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id", nullable = false)
     private Cliente cliente;
+
 
     @ManyToOne
     @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
@@ -29,6 +30,15 @@ public class DetallePedido {
 
     public DetallePedido() {
 
+    }
+
+    public DetallePedido(Integer id, Cliente cliente, Menu menu, Integer cantidad, BigDecimal precioUnitario) {
+
+        this.id = id;
+        this.cliente = cliente;
+        this.menu = menu;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
     }
 
     public Integer getId() {
@@ -71,14 +81,6 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
-    public DetallePedido(Integer id, Menu menu, Cliente cliente, Integer cantidad, BigDecimal precioUnitario) {
-        this.id = id;
-        this.menu = menu;
-        this.cliente = cliente;
-        this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-    }
-
     @Override
     public String toString() {
         return "DetallePedido{" +
@@ -90,3 +92,4 @@ public class DetallePedido {
                 '}';
     }
 }
+
