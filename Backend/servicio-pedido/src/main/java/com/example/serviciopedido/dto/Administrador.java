@@ -37,6 +37,8 @@ public class Administrador {
     }
 
     // Getters y Setters
+
+
     public Integer getId() {
         return id;
     }
@@ -45,12 +47,12 @@ public class Administrador {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public List<Pedido> getPedidos() {
+        return pedidos;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
     }
 
     public String getEmail() {
@@ -59,6 +61,14 @@ public class Administrador {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public Timestamp getFechaCreacion() {

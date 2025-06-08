@@ -39,13 +39,20 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
-    // Getters y Setters
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public List<DetallePedido> getDetallesPedido() {
+        return detallesPedido;
+    }
+
+    public void setDetallesPedido(List<DetallePedido> detallesPedido) {
+        this.detallesPedido = detallesPedido;
     }
 
     public String getNombre() {
@@ -72,20 +79,20 @@ public class Cliente {
         this.dni = dni;
     }
 
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public String getDireccion() {
