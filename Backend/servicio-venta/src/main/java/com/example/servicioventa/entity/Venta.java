@@ -1,6 +1,7 @@
 package com.example.servicioventa.entity;
 
 import com.example.servicioventa.dto.Pedido;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,11 @@ public class Venta {
 
     @Column(name = "pedido_id", nullable = false)
     private Long pedidoId; // FK sin relación
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "promocion_id", nullable = true)
+    private Promocion promocion;
 
     @Column(name = "fecha_venta")
     private LocalDateTime fechaVenta;
@@ -45,6 +51,14 @@ public class Venta {
 
     public void setPedidoId(Long pedidoId) {
         this.pedidoId = pedidoId;
+    }
+
+    public Promocion getPromocion() {
+        return promocion;
+    }
+
+    public void setPromocion(Promocion promocion) {
+        this.promocion = promocion;
     }
 
     public LocalDateTime getFechaVenta() {
@@ -79,6 +93,7 @@ public class Venta {
         return "Venta{" +
                 "id=" + id +
                 ", pedidoId=" + pedidoId +
+                ", promocion=" + promocion +
                 ", fechaVenta=" + fechaVenta +
                 ", total=" + total +
                 ", metodoPago=" + metodoPago +

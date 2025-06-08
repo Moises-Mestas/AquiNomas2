@@ -17,8 +17,9 @@ public class ComprobantePago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "venta_id", nullable = false)
-    private Long ventaId; // FK sin relación directa
+    @ManyToOne
+    @JoinColumn(name = "venta_id", nullable = true)
+    private Venta ventaId; // FK sin relación directa
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 20)
@@ -51,11 +52,11 @@ public class ComprobantePago {
         this.id = id;
     }
 
-    public Long getVentaId() {
+    public Venta getVentaId() {
         return ventaId;
     }
 
-    public void setVentaId(Long ventaId) {
+    public void setVentaId(Venta ventaId) {
         this.ventaId = ventaId;
     }
 
@@ -105,22 +106,5 @@ public class ComprobantePago {
 
     public void setMontoNeto(BigDecimal montoNeto) {
         this.montoNeto = montoNeto;
-    }
-
-    public ComprobantePago() {
-    }
-
-    @Override
-    public String toString() {
-        return "ComprobantePago{" +
-                "id=" + id +
-                ", ventaId=" + ventaId +
-                ", tipo=" + tipo +
-                ", numeroSerie='" + numeroSerie + '\'' +
-                ", numeroComprobante='" + numeroComprobante + '\'' +
-                ", fechaEmision=" + fechaEmision +
-                ", igv=" + igv +
-                ", montoNeto=" + montoNeto +
-                '}';
     }
 }

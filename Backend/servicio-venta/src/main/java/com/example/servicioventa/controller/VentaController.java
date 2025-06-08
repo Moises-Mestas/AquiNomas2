@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,20 @@ public class VentaController {
         Venta nuevaVenta = ventaService.guardarVenta(venta);
         return ResponseEntity.status(201).body(nuevaVenta);
     }
+
+    @GetMapping("/buscar/cliente")
+    public ResponseEntity<List<Venta>> buscarPorNombreCliente(@RequestParam String nombreCliente) {
+        List<Venta> ventas = ventaService.buscarPorNombreCliente(nombreCliente);
+        return ventas.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(ventas);
+    }
+
+
+    @GetMapping("/buscar/fecha")
+    public ResponseEntity<List<Venta>> buscarPorFecha(@RequestParam LocalDateTime inicio, @RequestParam LocalDateTime fin) {
+        List<Venta> ventas = ventaService.buscarPorFecha(inicio, fin);
+        return ventas.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(ventas);
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Venta> actualizar(@PathVariable Long id, @RequestBody Venta venta) {

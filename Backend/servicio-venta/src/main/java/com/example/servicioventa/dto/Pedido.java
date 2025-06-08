@@ -1,12 +1,17 @@
 package com.example.servicioventa.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class Pedido {
     private Long id;
-    private LocalDateTime fechaPedido;
+    private String nombreCliente;
+    private OffsetDateTime fechaPedido;
     private BigDecimal total;
+    @JsonProperty("estadoPedido") // Mapea el nombre correcto desde JSON
     private String estado;
 
     public Long getId() {
@@ -17,11 +22,19 @@ public class Pedido {
         this.id = id;
     }
 
-    public LocalDateTime getFechaPedido() {
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public OffsetDateTime getFechaPedido() {
         return fechaPedido;
     }
 
-    public void setFechaPedido(LocalDateTime fechaPedido) {
+    public void setFechaPedido(OffsetDateTime fechaPedido) {
         this.fechaPedido = fechaPedido;
     }
 
