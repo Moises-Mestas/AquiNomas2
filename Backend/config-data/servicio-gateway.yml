@@ -20,8 +20,8 @@ spring:
             - Path=/auth/
 
         #========servicio pedido=======#
-        - id: servicio-pedido
-          uri: lb://servicio-pedido
+        - id: servicio-pedido2
+          uri: lb://servicio-pedido2
           predicates:
             - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
 
