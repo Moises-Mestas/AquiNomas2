@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-
 @Entity
 @Data
 public class DetallePedido {
@@ -14,13 +13,8 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
-    @ManyToOne
-    @JoinColumn(name = "pedido_id")  // Relación con Pedido
-    private Pedido pedido;
-
     @Transient
-    private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign@Transient
+    private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign
 
     private Integer clienteId;
 
@@ -38,7 +32,6 @@ public class DetallePedido {
 
     }
 
-
     public Integer getId() {
         return id;
     }
@@ -46,8 +39,6 @@ public class DetallePedido {
     public void setId(Integer id) {
         this.id = id;
     }
-
-
 
     public Cliente getCliente() {
         return cliente;
@@ -89,21 +80,19 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
-    public DetallePedido(Integer id, Integer clienteId, Cliente cliente, Menu menu, int cantidad, BigDecimal precioUnitario) {
+    public DetallePedido(Integer id, Cliente cliente, Integer clienteId, Menu menu, BigDecimal precioUnitario, int cantidad) {
         this.id = id;
-
-        this.clienteId = clienteId;
         this.cliente = cliente;
+        this.clienteId = clienteId;
         this.menu = menu;
-        this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
+        this.cantidad = cantidad;
     }
 
     @Override
     public String toString() {
         return "DetallePedido{" +
                 "id=" + id +
-
                 ", cliente=" + cliente +
                 ", clienteId=" + clienteId +
                 ", menu=" + menu +

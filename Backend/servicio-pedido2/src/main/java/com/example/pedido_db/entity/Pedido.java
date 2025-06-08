@@ -16,12 +16,11 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "detalle_pedido_id", nullable = false)
+    private Integer detallePedidoId; // Solo el ID de detalle_pedido, no una relación directa
 
-
-    @ManyToOne
-    @JoinColumn(name = "detalle_pedido_id", referencedColumnName = "id", nullable = false)
-    private DetallePedido detallePedido;
-
+    @Transient  // Añadido para que no sea persistido directamente en la base de datos
+    private DetallePedido detallePedido; // Agregado para contener el detalle completo del pedido (no solo el ID)
 
     @Column(name = "fecha_pedido", columnDefinition = "TIMESTAMP")
     private Timestamp fechaPedido; // Timestamp mapeado a java.sql.Timestamp
@@ -30,16 +29,9 @@ public class Pedido {
     @Column(name = "estado_pedido", nullable = false, columnDefinition = "ENUM('pendiente', 'iniciado', 'completado', 'cancelado') DEFAULT 'pendiente'")
     private EstadoPedido estadoPedido;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // Evitar recursión infinita
-    @JsonManagedReference // Evita la recursión infinita en la relación @OneToMany
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "pedido_id")
-    private List<DetallePedido> detalle; // Lista de detalles del pedido (productos asociados)
-
     public Pedido() {
 
     }
-
 
     public Integer getId() {
         return id;
@@ -47,6 +39,14 @@ public class Pedido {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getDetallePedidoId() {
+        return detallePedidoId;
+    }
+
+    public void setDetallePedidoId(Integer detallePedidoId) {
+        this.detallePedidoId = detallePedidoId;
     }
 
     public DetallePedido getDetallePedido() {
@@ -73,31 +73,23 @@ public class Pedido {
         this.estadoPedido = estadoPedido;
     }
 
-    public List<DetallePedido> getDetalle() {
-        return detalle;
-    }
-
-    public void setDetalle(List<DetallePedido> detalle) {
-        this.detalle = detalle;
+    public Pedido(Integer id, Integer detallePedidoId, DetallePedido detallePedido, Timestamp fechaPedido, EstadoPedido estadoPedido) {
+        this.id = id;
+        this.detallePedidoId = detallePedidoId;
+        this.detallePedido = detallePedido;
+        this.fechaPedido = fechaPedido;
+        this.estadoPedido = estadoPedido;
     }
 
     @Override
     public String toString() {
         return "Pedido{" +
                 "id=" + id +
-
+                ", detallePedidoId=" + detallePedidoId +
                 ", detallePedido=" + detallePedido +
                 ", fechaPedido=" + fechaPedido +
                 ", estadoPedido=" + estadoPedido +
-                ", detalle=" + detalle +
                 '}';
     }
-
-    public Pedido(Integer id, Integer administradorId, DetallePedido detallePedido, Timestamp fechaPedido, EstadoPedido estadoPedido, List<DetallePedido> detalle) {
-        this.id = id;
-        this.detallePedido = detallePedido;
-        this.fechaPedido = fechaPedido;
-        this.estadoPedido = estadoPedido;
-        this.detalle = detalle;
-    }
 }
+
