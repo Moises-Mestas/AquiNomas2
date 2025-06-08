@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class Cliente {
+public class ClienteDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,12 +26,12 @@ public class Cliente {
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     // Constructor vacío
-    public Cliente() {
+    public ClienteDTO() {
     }
 
     // Constructor con todos los campos
-    public Cliente(Integer id, String nombre, String apellido, String dni, String telefono,
-                   String email, String direccion, LocalDateTime fechaRegistro) {
+    public ClienteDTO(Integer id, String nombre, String apellido, String dni, String telefono,
+                      String email, String direccion, LocalDateTime fechaRegistro) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;

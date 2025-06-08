@@ -1,6 +1,6 @@
 package com.example.serviciopedido.entity;
 
-import com.example.serviciopedido.dto.Administrador;
+import com.example.serviciopedido.dto.AdministradorDTO;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -15,7 +15,7 @@ public class Pedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "administrador_id", nullable = false)
-    private Administrador administrador;
+    private AdministradorDTO administrador;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "detalle_pedido_id", nullable = false)
@@ -40,11 +40,11 @@ public class Pedido {
         this.id = id;
     }
 
-    public Administrador getAdministrador() {
+    public AdministradorDTO getAdministrador() {
         return administrador;
     }
 
-    public void setAdministrador(Administrador administrador) {
+    public void setAdministrador(AdministradorDTO administrador) {
         this.administrador = administrador;
     }
 
@@ -72,7 +72,7 @@ public class Pedido {
         this.estadoPedido = estadoPedido;
     }
 
-    public Pedido(Integer id, Administrador administrador, DetallePedido detallePedido, Timestamp fechaPedido, String estadoPedido) {
+    public Pedido(Integer id, AdministradorDTO administrador, DetallePedido detallePedido, Timestamp fechaPedido, String estadoPedido) {
         this.id = id;
         this.administrador = administrador;
         this.detallePedido = detallePedido;

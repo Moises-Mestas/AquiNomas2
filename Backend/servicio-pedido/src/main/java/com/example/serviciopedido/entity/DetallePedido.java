@@ -1,6 +1,6 @@
 package com.example.serviciopedido.entity;
 
-import com.example.serviciopedido.dto.Cliente;
+import com.example.serviciopedido.dto.ClienteDTO;
 import jakarta.persistence.*;
 
 
@@ -16,7 +16,7 @@ public class DetallePedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
-    private Cliente cliente;
+    private ClienteDTO cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false)
@@ -41,11 +41,11 @@ public class DetallePedido {
         this.id = id;
     }
 
-    public Cliente getCliente() {
+    public ClienteDTO getCliente() {
         return cliente;
     }
 
-    public void setCliente(Cliente cliente) {
+    public void setCliente(ClienteDTO cliente) {
         this.cliente = cliente;
     }
 
@@ -73,7 +73,7 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
-    public DetallePedido(Integer id, Cliente cliente, Menu menu, Integer cantidad, BigDecimal precioUnitario) {
+    public DetallePedido(Integer id, ClienteDTO cliente, Menu menu, Integer cantidad, BigDecimal precioUnitario) {
         this.id = id;
         this.cliente = cliente;
         this.menu = menu;
