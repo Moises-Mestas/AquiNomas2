@@ -13,9 +13,9 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "administrador_id", nullable = false)
-    private AdministradorDTO administrador;
+    // Eliminamos la relación JPA, ya que estamos usando DTO
+    @Transient
+    private AdministradorDTO administrador;  // Usamos DTO en lugar de entidad JPA
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "detalle_pedido_id", nullable = false)
@@ -28,10 +28,9 @@ public class Pedido {
     private String estadoPedido;
 
     public Pedido() {
-
     }
 
-    // Getters and Setters
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -69,14 +68,6 @@ public class Pedido {
     }
 
     public void setEstadoPedido(String estadoPedido) {
-        this.estadoPedido = estadoPedido;
-    }
-
-    public Pedido(Integer id, AdministradorDTO administrador, DetallePedido detallePedido, Timestamp fechaPedido, String estadoPedido) {
-        this.id = id;
-        this.administrador = administrador;
-        this.detallePedido = detallePedido;
-        this.fechaPedido = fechaPedido;
         this.estadoPedido = estadoPedido;
     }
 

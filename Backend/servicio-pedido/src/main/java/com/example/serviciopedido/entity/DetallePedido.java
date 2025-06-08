@@ -3,7 +3,6 @@ package com.example.serviciopedido.entity;
 import com.example.serviciopedido.dto.ClienteDTO;
 import jakarta.persistence.*;
 
-
 import java.math.BigDecimal;
 
 @Entity
@@ -14,9 +13,9 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", nullable = false)
-    private ClienteDTO cliente;
+    // Eliminamos la relación JPA, ya que estamos usando DTO
+    @Transient
+    private ClienteDTO cliente;  // Usamos DTO en lugar de entidad JPA
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false)
@@ -29,10 +28,9 @@ public class DetallePedido {
     private BigDecimal precioUnitario;
 
     public DetallePedido() {
-
     }
 
-    // Getters and Setters
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -73,14 +71,6 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
-    public DetallePedido(Integer id, ClienteDTO cliente, Menu menu, Integer cantidad, BigDecimal precioUnitario) {
-        this.id = id;
-        this.cliente = cliente;
-        this.menu = menu;
-        this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-    }
-
     @Override
     public String toString() {
         return "DetallePedido{" +
@@ -92,4 +82,3 @@ public class DetallePedido {
                 '}';
     }
 }
-

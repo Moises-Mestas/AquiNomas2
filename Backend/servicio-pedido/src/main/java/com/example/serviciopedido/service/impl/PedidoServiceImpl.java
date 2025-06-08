@@ -1,9 +1,8 @@
 package com.example.serviciopedido.service.impl;
 
 import com.example.serviciopedido.entity.Pedido;
-import com.example.serviciopedido.repository.PedidoRepository;
-import com.example.serviciopedido.dto.AdministradorDTO;
 import com.example.serviciopedido.feign.ServicioClienteFeignClient;
+import com.example.serviciopedido.repository.PedidoRepository;
 import com.example.serviciopedido.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,50 +14,47 @@ import java.util.Optional;
 public class PedidoServiceImpl implements PedidoService {
 
     private final PedidoRepository pedidoRepository;
-    private final ServicioClienteFeignClient servicioClienteFeignClient;
+    private final ServicioClienteFeignClient administradorFeignClient;
 
     @Autowired
-    public PedidoServiceImpl(PedidoRepository pedidoRepository, ServicioClienteFeignClient servicioClienteFeignClient) {
+    public PedidoServiceImpl(PedidoRepository pedidoRepository, ServicioClienteFeignClient administradorFeignClient) {
         this.pedidoRepository = pedidoRepository;
-        this.servicioClienteFeignClient = servicioClienteFeignClient;
+        this.administradorFeignClient = administradorFeignClient;
     }
 
     @Override
     public List<Pedido> listar() {
         List<Pedido> pedidos = pedidoRepository.findAll();
-
-        for (Pedido pedido : pedidos) {
-            AdministradorDTO administrador = servicioClienteFeignClient.getAdministradorById(pedido.getAdministrador().getId());
-            pedido.setAdministrador(administrador);
-        }
-
+        // Aquí no se hace la llamada adicional, Feign y el fallback se encargan de obtener la información
         return pedidos;
     }
 
     @Override
     public Optional<Pedido> listarPorId(Integer id) {
         Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
+        if (pedidoOpt.isPresent()) {
+            // Ya no se hace una llamada a Feign adicional, se puede manejar el pedido con la data del repositorio
+            return Optional.of(pedidoOpt.get());
+        }
 
-        pedidoOpt.ifPresent(pedido -> {
-            AdministradorDTO administrador = servicioClienteFeignClient.getAdministradorById(pedido.getAdministrador().getId());
-            pedido.setAdministrador(administrador);
-        });
-
-        return pedidoOpt;
+        return Optional.empty();
     }
 
     @Override
     public Pedido guardar(Pedido pedido) {
+        // Guardar el pedido en la base de datos
         return pedidoRepository.save(pedido);
     }
 
     @Override
     public Pedido actualizar(Pedido pedido) {
+        // Actualizar el pedido en la base de datos
         return pedidoRepository.save(pedido);
     }
 
     @Override
     public void eliminar(Integer id) {
+        // Eliminar el pedido por ID
         pedidoRepository.deleteById(id);
     }
 }
