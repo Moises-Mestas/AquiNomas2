@@ -213,8 +213,33 @@ def obtener_url_servicio_inventario():
         print(f"[EXCEPCIÓN] Error al obtener URL del servicio-inventario: {e}")
         return None
 
-# Llama a la función para testear
 obtener_url_servicio_inventario()
+
+
+# def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=None, duracion_insumo=None):
+#     global URL_SERVICIO_INVENTARIO
+#     if not URL_SERVICIO_INVENTARIO:
+#         if not obtener_url_servicio_inventario():
+#             return {"error": "No se pudo resolver la URL del servicio-inventario"}
+
+#     url_bodega = f"{URL_SERVICIO_INVENTARIO}/bodega"
+#     payload = {
+#         "compra_proveedor_id": compra_proveedor_id
+#     }
+
+#     print("DEBUG: Payload enviado al servicio-inventario:", payload)
+
+#     try:
+#         response = requests.post(url_bodega, json=payload, timeout=5)
+#         response.raise_for_status()
+#         return response.json()
+#     except requests.exceptions.Timeout:
+#         print("Error: La solicitud al servicio-inventario excedió el tiempo de espera.")
+#         return {"error": "Timeout al contactar con servicio-inventario"}
+#     except requests.exceptions.RequestException as e:
+#         print(f"Error al contactar con servicio-inventario: {e}")
+#         obtener_url_servicio_inventario()
+#         return {"error": f"Error al contactar con servicio-inventario: {str(e)}"}
 
 
 def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=None, duracion_insumo=None):
@@ -223,9 +248,33 @@ def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=No
         if not obtener_url_servicio_inventario():
             return {"error": "No se pudo resolver la URL del servicio-inventario"}
 
+    # Obtener el producto asociado a la compra
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT p.nombre AS nombre_producto
+                FROM compra_proveedor cp
+                JOIN producto p ON cp.producto_id = p.id
+                WHERE cp.id = %s
+            """, (compra_proveedor_id,))
+            producto_data = cursor.fetchone()
+
+            if not producto_data:
+                return {"error": "No se encontró el producto asociado a la compra_proveedor_id."}
+
+            nombre_producto = producto_data["nombre_producto"]
+
+    finally:
+        if conexion:
+            conexion.close()
+
+    # Construir el payload con el nombre del producto
     url_bodega = f"{URL_SERVICIO_INVENTARIO}/bodega"
     payload = {
-        "compra_proveedor_id": compra_proveedor_id
+        "compra_proveedor_id": compra_proveedor_id,
+        "nombre_producto": nombre_producto  # Incluir el nombre del producto
     }
 
     print("DEBUG: Payload enviado al servicio-inventario:", payload)

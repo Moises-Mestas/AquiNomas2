@@ -5,7 +5,8 @@ import os
 import random
 import inventarioBarra
 from tenacity import retry, stop_after_attempt, wait_fixed
-
+from inventarioBarra import alerta_stock_minimo
+from inventarioCocina import *
 app = Flask(__name__)
 PORT = int(os.environ.get("PORT", random.randint(5001, 5999)))
 
@@ -80,12 +81,21 @@ def eliminar_bodega_ruta(bodega_id):
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/inventario-barra', methods=['POST'])
-def crear_inventario_barra_ruta():
+
+
+
+@app.route('/inventario-barra/desde-bodega', methods=['POST'])
+def crear_inventario_barra_desde_bodega_ruta():
     datos = request.json
-    if not datos:
-        return jsonify({"error": "No se envió datos JSON"}), 400
-    resultado = inventarioBarra.crear_inventario_barra(datos)
+    if not datos or "bodega_id" not in datos or "cantidad_disponible" not in datos:
+        return jsonify({"error": "Se requiere 'bodega_id' y 'cantidad_disponible'."}), 400
+
+    resultado = inventarioBarra.crear_inventario_barra_desde_bodega(
+        bodega_id=datos["bodega_id"],
+        cantidad_disponible=datos["cantidad_disponible"],
+        stock_minimo=datos.get("stock_minimo", 0)  # Valor por defecto 0 si no se envía
+    )
+
     if "error" in resultado:
         return jsonify(resultado), 400
     return jsonify(resultado), 201
@@ -93,41 +103,84 @@ def crear_inventario_barra_ruta():
 
 @app.route('/inventario-barra', methods=['GET'])
 def obtener_todos_inventario_barra_ruta():
-    resultado = inventarioBarra.obtener_todos_inventario_barra()
-    if "error" in resultado:
-        return jsonify(resultado), 500
-    return jsonify(resultado), 200
+    try:
+        registros = inventarioBarra.obtener_todos_inventario_barra()
+        return jsonify(registros), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/inventario-barra/<int:id>', methods=['GET'])
 def obtener_inventario_barra_por_id_ruta(id):
-    resultado = inventarioBarra.obtener_inventario_barra_por_id(id)
-    if "error" in resultado:
-        return jsonify(resultado), 404
-    return jsonify(resultado), 200
-
-@app.route('/inventario-barra/<int:id>', methods=['PUT'])
-def actualizar_inventario_barra_ruta(id):
-    datos = request.json
-    if not datos:
-        return jsonify({"error": "No se envió datos JSON"}), 400
-    resultado = inventarioBarra.actualizar_inventario_barra(id, datos)
-    if "error" in resultado:
-        # Asumiendo que error puede ser por no encontrado o mal request
-        if "no encontrado" in resultado["error"].lower():
-            return jsonify(resultado), 404
-        return jsonify(resultado), 400
-    return jsonify(resultado), 200
+    try:
+        registro = inventarioBarra.obtener_inventario_barra_por_id(id)
+        if registro:
+            return jsonify(registro), 200
+        else:
+            return jsonify({"error": "Registro no encontrado"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/inventario-barra/<int:id>', methods=['DELETE'])
 def eliminar_inventario_barra_ruta(id):
-    resultado = inventarioBarra.eliminar_inventario_barra(id)
-    if "error" in resultado:
-        # Si error es por no encontrado, 404; de lo contrario 400
-        if "no encontrado" in resultado["error"].lower():
-            return jsonify(resultado), 404
-        return jsonify(resultado), 400
-    return jsonify(resultado), 200
+    try:
+        resultado = inventarioBarra.eliminar_inventario_barra(id)
+        if "error" in resultado:
+            return jsonify(resultado), 400
+        return jsonify(resultado), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500   
+    
 
+@app.route('/inventario-barra/alerta-stock-minimo', methods=['GET'])
+def ruta_alerta_stock_minimo():
+    resultado = alerta_stock_minimo()
+    return jsonify(resultado)
+
+
+
+# Ruta para crear un registro en inventario_cocina desde bodega
+@app.route('/inventario-cocina/crear', methods=['POST'])
+def ruta_crear_inventario_cocina_desde_bodega():
+    data = request.json
+    bodega_id = data.get("bodega_id")
+    cantidad_disponible = data.get("cantidad_disponible")
+    stock_minimo = data.get("stock_minimo", 0)
+    nombre_producto = data.get("nombre_producto")
+    resultado = crear_inventario_cocina_desde_bodega(bodega_id, cantidad_disponible, stock_minimo, nombre_producto)
+    return jsonify(resultado)
+
+# Ruta para obtener todos los registros de inventario_cocina
+@app.route('/inventario-cocina', methods=['GET'])
+def ruta_obtener_todos_inventario_cocina():
+    resultado = obtener_todos_inventario_cocina()
+    return jsonify(resultado)
+
+# Ruta para obtener un registro específico de inventario_cocina por ID
+@app.route('/inventario-cocina/<int:id>', methods=['GET'])
+def ruta_obtener_inventario_cocina_por_id(id):
+    resultado = obtener_inventario_cocina_por_id(id)
+    return jsonify(resultado)
+
+# Ruta para actualizar un registro de inventario_cocina
+@app.route('/inventario-cocina/<int:id>', methods=['PUT'])
+def ruta_actualizar_inventario_cocina(id):
+    datos = request.json
+    resultado = actualizar_inventario_cocina(id, datos)
+    return jsonify(resultado)
+
+# Ruta para eliminar un registro de inventario_cocina
+@app.route('/inventario-cocina/<int:id>', methods=['DELETE'])
+def ruta_eliminar_inventario_cocina(id):
+    resultado = eliminar_inventario_cocina(id)
+    return jsonify(resultado)
+
+# Ruta para obtener alertas de stock mínimo en inventario_cocina
+@app.route('/inventario-cocina/alerta-stock-minimo', methods=['GET'])
+def ruta_alerta_stock_minimo_cocina():
+    resultado = alerta_stock_minimo_cocina()
+    return jsonify(resultado)
 
 
 

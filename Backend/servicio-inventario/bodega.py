@@ -130,7 +130,7 @@ def obtener_producto_por_id_desde_servicio(producto_id):
         url = f"{URL_SERVICIO_PROVEEDOR}/productos/{producto_id}"
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
-            return response.json()  # Retorna el dict con el producto
+            return response.json()  
         elif response.status_code == 404:
             print(f"Producto con ID {producto_id} no encontrado en el servicio-proveedor")
             return None
@@ -149,13 +149,21 @@ def obtener_todos_bodega():
     try:
         conexion = obtener_conexion()
         with conexion.cursor(dictionary=True) as cursor:
+            # Obtener todos los registros de bodega
             cursor.execute("""
-                SELECT id, compra_proveedor_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
+                SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
                 FROM bodega
             """)
             registros = cursor.fetchall()
 
         for registro in registros:
+            producto = obtener_producto_por_id_desde_servicio(registro["producto_id"])
+            if producto and "nombre" in producto:
+                registro["nombre_producto"] = producto["nombre"]
+            else:
+                registro["nombre_producto"] = "Producto desconocido"
+
+            # Resolver el nombre del proveedor utilizando la compra_proveedor_id
             compra = obtener_compra_proveedor_por_id(registro["compra_proveedor_id"])
             if "error" not in compra:
                 registro["proveedor_nombre"] = compra.get("proveedor_nombre")
@@ -194,14 +202,12 @@ def parse_fecha_compra(fecha_str):
 def crear_bodega(compra_proveedor_id):
     conexion = None
     try:
-        # Obtener los datos de la compra desde el servicio-proveedor
         compra = obtener_compra_proveedor_por_id(compra_proveedor_id)
         print("DEBUG compra:", compra)
 
         if "error" in compra:
             return {"error": compra["error"]}
 
-        # Dividir la cantidad entre 2 para evitar duplicaciones
         cantidad = float(compra.get("cantidad")) / 2
         unidad_medida = compra.get("unidad_medida")
         fecha_compra = compra.get("fecha_compra")
@@ -212,7 +218,6 @@ def crear_bodega(compra_proveedor_id):
         if cantidad is None or unidad_medida is None or fecha_compra is None or producto_id is None:
             return {"error": "Datos incompletos en la compra para crear bodega"}
 
-        # Obtener los datos del producto desde el servicio-proveedores
         producto = obtener_producto_por_id_desde_servicio(producto_id)
         print("DEBUG producto:", producto)
 
@@ -225,13 +230,11 @@ def crear_bodega(compra_proveedor_id):
         if not tipo_insumo or not duracion_insumo:
             return {"error": "El producto no tiene configurados los campos tipo_insumo o duracion_insumo"}
 
-        # Convertir a kilogramos
         cantidad_en_kg = convertir_a_kg(cantidad, unidad_medida)
         print(f"DEBUG cantidad_en_kg ajustada: {cantidad_en_kg}")
 
         fecha_compra_formateada = parse_fecha_compra(fecha_compra)
 
-        # Registrar en la tabla bodega
         conexion = obtener_conexion()
         with conexion.cursor() as cursor:
             cursor.execute("SELECT id, cantidad FROM bodega WHERE producto_id = %s", (producto_id,))
@@ -275,32 +278,7 @@ def crear_bodega(compra_proveedor_id):
         if conexion:
             conexion.close()
 
-def obtener_bodega_por_id(bodega_id):
-    conexion = None
-    try:
-        conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT id, compra_proveedor_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
-                FROM bodega
-                WHERE id = %s
-            """, (bodega_id,))
-            registro = cursor.fetchone()
-
-        if registro:
-            compra = obtener_compra_proveedor_por_id(registro["compra_proveedor_id"])
-            if "error" not in compra:
-                registro["proveedor_nombre"] = compra.get("proveedor_nombre")
-            else:
-                registro["proveedor_nombre"] = None
-
-        return registro
-    except mysql.connector.Error as e:
-        print(f"Error al obtener el registro de bodega: {e}")
-        return {"error": "Error al obtener el registro de bodega"}
-    finally:
-        if conexion:
-            conexion.close()
+# Retorna el dict con el producto
 
 def actualizar_bodega(bodega_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo):
     conexion = None
