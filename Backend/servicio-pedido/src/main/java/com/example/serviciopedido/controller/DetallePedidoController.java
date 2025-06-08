@@ -1,5 +1,4 @@
 package com.example.serviciopedido.controller;
-
 import com.example.serviciopedido.entity.DetallePedido;
 import com.example.serviciopedido.service.DetallePedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class DetallePedidoController {
     @GetMapping("/{id}")
     public DetallePedido buscarPorId(@PathVariable Integer id) {
         return detallePedidoService.listarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Detalle de pedido no encontrado con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Detalle del pedido no encontrado con id: " + id));
     }
 
     @PostMapping

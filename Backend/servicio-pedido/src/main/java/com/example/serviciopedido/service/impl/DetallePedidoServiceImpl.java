@@ -1,8 +1,6 @@
 package com.example.serviciopedido.service.impl;
 
-import com.example.serviciopedido.dto.ClienteDTO;
-import com.example.serviciopedido.dto.DetallePedidoDTO;
-import com.example.serviciopedido.feign.ClienteFeignClient;
+import com.example.serviciopedido.entity.DetallePedido;
 import com.example.serviciopedido.repository.DetallePedidoRepository;
 import com.example.serviciopedido.service.DetallePedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,107 +8,90 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DetallePedidoServiceImpl implements DetallePedidoService {
 
     private final DetallePedidoRepository detallePedidoRepository;
-    private final ClienteFeignClient clienteFeignClient;
 
     @Autowired
-    public DetallePedidoServiceImpl(DetallePedidoRepository detallePedidoRepository, ClienteFeignClient clienteFeignClient) {
+    public DetallePedidoServiceImpl(DetallePedidoRepository detallePedidoRepository) {
         this.detallePedidoRepository = detallePedidoRepository;
-        this.clienteFeignClient = clienteFeignClient;
     }
 
     @Override
-    public List<DetallePedidoDTO> listar() {
-        // Obtener todos los detalles de pedido desde la base de datos
-        List<DetallePedidoDTO> detalles = detallePedidoRepository.findAll().stream()
-                .map(detalle -> {
-                    // Usar Feign para obtener el cliente asociado a este detalle
-                    ClienteDTO cliente = clienteFeignClient.getClienteById(detalle.getCliente().getId());
-                    // Convertir a DTO y agregar el cliente
-                    DetallePedidoDTO detalleDTO = new DetallePedidoDTO(
-                            detalle.getId(),
-                            cliente,
-                            detalle.getMenu(),
-                            detalle.getCantidad(),
-                            detalle.getPrecioUnitario()
-                    );
-                    return detalleDTO;
-                })
-                .collect(Collectors.toList());
-
-        return detalles;
+    public List<DetallePedido> listar() {
+        return detallePedidoRepository.findAll();
     }
 
     @Override
-    public Optional<DetallePedidoDTO> listarPorId(Integer id) {
-        Optional<DetallePedidoDTO> detalleOpt = detallePedidoRepository.findById(id).map(detalle -> {
-            // Usar Feign para obtener el cliente asociado al detalle
-            ClienteDTO cliente = clienteFeignClient.getClienteById(detalle.getCliente().getId());
-            // Convertir a DTO y agregar el cliente
-            DetallePedidoDTO detalleDTO = new DetallePedidoDTO(
-                    detalle.getId(),
-                    cliente,
-                    detalle.getMenu(),
-                    detalle.getCantidad(),
-                    detalle.getPrecioUnitario()
-            );
-            return detalleDTO;
-        });
-
-        return detalleOpt;
+    public Optional<DetallePedido> listarPorId(Integer id) {
+        return detallePedidoRepository.findById(id);
     }
 
     @Override
-    public DetallePedidoDTO guardar(DetallePedidoDTO detallePedidoDTO) {
-        // Convertir DTO a entidad para guardarlo en la base de datos
-        DetallePedido detallePedido = new DetallePedido();
-        detallePedido.setCliente(detallePedidoDTO.getCliente());
-        detallePedido.setMenu(detallePedidoDTO.getMenu());
-        detallePedido.setCantidad(detallePedidoDTO.getCantidad());
-        detallePedido.setPrecioUnitario(detallePedidoDTO.getPrecioUnitario());
-
-        DetallePedido savedDetalle = detallePedidoRepository.save(detallePedido);
-
-        // Convertir la entidad guardada nuevamente a DTO para devolver
-        return new DetallePedidoDTO(
-                savedDetalle.getId(),
-                savedDetalle.getCliente(),
-                savedDetalle.getMenu(),
-                savedDetalle.getCantidad(),
-                savedDetalle.getPrecioUnitario()
-        );
+    public DetallePedido guardar(DetallePedido detallePedido) {
+        return detallePedidoRepository.save(detallePedido);
     }
 
     @Override
-    public DetallePedidoDTO actualizar(DetallePedidoDTO detallePedidoDTO) {
-        // Convertir DTO a entidad para actualizarlo en la base de datos
-        DetallePedido detallePedido = detallePedidoRepository.findById(detallePedidoDTO.getId())
-                .orElseThrow(() -> new RuntimeException("Detalle de pedido no encontrado"));
-        detallePedido.setCliente(detallePedidoDTO.getCliente());
-        detallePedido.setMenu(detallePedidoDTO.getMenu());
-        detallePedido.setCantidad(detallePedidoDTO.getCantidad());
-        detallePedido.setPrecioUnitario(detallePedidoDTO.getPrecioUnitario());
-
-        DetallePedido updatedDetalle = detallePedidoRepository.save(detallePedido);
-
-        // Convertir la entidad actualizada a DTO para devolver
-        return new DetallePedidoDTO(
-                updatedDetalle.getId(),
-                updatedDetalle.getCliente(),
-                updatedDetalle.getMenu(),
-                updatedDetalle.getCantidad(),
-                updatedDetalle.getPrecioUnitario()
-        );
+    public DetallePedido actualizar(DetallePedido detallePedido) {
+        // Aquí puedes añadir lógica de validación si es necesario
+        return detallePedidoRepository.save(detallePedido);
     }
 
     @Override
     public void eliminar(Integer id) {
-        // Eliminar el detalle de pedido por ID
         detallePedidoRepository.deleteById(id);
+    }
+}
+package com.example.pedido_db.service.impl;
+
+
+
+import com.example.pedido_db.entity.Pedido;
+import com.example.pedido_db.repository.PedidoRepository;
+import com.example.pedido_db.service.PedidoService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class PedidoServiceImpl implements PedidoService {
+
+    private final PedidoRepository pedidoRepository;
+
+    @Autowired
+    public PedidoServiceImpl(PedidoRepository pedidoRepository) {
+        this.pedidoRepository = pedidoRepository;
+    }
+
+    @Override
+    public List<Pedido> listar() {
+        return pedidoRepository.findAll();
+    }
+
+    @Override
+    public Optional<Pedido> listarPorId(Integer id) {
+        return pedidoRepository.findById(id);
+    }
+
+    @Override
+    public Pedido guardar(Pedido pedido) {
+        return pedidoRepository.save(pedido);
+    }
+
+    @Override
+    public Pedido actualizar(Pedido pedido) {
+        // Aquí puedes añadir lógica de validación si es necesario
+        return pedidoRepository.save(pedido);
+    }
+
+    @Override
+    public void eliminar(Integer id) {
+        pedidoRepository.deleteById(id);
     }
 }

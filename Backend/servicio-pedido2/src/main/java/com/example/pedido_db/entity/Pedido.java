@@ -1,17 +1,21 @@
-package com.example.serviciopedido.entity;
+package com.example.pedido_db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
+@Data
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(name = "administrador_id")
-    private int administradorId;
 
 
     @ManyToOne
@@ -26,24 +30,23 @@ public class Pedido {
     @Column(name = "estado_pedido", nullable = false, columnDefinition = "ENUM('pendiente', 'iniciado', 'completado', 'cancelado') DEFAULT 'pendiente'")
     private EstadoPedido estadoPedido;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // Evitar recursión infinita
+    @JsonManagedReference // Evita la recursión infinita en la relación @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "pedido_id")
+    private List<DetallePedido> detalle; // Lista de detalles del pedido (productos asociados)
+
     public Pedido() {
 
     }
 
-    public int getId() {
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
-    }
-
-    public int getAdministradorId() {
-        return administradorId;
-    }
-
-    public void setAdministradorId(int administradorId) {
-        this.administradorId = administradorId;
     }
 
     public DetallePedido getDetallePedido() {
@@ -70,22 +73,31 @@ public class Pedido {
         this.estadoPedido = estadoPedido;
     }
 
-    public Pedido(int id, int administradorId, DetallePedido detallePedido, Timestamp fechaPedido, EstadoPedido estadoPedido) {
-        this.id = id;
-        this.administradorId = administradorId;
-        this.detallePedido = detallePedido;
-        this.fechaPedido = fechaPedido;
-        this.estadoPedido = estadoPedido;
+    public List<DetallePedido> getDetalle() {
+        return detalle;
+    }
+
+    public void setDetalle(List<DetallePedido> detalle) {
+        this.detalle = detalle;
     }
 
     @Override
     public String toString() {
         return "Pedido{" +
                 "id=" + id +
-                ", administradorId=" + administradorId +
+
                 ", detallePedido=" + detallePedido +
                 ", fechaPedido=" + fechaPedido +
                 ", estadoPedido=" + estadoPedido +
+                ", detalle=" + detalle +
                 '}';
+    }
+
+    public Pedido(Integer id, Integer administradorId, DetallePedido detallePedido, Timestamp fechaPedido, EstadoPedido estadoPedido, List<DetallePedido> detalle) {
+        this.id = id;
+        this.detallePedido = detallePedido;
+        this.fechaPedido = fechaPedido;
+        this.estadoPedido = estadoPedido;
+        this.detalle = detalle;
     }
 }

@@ -1,7 +1,8 @@
-package com.example.serviciopedido.controller;
+package com.example.pedido_db.controller;
 
-import com.example.serviciopedido.entity.Menu;
-import com.example.serviciopedido.service.MenuService;
+
+import com.example.pedido_db.entity.Menu;
+import com.example.pedido_db.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

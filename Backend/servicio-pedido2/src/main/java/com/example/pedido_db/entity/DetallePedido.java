@@ -1,18 +1,25 @@
-package com.example.serviciopedido.entity;
-import jakarta.persistence.*;
+package com.example.pedido_db.entity;
 
+import com.example.pedido_db.dto.Cliente;
+import jakarta.persistence.*;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Entity
+@Data
 public class DetallePedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(name = "cliente_id")
-    private int clienteId;
+
+
+    @Transient
+    private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign@Transient
+
+    private Integer clienteId;
 
     @ManyToOne
     @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
@@ -24,21 +31,34 @@ public class DetallePedido {
     @Column(name = "precio_unitario", precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
-    // Getters y Setters
+    public DetallePedido() {
 
-    public int getId() {
+    }
+
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getClienteId() {
+
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public Integer getClienteId() {
         return clienteId;
     }
 
-    public void setClienteId(int clienteId) {
+    public void setClienteId(Integer clienteId) {
         this.clienteId = clienteId;
     }
 
@@ -66,19 +86,22 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
-    public DetallePedido(int id, int clienteId, Menu menu, int cantidad, BigDecimal precioUnitario) {
+    public DetallePedido(Integer id, Integer clienteId, Cliente cliente, Menu menu, int cantidad, BigDecimal precioUnitario) {
         this.id = id;
+
         this.clienteId = clienteId;
+        this.cliente = cliente;
         this.menu = menu;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
     }
-    public DetallePedido() {}
 
     @Override
     public String toString() {
         return "DetallePedido{" +
                 "id=" + id +
+
+                ", cliente=" + cliente +
                 ", clienteId=" + clienteId +
                 ", menu=" + menu +
                 ", cantidad=" + cantidad +

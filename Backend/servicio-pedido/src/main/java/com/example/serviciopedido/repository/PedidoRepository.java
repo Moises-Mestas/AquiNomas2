@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
-    // Aquí puedes añadir consultas personalizadas si es necesario
+    // Aquí puedes agregar métodos personalizados si es necesario
 }

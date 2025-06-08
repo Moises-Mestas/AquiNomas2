@@ -1,10 +1,10 @@
-package com.example.serviciopedido.repository;
+package com.example.pedido_db.repository;
 
-import com.example.serviciopedido.entity.DetallePedido;
+import com.example.pedido_db.entity.Receta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
+public interface RecetaRepository extends JpaRepository<Receta, Integer> {
     // Aquí puedes agregar métodos personalizados si es necesario
 }
