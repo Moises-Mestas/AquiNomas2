@@ -71,12 +71,12 @@ def obtener_conexion():
 
 
 
-def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_minimo=0, nombre_producto=None):
+def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_minimo=0, nombre_producto=None, unidad_destino="l"):
     conexion = None
     try:
         conexion = obtener_conexion()
         with conexion.cursor(dictionary=True) as cursor:
-            # Verificar que el bodega_id exista en la tabla bodega
+            # Obtener los datos de la bodega
             cursor.execute("SELECT * FROM bodega WHERE id = %s", (bodega_id,))
             bodega_data = cursor.fetchone()
 
@@ -87,8 +87,12 @@ def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_mi
             if bodega_data["tipo_insumo"].lower() not in ["bebida", "bebidas"]:
                 return {"error": "Solo se pueden ingresar datos con 'tipo_insumo' igual a 'bebida' o 'bebidas'."}
 
+            # Convertir la cantidad disponible en bodega a la unidad destino
+            cantidad_bodega_convertida = convertir_unidad(bodega_data["cantidad"], bodega_data["unidad_medida"], unidad_destino)
+            cantidad_disponible_convertida = convertir_unidad(cantidad_disponible, unidad_destino, unidad_destino)
+
             # Validar que la cantidad disponible en bodega sea suficiente
-            if bodega_data["cantidad"] < cantidad_disponible:
+            if cantidad_bodega_convertida < cantidad_disponible_convertida:
                 return {"error": "La cantidad disponible en bodega es insuficiente."}
 
             # Usar el nombre_producto recibido o el producto_id como fallback
@@ -99,13 +103,22 @@ def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_mi
             inventario_barra_data = cursor.fetchone()
 
             if inventario_barra_data:
-                # Si existe, actualizar la cantidad, la fecha y el nombre del producto
-                nueva_cantidad = inventario_barra_data["cantidad_disponible"] + cantidad_disponible
+    # Convertir la cantidad existente en inventario_barra a la misma unidad
+                cantidad_existente_convertida = convertir_unidad(
+                inventario_barra_data["cantidad_disponible"],
+                inventario_barra_data["unidad_medida"],
+                unidad_destino
+                )
+
+    # Sumar las cantidades en la misma unidad
+                nueva_cantidad = cantidad_existente_convertida + cantidad_disponible_convertida
+
+    # Actualizar el registro en inventario_barra
                 cursor.execute("""
-                    UPDATE inventario_barra
-                    SET cantidad_disponible = %s, fecha_entrada = NOW(), nombre_producto = %s
-                    WHERE bodega_id = %s
-                """, (nueva_cantidad, nombre_producto, bodega_id))
+                UPDATE inventario_barra
+                SET cantidad_disponible = %s, fecha_entrada = NOW(), nombre_producto = %s, unidad_medida = %s
+                WHERE bodega_id = %s
+                """, (nueva_cantidad, nombre_producto, unidad_destino, bodega_id))
             else:
                 # Si no existe, insertar un nuevo registro
                 cursor.execute("""
@@ -113,31 +126,44 @@ def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_mi
                     VALUES (%s, %s, %s, %s, NOW(), %s)
                 """, (
                     bodega_id,
-                    cantidad_disponible,
-                    bodega_data["unidad_medida"],  # Tomar la unidad de medida de la tabla bodega
+                    cantidad_disponible_convertida,
+                    unidad_destino,
                     stock_minimo,
                     nombre_producto
                 ))
 
             # Actualizar la cantidad en bodega
-            nueva_cantidad_bodega = bodega_data["cantidad"] - cantidad_disponible
+            nueva_cantidad_bodega = cantidad_bodega_convertida - cantidad_disponible_convertida
+            nueva_cantidad_bodega_original = convertir_unidad(nueva_cantidad_bodega, unidad_destino, bodega_data["unidad_medida"])
             cursor.execute("""
                 UPDATE bodega
                 SET cantidad = %s, fecha_movimiento = NOW()
                 WHERE id = %s
-            """, (nueva_cantidad_bodega, bodega_id))
+            """, (nueva_cantidad_bodega_original, bodega_id))
 
-            # Confirmar la transacción
             conexion.commit()
 
-        return {"mensaje": "Registro actualizado o creado correctamente en inventario_barra y cantidad descontada en bodega."}
+        return {"mensaje": f"Registro actualizado o creado correctamente en inventario_barra y cantidad descontada en bodega en {unidad_destino}."}
     except mysql.connector.Error as e:
         return {"error": f"Error en la base de datos: {e}"}
     finally:
         if conexion:
             conexion.close()
-            
+def convertir_unidad(cantidad, unidad_origen, unidad_destino):
+    """
+    Convierte una cantidad de una unidad a otra.
+    Soporta 'l' y 'ml'.
+    """
+    if unidad_origen == unidad_destino:
+        return cantidad
 
+    if unidad_origen == "l" and unidad_destino == "ml":
+        return cantidad * 1000  
+    elif unidad_origen == "ml" and unidad_destino == "l":
+        return cantidad / 1000  
+    else:
+        raise ValueError(f"Conversión no soportada de {unidad_origen} a {unidad_destino}")
+    
 
 def obtener_todos_inventario_barra():
     conexion = None
@@ -234,45 +260,3 @@ def alerta_stock_minimo():
     finally:
         if conexion:
             conexion.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

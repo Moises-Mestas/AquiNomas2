@@ -93,13 +93,13 @@ def crear_inventario_barra_desde_bodega_ruta():
     resultado = inventarioBarra.crear_inventario_barra_desde_bodega(
         bodega_id=datos["bodega_id"],
         cantidad_disponible=datos["cantidad_disponible"],
-        stock_minimo=datos.get("stock_minimo", 0)  # Valor por defecto 0 si no se envía
+        stock_minimo=datos.get("stock_minimo", 0), 
+        unidad_destino=datos.get("unidad_destino", "l")  
     )
 
     if "error" in resultado:
         return jsonify(resultado), 400
     return jsonify(resultado), 201
-
 
 @app.route('/inventario-barra', methods=['GET'])
 def obtener_todos_inventario_barra_ruta():
@@ -140,16 +140,22 @@ def ruta_alerta_stock_minimo():
 
 
 
-# Ruta para crear un registro en inventario_cocina desde bodega
 @app.route('/inventario-cocina/crear', methods=['POST'])
 def ruta_crear_inventario_cocina_desde_bodega():
     data = request.json
     bodega_id = data.get("bodega_id")
     cantidad_disponible = data.get("cantidad_disponible")
     stock_minimo = data.get("stock_minimo", 0)
-    nombre_producto = data.get("nombre_producto")
-    resultado = crear_inventario_cocina_desde_bodega(bodega_id, cantidad_disponible, stock_minimo, nombre_producto)
+    unidad_destino = data.get("unidad_destino", "kg")  
+
+    resultado = crear_inventario_cocina_desde_bodega(
+        bodega_id=bodega_id,
+        cantidad_disponible=cantidad_disponible,
+        stock_minimo=stock_minimo,
+        unidad_destino=unidad_destino
+    )
     return jsonify(resultado)
+
 
 # Ruta para obtener todos los registros de inventario_cocina
 @app.route('/inventario-cocina', methods=['GET'])

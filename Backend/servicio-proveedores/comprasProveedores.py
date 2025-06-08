@@ -274,7 +274,7 @@ def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=No
     url_bodega = f"{URL_SERVICIO_INVENTARIO}/bodega"
     payload = {
         "compra_proveedor_id": compra_proveedor_id,
-        "nombre_producto": nombre_producto  # Incluir el nombre del producto
+        "nombre_producto": nombre_producto 
     }
 
     print("DEBUG: Payload enviado al servicio-inventario:", payload)

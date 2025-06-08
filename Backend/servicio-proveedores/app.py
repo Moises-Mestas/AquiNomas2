@@ -102,7 +102,6 @@ def crear_proveedor():
         return jsonify({"error": str(e)}), 400
 
 
-# Ruta para obtener todos los proveedores
 @app.route('/proveedores', methods=['GET'])
 def obtener_proveedores():
     try:
@@ -112,7 +111,6 @@ def obtener_proveedores():
         return jsonify({"error": str(e)}), 500
 
 
-# Ruta para obtener un proveedor por ID con Circuit Breaker
 @app.route('/proveedores/<int:proveedor_id>', methods=['GET'])
 @breaker
 def obtener_proveedor_por_id(proveedor_id):
@@ -128,7 +126,6 @@ def obtener_proveedor_por_id(proveedor_id):
         return jsonify({"error": str(e)}), 500
 
 
-# Ruta para editar un proveedor
 @app.route('/proveedores/<int:proveedor_id>', methods=['PUT'])
 def editar_proveedor(proveedor_id):
     data = request.json

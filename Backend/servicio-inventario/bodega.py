@@ -149,7 +149,6 @@ def obtener_todos_bodega():
     try:
         conexion = obtener_conexion()
         with conexion.cursor(dictionary=True) as cursor:
-            # Obtener todos los registros de bodega
             cursor.execute("""
                 SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
                 FROM bodega
@@ -163,7 +162,6 @@ def obtener_todos_bodega():
             else:
                 registro["nombre_producto"] = "Producto desconocido"
 
-            # Resolver el nombre del proveedor utilizando la compra_proveedor_id
             compra = obtener_compra_proveedor_por_id(registro["compra_proveedor_id"])
             if "error" not in compra:
                 registro["proveedor_nombre"] = compra.get("proveedor_nombre")
