@@ -1,4 +1,4 @@
-package com.example.serviciopedido.dto;
+package com.upeu.serviciocliente.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

@@ -2,6 +2,7 @@ package com.example.serviciopedido.controller;
 
 import com.example.serviciopedido.entity.Menu;
 import com.example.serviciopedido.service.MenuService;
+import com.example.serviciopedido.service.RecetaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,9 @@ import java.util.List;
 @RequestMapping("/menus")
 public class MenuController {
 
-    private final MenuService menuService;
+
+    @Autowired
+    private MenuService menuService;
 
     @Autowired
     public MenuController(MenuService menuService) {

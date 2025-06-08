@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDateTime;
+
 @FeignClient(name = "servicio-cliente", path = "/servicios")
 public interface ServicioFeign {
 
@@ -25,7 +27,7 @@ public interface ServicioFeign {
         administrador.setId(id);
         administrador.setNombre("Nombre no disponible");
         administrador.setEmail("Email no disponible");
-        administrador.setFechaCreacion(null);
+        administrador.setFechaCreacion(null); // Fecha de fallback actual
 
         return ResponseEntity.ok(administrador);
     }
@@ -40,7 +42,7 @@ public interface ServicioFeign {
         cliente.setTelefono(""); // Cadena vacía
         cliente.setEmail(""); // Cadena vacía
         cliente.setDireccion(""); // Cadena vacía
-        cliente.setFechaRegistro(null); // `null` para timestamp
+        cliente.setFechaRegistro(null); // Fecha de fallback actual
 
         return ResponseEntity.ok(cliente);
     }
