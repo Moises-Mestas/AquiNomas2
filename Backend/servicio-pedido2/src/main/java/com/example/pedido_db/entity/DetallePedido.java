@@ -15,6 +15,9 @@ public class DetallePedido {
     private Integer id;
 
 
+    @ManyToOne
+    @JoinColumn(name = "pedido_id")  // Relación con Pedido
+    private Pedido pedido;
 
     @Transient
     private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign@Transient

@@ -48,26 +48,29 @@ public class PedidoServiceImpl implements PedidoService {
 
     @Override
     public Optional<Pedido> listarPorId(Integer id) {
-        try {
-            Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        Optional<Pedido> pedido = pedidoRepository.findById(id); // Obtener solo el pedido por ID
 
-            // Cargar Detalles de Pedido y Cliente
-            List<DetallePedido> pedidoDetalles = pedido.getDetalle().stream().map(detallePedido -> {
-                // Llamar al ClienteFeign para obtener el cliente
+        // Si el pedido existe, cargar los detalles de los pedidos asociados
+        if (pedido.isPresent()) {
+            Pedido pedidoFound = pedido.get(); // Obtener el pedido encontrado
+
+            // Cargar las relaciones cliente de manera similar a como se hace en listar
+            List<DetallePedido> detallePedidos = pedidoFound.getDetalle().stream().map(detallePedido -> {
+                // Llamada a ClienteFeign para obtener el cliente por clienteId
                 Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
-                detallePedido.setCliente(cliente); // Asignar cliente a DetallePedido
+                detallePedido.setCliente(cliente); // Asignar cliente a cada DetallePedido
                 return detallePedido;
             }).collect(Collectors.toList());
 
-            pedido.setDetalle(pedidoDetalles); // Asignar la lista de DetallePedido al Pedido
-            return Optional.of(pedido);
-        } catch (Exception e) {
-            // Log de error para detectar la causa del fallo
-            System.err.println("Error al procesar el pedido con ID " + id + ": " + e.getMessage());
-            e.printStackTrace();
-            return Optional.empty();
+            pedidoFound.setDetalle(detallePedidos); // Asignar la lista de DetallePedido al Pedido
+
+            return Optional.of(pedidoFound); // Devolver el pedido con los detalles cargados
         }
+
+        return Optional.empty(); // Si el pedido no existe, devolver Optional vacío
     }
+
+
 
 
 
