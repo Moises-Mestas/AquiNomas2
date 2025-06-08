@@ -1,5 +1,6 @@
 package com.example.serviciopedido.feign;
 
+import com.example.serviciopedido.dto.Administrador;
 import com.example.serviciopedido.dto.Cliente;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -7,16 +8,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "servicio-cliente", path = "/clientes")
-public interface ClienteFeign {
+@FeignClient(name = "servicio-cliente", path = "/servicios")
+public interface ServicioFeign {
 
-    @GetMapping("/{id}")
+    @GetMapping("/administradores/{id}")
+    @CircuitBreaker(name = "administradorCircuitBreaker", fallbackMethod = "fallbackAdministradorById")
+    ResponseEntity<Administrador> getAdministradorById(@PathVariable Integer id);
+
+    @GetMapping("/clientes/{id}")
     @CircuitBreaker(name = "clienteCircuitBreaker", fallbackMethod = "fallbackClienteById")
-    ResponseEntity<Cliente> listById(@PathVariable Integer id);
+    ResponseEntity<Cliente> getClienteById(@PathVariable Integer id);
+
+    // Método fallback para cuando el servicio administrador no responde
+    default ResponseEntity<Administrador> fallbackAdministradorById(Integer id, Throwable e) {
+        Administrador administrador = new Administrador();
+        administrador.setId(id);
+        administrador.setNombre("Nombre no disponible");
+        administrador.setEmail("Email no disponible");
+        administrador.setFechaCreacion(null);
+
+        return ResponseEntity.ok(administrador);
+    }
 
     // Método fallback para cuando el servicio cliente no responde
     default ResponseEntity<Cliente> fallbackClienteById(Integer id, Throwable e) {
-        // Crear un Cliente con los valores vacíos o predeterminados
         Cliente cliente = new Cliente();
         cliente.setId(id);
         cliente.setNombre(""); // Cadena vacía
@@ -27,7 +42,6 @@ public interface ClienteFeign {
         cliente.setDireccion(""); // Cadena vacía
         cliente.setFechaRegistro(null); // `null` para timestamp
 
-        // Devolver el cliente con los datos vacíos
         return ResponseEntity.ok(cliente);
     }
 }

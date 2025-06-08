@@ -1,6 +1,9 @@
 package com.example.serviciopedido.service.impl;
 
+import com.example.serviciopedido.dto.Administrador;
+import com.example.serviciopedido.dto.Cliente;
 import com.example.serviciopedido.entity.Pedido;
+import com.example.serviciopedido.feign.ServicioFeign;
 import com.example.serviciopedido.repository.PedidoRepository;
 import com.example.serviciopedido.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +16,48 @@ import java.util.Optional;
 public class PedidoServiceImpl implements PedidoService {
 
     private final PedidoRepository pedidoRepository;
+    private final ServicioFeign servicioFeign;
 
     @Autowired
-    public PedidoServiceImpl(PedidoRepository pedidoRepository) {
+    public PedidoServiceImpl(PedidoRepository pedidoRepository, ServicioFeign servicioFeign) {
         this.pedidoRepository = pedidoRepository;
+        this.servicioFeign = servicioFeign;
     }
 
     @Override
     public List<Pedido> listar() {
-        return pedidoRepository.findAll();
+        List<Pedido> pedidos = pedidoRepository.findAll();
+
+        // Para cada pedido, obtener el administrador y cliente a través del Feign combinado
+        for (Pedido pedido : pedidos) {
+            // Obtener el administrador asociado al pedido
+            Administrador administrador = servicioFeign.getAdministradorById(pedido.getAdministrador().getId()).getBody();
+            pedido.setAdministrador(administrador);
+
+            // Obtener el cliente asociado al pedido
+            Cliente cliente = servicioFeign.getClienteById(pedido.getDetallePedido().getId()).getBody();
+            pedido.getDetallePedido().setCliente(cliente);
+        }
+
+        return pedidos;
     }
 
     @Override
     public Optional<Pedido> listarPorId(Integer id) {
-        return pedidoRepository.findById(id);
+        Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
+
+        if (pedidoOpt.isPresent()) {
+            Pedido pedido = pedidoOpt.get();
+            // Obtener el administrador asociado al pedido
+            Administrador administrador = servicioFeign.getAdministradorById(pedido.getAdministrador().getId()).getBody();
+            pedido.setAdministrador(administrador);
+
+            // Obtener el cliente asociado al pedido
+            Cliente cliente = servicioFeign.getClienteById(pedido.getDetallePedido().getId()).getBody();
+            pedido.getDetallePedido().setCliente(cliente);
+        }
+
+        return pedidoOpt;
     }
 
     @Override
@@ -36,10 +67,12 @@ public class PedidoServiceImpl implements PedidoService {
 
     @Override
     public Pedido actualizar(Pedido pedido) {
-        if (pedido.getId() != null && pedidoRepository.existsById(pedido.getId())) {
+        Optional<Pedido> pedidoExistente = pedidoRepository.findById(pedido.getId());
+        if (pedidoExistente.isPresent()) {
             return pedidoRepository.save(pedido);
+        } else {
+            throw new RuntimeException("Pedido no encontrado con id: " + pedido.getId());
         }
-        throw new RuntimeException("Pedido no encontrado");
     }
 
     @Override
@@ -47,7 +80,7 @@ public class PedidoServiceImpl implements PedidoService {
         if (pedidoRepository.existsById(id)) {
             pedidoRepository.deleteById(id);
         } else {
-            throw new RuntimeException("Pedido no encontrado");
+            throw new RuntimeException("Pedido no encontrado con id: " + id);
         }
     }
 }
