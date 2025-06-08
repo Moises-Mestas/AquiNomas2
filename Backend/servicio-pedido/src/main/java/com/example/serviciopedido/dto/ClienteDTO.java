@@ -1,6 +1,8 @@
 package com.example.serviciopedido.dto;
 
 import jakarta.persistence.*;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,15 +25,15 @@ public class ClienteDTO {
 
     private String direccion;
 
-    private LocalDateTime fechaRegistro = LocalDateTime.now();
-
+    // O si necesitas convertirlo a `Timestamp` para la base de datos
+    private Timestamp fechaRegistro = Timestamp.valueOf(LocalDateTime.now());  // Para la tabla `cliente`
     // Constructor vacío
     public ClienteDTO() {
     }
 
     // Constructor con todos los campos
     public ClienteDTO(Integer id, String nombre, String apellido, String dni, String telefono,
-                      String email, String direccion, LocalDateTime fechaRegistro) {
+                      String email, String direccion, Timestamp fechaRegistro) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -42,7 +44,6 @@ public class ClienteDTO {
         this.fechaRegistro = fechaRegistro;
     }
 
-    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -99,14 +100,15 @@ public class ClienteDTO {
         this.direccion = direccion;
     }
 
-    public LocalDateTime getFechaRegistro() {
+    public Timestamp getFechaRegistro() {
         return fechaRegistro;
     }
 
-    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+    public void setFechaRegistro(Timestamp fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
     }
 
+    // Getters y Set
     // toString
     @Override
     public String toString() {

@@ -3,6 +3,8 @@ package com.example.serviciopedido.dto;
 
 
 import jakarta.persistence.*;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,21 +19,20 @@ public class AdministradorDTO {
     @Column(unique = true)
     private String email;
 
-    private LocalDateTime fechaCreacion = LocalDateTime.now();
+    private Timestamp fechaCreacion = Timestamp.valueOf(LocalDateTime.now());
 
     // Constructor vacío
     public AdministradorDTO() {
     }
 
     // Constructor con todos los campos
-    public AdministradorDTO(Integer id, String nombre, String email, LocalDateTime fechaCreacion) {
+    public AdministradorDTO(Integer id, String nombre, String email, Timestamp fechaCreacion) {
         this.id = id;
         this.nombre = nombre;
         this.email = email;
         this.fechaCreacion = fechaCreacion;
     }
 
-    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -56,11 +57,11 @@ public class AdministradorDTO {
         this.email = email;
     }
 
-    public LocalDateTime getFechaCreacion() {
+    public Timestamp getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+    public void setFechaCreacion(Timestamp fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
 
