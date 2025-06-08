@@ -3,6 +3,7 @@ package com.example.servicioventa.service.Impl;
 import com.example.servicioventa.entity.Venta;
 import com.example.servicioventa.repository.VentaRepository;
 import com.example.servicioventa.service.VentaService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,23 +24,32 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
+    @Transactional
     public Venta guardarVenta(Venta venta) {
         return ventaRepository.save(venta);
     }
 
     @Override
+    @Transactional
     public Venta actualizar(Venta venta) {
-        return ventaRepository.save(venta);
+        if (ventaRepository.existsById(venta.getId())) {
+            return ventaRepository.save(venta);
+        }
+        throw new RuntimeException("Venta no encontrada");
     }
 
     @Override
-    public Optional<Venta> listarPorId(Integer id) {
+    public Optional<Venta> listarPorId(Long id) {
         return ventaRepository.findById(id);
     }
 
     @Override
-    public void eliminarPorId(Integer id) {
-        ventaRepository.deleteById(Long.valueOf(id));
+    @Transactional
+    public void eliminarPorId(Long id) {
+        if (ventaRepository.existsById(id)) {
+            ventaRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Venta no encontrada");
+        }
     }
-
 }

@@ -3,10 +3,12 @@ package com.example.servicioventa.service.Impl;
 import com.example.servicioventa.entity.Promocion;
 import com.example.servicioventa.repository.PromocionRepository;
 import com.example.servicioventa.service.PromocionService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class PromocionServiceImpl implements PromocionService {
@@ -23,11 +25,7 @@ public class PromocionServiceImpl implements PromocionService {
     }
 
     @Override
-    public Promocion guardarPromocion(Promocion promocion) {
-        return null;
-    }
-
-    @Override
+    @Transactional
     public Promocion guardar(Promocion promocion) {
         return promocionRepository.save(promocion);
     }
@@ -38,12 +36,22 @@ public class PromocionServiceImpl implements PromocionService {
     }
 
     @Override
-    public Optional<Promocion> listarPorId(Integer id) {
+    public List<Promocion> buscarPorMotivo(String motivo) {
+        return promocionRepository.findByMotivoContainingIgnoreCase(motivo);
+    }
+
+    @Override
+    public Optional<Promocion> listarPorId(Long id) {
         return promocionRepository.findById(id);
     }
 
     @Override
-    public void eliminarPorId(Integer id) {
-        promocionRepository.deleteById(Long.valueOf(id));
+    @Transactional
+    public void eliminarPorId(Long id) {
+        if (promocionRepository.existsById(id)) {
+            promocionRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Promoción no encontrada");
+        }
     }
 }

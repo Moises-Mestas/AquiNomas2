@@ -12,32 +12,47 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ventas")
 public class VentaController {
-    @Autowired
-    private VentaService ventaService;
+
+    private final VentaService ventaService;
+
+    public VentaController(VentaService ventaService) {
+        this.ventaService = ventaService;
+    }
 
     @GetMapping
-    public List<Venta> listar() {
-        return ventaService.listar();
+    public ResponseEntity<List<Venta>> listar() {
+        List<Venta> ventas = ventaService.listar();
+        return ResponseEntity.ok(ventas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Venta> listarPorId(@PathVariable Integer id) {
-        Optional<Venta> venta = ventaService.listarPorId(id);
-        return venta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Venta> listarPorId(@PathVariable Long id) {
+        return ventaService.listarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Venta guardar(@RequestBody Venta venta) {
-        return ventaService.guardarVenta(venta);
+    public ResponseEntity<Venta> guardar(@RequestBody Venta venta) {
+        Venta nuevaVenta = ventaService.guardarVenta(venta);
+        return ResponseEntity.status(201).body(nuevaVenta);
     }
 
-    @PutMapping
-    public Venta actualizar(@RequestBody Venta venta) {
-        return ventaService.actualizar(venta);
+    @PutMapping("/{id}")
+    public ResponseEntity<Venta> actualizar(@PathVariable Long id, @RequestBody Venta venta) {
+        if (!ventaService.listarPorId(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        Venta ventaActualizada = ventaService.actualizar(venta);
+        return ResponseEntity.ok(ventaActualizada);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        if (!ventaService.listarPorId(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
         ventaService.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }

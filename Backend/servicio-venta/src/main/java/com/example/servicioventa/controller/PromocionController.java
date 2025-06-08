@@ -13,32 +13,57 @@ import java.util.Optional;
 @RequestMapping("/promociones")
 public class PromocionController {
 
-    @Autowired
-    private PromocionService promocionService;
+    private final PromocionService promocionService;
+
+    public PromocionController(PromocionService promocionService) {
+        this.promocionService = promocionService;
+    }
 
     @GetMapping
-    public List<Promocion> listar() {
-        return promocionService.listar();
+    public ResponseEntity<List<Promocion>> listar() {
+        return ResponseEntity.ok(promocionService.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Promocion> listarPorId(@PathVariable Integer id) {
-        Optional<Promocion> promocion = promocionService.listarPorId(id);
-        return promocion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Promocion> listarPorId(@PathVariable Long id) {
+        return promocionService.listarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Promocion guardar(@RequestBody Promocion promocion) {
-        return promocionService.guardar(promocion);
+    public ResponseEntity<Promocion> guardar(@RequestBody Promocion promocion) {
+        Promocion nuevaPromocion = promocionService.guardar(promocion);
+        return ResponseEntity.status(201).body(nuevaPromocion);
     }
 
-    @PutMapping
-    public Promocion actualizar(@RequestBody Promocion promocion) {
-        return promocionService.actualizar(promocion);
+    @PutMapping("/{id}")
+    public ResponseEntity<Promocion> actualizar(@PathVariable Long id, @RequestBody Promocion promocion) {
+        if (promocion.getId() == null) {
+            promocion.setId(id); // Asigna el ID recibido en la URL
+        }
+
+        if (!promocionService.listarPorId(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Promocion promocionActualizada = promocionService.actualizar(promocion);
+        return ResponseEntity.ok(promocionActualizada);
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Promocion>> buscarPorMotivo(@RequestParam String motivo) {
+        List<Promocion> promociones = promocionService.buscarPorMotivo(motivo);
+        return promociones.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(promociones);
+    }
+
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        if (!promocionService.listarPorId(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
         promocionService.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }

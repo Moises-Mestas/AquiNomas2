@@ -5,20 +5,18 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "promociones")
 public class Promocion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String nombre;
+    @Column(name = "valor_descuento", precision = 5, scale = 2)
+    private BigDecimal valorDescuento;
 
-    @Column(nullable = false)
-    private BigDecimal descuento;
-
-    @Column(length = 255)
-    private String descripcion;
+    @Column(name = "motivo", length = 100)
+    private String motivo;
 
     public Long getId() {
         return id;
@@ -28,28 +26,20 @@ public class Promocion {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public BigDecimal getValorDescuento() {
+        return valorDescuento;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setValorDescuento(BigDecimal valorDescuento) {
+        this.valorDescuento = valorDescuento;
     }
 
-    public BigDecimal getDescuento() {
-        return descuento;
+    public String getMotivo() {
+        return motivo;
     }
 
-    public void setDescuento(BigDecimal descuento) {
-        this.descuento = descuento;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
     }
 
     public Promocion() {
@@ -59,9 +49,8 @@ public class Promocion {
     public String toString() {
         return "Promocion{" +
                 "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", descuento=" + descuento +
-                ", descripcion='" + descripcion + '\'' +
+                ", valorDescuento=" + valorDescuento +
+                ", motivo='" + motivo + '\'' +
                 '}';
     }
 }

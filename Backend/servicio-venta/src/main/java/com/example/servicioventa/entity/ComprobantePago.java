@@ -5,26 +5,43 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Entity
+@Table(name = "comprobante_pago")
 public class ComprobantePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "venta_id", nullable = false)
-    private Venta venta;
+    @Column(name = "venta_id", nullable = false)
+    private Long ventaId; // FK sin relación directa
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo", nullable = false, length = 20)
+    private TipoComprobante tipo;
+
+    public enum TipoComprobante {
+        BOLETA, FACTURA
+    }
+
+    @Column(name = "numeroSerie", nullable = false, length = 10)
+    private String numeroSerie;
+
+    @Column(name = "numeroComprobante", nullable = false, length = 15)
+    private String numeroComprobante;
+
+    @Column(name = "fechaEmision")
     private LocalDateTime fechaEmision;
 
-    @Column(nullable = false, length = 50)
-    private String tipoComprobante;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal igv;
 
-    private BigDecimal monto;
-
-    @Column(nullable = false, length = 20)
-    private String numeroComprobante;
+    @Column(name = "montoNeto", precision = 10, scale = 2)
+    private BigDecimal montoNeto;
 
     public Long getId() {
         return id;
@@ -34,36 +51,28 @@ public class ComprobantePago {
         this.id = id;
     }
 
-    public Venta getVenta() {
-        return venta;
+    public Long getVentaId() {
+        return ventaId;
     }
 
-    public void setVenta(Venta venta) {
-        this.venta = venta;
+    public void setVentaId(Long ventaId) {
+        this.ventaId = ventaId;
     }
 
-    public LocalDateTime getFechaEmision() {
-        return fechaEmision;
+    public TipoComprobante getTipo() {
+        return tipo;
     }
 
-    public void setFechaEmision(LocalDateTime fechaEmision) {
-        this.fechaEmision = fechaEmision;
+    public void setTipo(TipoComprobante tipo) {
+        this.tipo = tipo;
     }
 
-    public String getTipoComprobante() {
-        return tipoComprobante;
+    public String getNumeroSerie() {
+        return numeroSerie;
     }
 
-    public void setTipoComprobante(String tipoComprobante) {
-        this.tipoComprobante = tipoComprobante;
-    }
-
-    public BigDecimal getMonto() {
-        return monto;
-    }
-
-    public void setMonto(BigDecimal monto) {
-        this.monto = monto;
+    public void setNumeroSerie(String numeroSerie) {
+        this.numeroSerie = numeroSerie;
     }
 
     public String getNumeroComprobante() {
@@ -74,6 +83,30 @@ public class ComprobantePago {
         this.numeroComprobante = numeroComprobante;
     }
 
+    public LocalDateTime getFechaEmision() {
+        return fechaEmision;
+    }
+
+    public void setFechaEmision(LocalDateTime fechaEmision) {
+        this.fechaEmision = fechaEmision;
+    }
+
+    public BigDecimal getIgv() {
+        return igv;
+    }
+
+    public void setIgv(BigDecimal igv) {
+        this.igv = igv;
+    }
+
+    public BigDecimal getMontoNeto() {
+        return montoNeto;
+    }
+
+    public void setMontoNeto(BigDecimal montoNeto) {
+        this.montoNeto = montoNeto;
+    }
+
     public ComprobantePago() {
     }
 
@@ -81,11 +114,13 @@ public class ComprobantePago {
     public String toString() {
         return "ComprobantePago{" +
                 "id=" + id +
-                ", venta=" + venta +
-                ", fechaEmision=" + fechaEmision +
-                ", tipoComprobante='" + tipoComprobante + '\'' +
-                ", monto=" + monto +
+                ", ventaId=" + ventaId +
+                ", tipo=" + tipo +
+                ", numeroSerie='" + numeroSerie + '\'' +
                 ", numeroComprobante='" + numeroComprobante + '\'' +
+                ", fechaEmision=" + fechaEmision +
+                ", igv=" + igv +
+                ", montoNeto=" + montoNeto +
                 '}';
     }
 }

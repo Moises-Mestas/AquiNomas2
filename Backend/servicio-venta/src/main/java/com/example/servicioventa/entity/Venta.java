@@ -7,24 +7,29 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "venta")
 public class Venta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String pedido;
+    @Column(name = "pedido_id", nullable = false)
+    private Long pedidoId; // FK sin relación
 
+    @Column(name = "fecha_venta")
     private LocalDateTime fechaVenta;
 
+    @Column(precision = 10, scale = 2)
     private BigDecimal total;
 
-    @Column(nullable = false, length = 100)
-    private String metodoPago;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pago", nullable = false, length = 20)
+    private MetodoPago metodoPago;
 
-    @ManyToOne
-    @JoinColumn(name = "promociones_id")
-    private Promocion promociones;
+    public enum MetodoPago {
+        EFECTIVO, TARJETA, TRANSFERENCIA
+    }
 
     public Long getId() {
         return id;
@@ -34,12 +39,12 @@ public class Venta {
         this.id = id;
     }
 
-    public String getPedido() {
-        return pedido;
+    public Long getPedidoId() {
+        return pedidoId;
     }
 
-    public void setPedido(String pedido) {
-        this.pedido = pedido;
+    public void setPedidoId(Long pedidoId) {
+        this.pedidoId = pedidoId;
     }
 
     public LocalDateTime getFechaVenta() {
@@ -58,20 +63,12 @@ public class Venta {
         this.total = total;
     }
 
-    public String getMetodoPago() {
+    public MetodoPago getMetodoPago() {
         return metodoPago;
     }
 
-    public void setMetodoPago(String metodoPago) {
+    public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
-    }
-
-    public Promocion getPromociones() {
-        return promociones;
-    }
-
-    public void setPromociones(Promocion promociones) {
-        this.promociones = promociones;
     }
 
     public Venta() {
@@ -81,11 +78,10 @@ public class Venta {
     public String toString() {
         return "Venta{" +
                 "id=" + id +
-                ", pedido='" + pedido + '\'' +
+                ", pedidoId=" + pedidoId +
                 ", fechaVenta=" + fechaVenta +
                 ", total=" + total +
-                ", metodoPago='" + metodoPago + '\'' +
-                ", promociones=" + promociones +
+                ", metodoPago=" + metodoPago +
                 '}';
     }
 }

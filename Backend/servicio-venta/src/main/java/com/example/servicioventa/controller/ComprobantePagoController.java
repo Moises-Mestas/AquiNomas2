@@ -13,32 +13,45 @@ import java.util.Optional;
 @RequestMapping("/comprobantes")
 public class ComprobantePagoController {
 
-    @Autowired
-    private  ComprobantePagoService comprobantePagoService;
+    private final ComprobantePagoService comprobantePagoService;
+
+    public ComprobantePagoController(ComprobantePagoService comprobantePagoService) {
+        this.comprobantePagoService = comprobantePagoService;
+    }
 
     @GetMapping
-    public List<ComprobantePago> listar() {
-        return comprobantePagoService.listar();
+    public ResponseEntity<List<ComprobantePago>> listar() {
+        return ResponseEntity.ok(comprobantePagoService.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ComprobantePago> listarPorId(@PathVariable Integer id) {
-        Optional<ComprobantePago> comprobante = comprobantePagoService.listarPorId(id);
-        return comprobante.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ComprobantePago> listarPorId(@PathVariable Long id) {
+        return comprobantePagoService.listarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ComprobantePago guardar(@RequestBody ComprobantePago comprobantePago) {
-        return comprobantePagoService.guardar(comprobantePago);
+    public ResponseEntity<ComprobantePago> guardar(@RequestBody ComprobantePago comprobantePago) {
+        ComprobantePago nuevoComprobante = comprobantePagoService.guardar(comprobantePago);
+        return ResponseEntity.status(201).body(nuevoComprobante);
     }
 
-    @PutMapping
-    public ComprobantePago actualizar(@RequestBody ComprobantePago comprobantePago) {
-        return comprobantePagoService.actualizar(comprobantePago);
+    @PutMapping("/{id}")
+    public ResponseEntity<ComprobantePago> actualizar(@PathVariable Long id, @RequestBody ComprobantePago comprobantePago) {
+        if (!comprobantePagoService.listarPorId(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        ComprobantePago comprobanteActualizado = comprobantePagoService.actualizar(comprobantePago);
+        return ResponseEntity.ok(comprobanteActualizado);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        if (!comprobantePagoService.listarPorId(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
         comprobantePagoService.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }

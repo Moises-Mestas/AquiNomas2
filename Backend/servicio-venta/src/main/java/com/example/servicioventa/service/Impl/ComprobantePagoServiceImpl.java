@@ -1,7 +1,9 @@
 package com.example.servicioventa.service.Impl;
 
 import com.example.servicioventa.entity.ComprobantePago;
+import com.example.servicioventa.repository.ComprobantePagoRepository;
 import com.example.servicioventa.service.ComprobantePagoService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,33 +11,45 @@ import java.util.Optional;
 
 @Service
 public class ComprobantePagoServiceImpl implements ComprobantePagoService {
+
+    private final ComprobantePagoRepository comprobantePagoRepository;
+
+    public ComprobantePagoServiceImpl(ComprobantePagoRepository comprobantePagoRepository) {
+        this.comprobantePagoRepository = comprobantePagoRepository;
+    }
+
     @Override
     public List<ComprobantePago> listar() {
-        return List.of();
+        return comprobantePagoRepository.findAll();
     }
 
     @Override
-    public ComprobantePago guardarComprobante(ComprobantePago comprobantePago) {
-        return null;
-    }
-
-    @Override
+    @Transactional
     public ComprobantePago guardar(ComprobantePago comprobantePago) {
-        return null;
+        return comprobantePagoRepository.save(comprobantePago);
     }
 
     @Override
+    @Transactional
     public ComprobantePago actualizar(ComprobantePago comprobantePago) {
-        return null;
+        if (comprobantePagoRepository.existsById(comprobantePago.getId())) {
+            return comprobantePagoRepository.save(comprobantePago);
+        }
+        throw new RuntimeException("Comprobante no encontrado");
     }
 
     @Override
-    public Optional<ComprobantePago> listarPorId(Integer id) {
-        return Optional.empty();
+    public Optional<ComprobantePago> listarPorId(Long id) {
+        return comprobantePagoRepository.findById(id);
     }
 
     @Override
-    public void eliminarPorId(Integer id) {
-
+    @Transactional
+    public void eliminarPorId(Long id) {
+        if (comprobantePagoRepository.existsById(id)) {
+            comprobantePagoRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Comprobante no encontrado");
+        }
     }
 }
