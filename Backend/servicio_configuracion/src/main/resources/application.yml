@@ -10,7 +10,7 @@ spring:
         git:
           uri: https://github.com/Moises-Mestas/AquiNomas2.git
           searchPaths: Backend/config-data
-          default-label: main
+          default-label: moises
   security:
     user:
       name: root
