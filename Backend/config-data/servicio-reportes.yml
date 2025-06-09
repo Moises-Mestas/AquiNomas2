@@ -2,9 +2,6 @@ server:
   port: ${PORT:${SERVER_PORT:0}}
 
 spring:
-  main:
-    allow-bean-definition-overriding: true
-
   datasource:
     url: jdbc:mysql://localhost:3306/reportes_db
     username: root
@@ -32,27 +29,18 @@ eureka:
 
 resilience4j:
   circuitbreaker:
-    configs:
-      default:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 5000
-        failureRateThreshold: 50
     instances:
-      clienteClient:
+      clienteAdministradorClient:
+        baseConfig: default
+      pedidoDetalleClient:
         baseConfig: default
       ventaClient:
         baseConfig: default
       inventarioClient:
         baseConfig: default
-      detallePedidoClient:
-        baseConfig: default
       bodegaClient:
         baseConfig: default
-      administradorClient:
-        baseConfig: default
+
 
 management:
   endpoints:

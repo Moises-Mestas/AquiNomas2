@@ -17,31 +17,29 @@ import java.util.stream.Collectors;
 public class ReporteServiceImpl implements ReporteService {
 
     private final ReporteRepository reporteRepository;
-    private final ClienteClient clienteClient;
     private final VentaClient ventaClient;
-    private final PedidoClient pedidoClient;
     private final InventarioClient inventarioClient;
-    private final DetallePedidoClient detallePedidoClient;
     private final BodegaClient bodegaClient;
-    private final AdministradorClient administradorClient;
+    private final ClienteAdministradorClient clienteAdministradorClient;
+    private final PedidoDetalleClient pedidoDetalleClient;
+
+
 
     public ReporteServiceImpl(ReporteRepository reporteRepository,
-                              ClienteClient clienteClient,
+                              ClienteAdministradorClient clienteAdministradorClient,
                               VentaClient ventaClient,
-                              PedidoClient pedidoClient,
+                              PedidoDetalleClient pedidoDetalleClient,
                               InventarioClient inventarioClient,
-                              DetallePedidoClient detallePedidoClient,
-                              BodegaClient bodegaClient,
-                              AdministradorClient administradorClient) {
+                              BodegaClient bodegaClient) {
         this.reporteRepository = reporteRepository;
-        this.clienteClient = clienteClient;
+        this.clienteAdministradorClient = clienteAdministradorClient;
         this.ventaClient = ventaClient;
-        this.pedidoClient = pedidoClient;
+        this.pedidoDetalleClient = pedidoDetalleClient;
         this.inventarioClient = inventarioClient;
-        this.detallePedidoClient = detallePedidoClient;
         this.bodegaClient = bodegaClient;
-        this.administradorClient = administradorClient;
     }
+
+
 
     @Override
     public List<Reporte> findAll() {
@@ -70,7 +68,7 @@ public class ReporteServiceImpl implements ReporteService {
         Map<Integer, Long> frecuenciaClientes = new HashMap<>();
 
         for (VentaDto venta : ventas) {
-            PedidoDto pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+            PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(venta.getPedidoId());
             if (pedido != null && pedido.getClienteId() != null) {
                 Integer clienteId = pedido.getClienteId();
                 frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
@@ -81,7 +79,7 @@ public class ReporteServiceImpl implements ReporteService {
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .map(entry -> {
                     Map<String, Object> map = new HashMap<>();
-                    ClienteDto cliente = clienteClient.obtenerClientePorId(entry.getKey());
+                    ClienteDto cliente = clienteAdministradorClient.obtenerClientePorId(entry.getKey());
                     map.put("cliente", cliente);
                     map.put("frecuencia", entry.getValue());
                     return map;
@@ -136,7 +134,7 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos() {
-        List<DetallePedidoDto> detallePedidos = detallePedidoClient.obtenerTodosDetallePedidos();
+        List<DetallePedidoDto> detallePedidos = pedidoDetalleClient.obtenerTodosDetallePedidos();
 
         Map<Integer, Long> pedidosPorProducto = detallePedidos.stream()
                 .collect(Collectors.groupingBy(DetallePedidoDto::getProductoId, Collectors.counting()));
