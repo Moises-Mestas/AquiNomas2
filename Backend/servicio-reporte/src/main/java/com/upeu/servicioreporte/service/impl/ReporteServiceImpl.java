@@ -7,7 +7,6 @@ import com.upeu.servicioreporte.repository.ReporteRepository;
 import com.upeu.servicioreporte.service.ReporteService;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,27 +18,20 @@ public class ReporteServiceImpl implements ReporteService {
     private final ReporteRepository reporteRepository;
     private final VentaClient ventaClient;
     private final InventarioClient inventarioClient;
-    private final BodegaClient bodegaClient;
     private final ClienteAdministradorClient clienteAdministradorClient;
     private final PedidoDetalleClient pedidoDetalleClient;
-
-
 
     public ReporteServiceImpl(ReporteRepository reporteRepository,
                               ClienteAdministradorClient clienteAdministradorClient,
                               VentaClient ventaClient,
                               PedidoDetalleClient pedidoDetalleClient,
-                              InventarioClient inventarioClient,
-                              BodegaClient bodegaClient) {
+                              InventarioClient inventarioClient) {
         this.reporteRepository = reporteRepository;
         this.clienteAdministradorClient = clienteAdministradorClient;
         this.ventaClient = ventaClient;
         this.pedidoDetalleClient = pedidoDetalleClient;
         this.inventarioClient = inventarioClient;
-        this.bodegaClient = bodegaClient;
     }
-
-
 
     @Override
     public List<Reporte> findAll() {
@@ -64,7 +56,6 @@ public class ReporteServiceImpl implements ReporteService {
     @Override
     public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
         List<VentaDto> ventas = ventaClient.obtenerTodasVentas();
-
         Map<Integer, Long> frecuenciaClientes = new HashMap<>();
 
         for (VentaDto venta : ventas) {
@@ -107,29 +98,52 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public List<Map<String, Object>> obtenerInventariosMasUsados() {
-        List<InventarioDto> inventarios = inventarioClient.obtenerTodosInventarios();
-        Map<String, Double> usoPorProducto = new HashMap<>();
+        // Traer inventarios de cocina, barra y bodegas
+        List<InventarioCocinaDto> inventariosCocina = inventarioClient.obtenerInventariosCocina();
+        List<InventarioBarraDto> inventariosBarra = inventarioClient.obtenerInventariosBarra();
+        List<BodegaDto> bodegas = inventarioClient.obtenerTodasLasBodegas();
 
-        for (InventarioDto inv : inventarios) {
-            String productoId = String.valueOf(inv.getProductoId()); // convertir a String
-            BigDecimal cantidad = inv.getCantidadDisponible();
+        Map<Integer, Double> usoPorProducto = new HashMap<>();
 
-            if (productoId != null && cantidad != null) {
-                usoPorProducto.put(productoId,
-                        usoPorProducto.getOrDefault(productoId, 0.0) + cantidad.doubleValue());
+        // Procesar inventarios de cocina
+        for (InventarioCocinaDto cocina : inventariosCocina) {
+            Integer id = cocina.getId(); // Aquí tomamos el ID directamente
+            BigDecimal cantidad = cocina.getCantidadDisponible(); // La cantidad disponible es de tipo BigDecimal
+            if (id != null && cantidad != null) {
+                usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
             }
         }
 
+        // Procesar inventarios de barra
+        for (InventarioBarraDto barra : inventariosBarra) {
+            Integer id = barra.getId(); // Tomamos el ID
+            BigDecimal cantidad = barra.getCantidadDisponible(); // Cantidad disponible de tipo BigDecimal
+            if (id != null && cantidad != null) {
+                usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
+            }
+        }
+
+        // Procesar bodegas (si es necesario)
+        for (BodegaDto bodega : bodegas) {
+            Integer id = bodega.getId(); // Tomamos el ID de la bodega
+            BigDecimal cantidad = bodega.getCantidad(); // Ahora usamos el campo cantidad
+            if (id != null && cantidad != null) {
+                usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
+            }
+        }
+
+        // Ordenar los productos más usados
         return usoPorProducto.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .map(entry -> {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("productoId", entry.getKey());
+                    map.put("productoId", entry.getKey()); // Usamos el ID aquí
                     map.put("cantidadUsada", entry.getValue());
                     return map;
                 })
                 .collect(Collectors.toList());
     }
+
 
 
     @Override
@@ -170,11 +184,9 @@ public class ReporteServiceImpl implements ReporteService {
         return resultado;
     }
 
-
-
     @Override
     public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {
-        List<BodegaDto> bodegas = bodegaClient.obtenerTodasLasBodegas();
+        List<BodegaDto> bodegas = inventarioClient.obtenerTodasLasBodegas();
         Double cantidadTotal = bodegas.stream()
                 .filter(b -> b.getProductoId().equals(insumoId.toString()))
                 .mapToDouble(b -> b.getCantidad().doubleValue())
