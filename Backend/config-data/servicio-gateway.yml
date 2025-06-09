@@ -23,10 +23,10 @@ spring:
         - id: servicio-inventario
           uri: lb://servicio-inventario
           predicates:
-            - Path=/bodega/**, /inventario-barra/**
+            - Path=/bodega/**, /inventario-barra/**, /inventario-cocina/**
 
         #========servicio proveedores=======#
         - id: servicio-proveedores
           uri: lb://servicio-proveedores
           predicates:
-            - Path=/proveedores/**, /compras-proveedores/**, /productos/**
+            - Path=/proveedores/**, /compras-proveedores/**, /productos/**, /compras/**, /productos/precio/**
