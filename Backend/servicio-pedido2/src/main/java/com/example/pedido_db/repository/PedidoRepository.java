@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     List<Pedido> findByEstadoPedido(EstadoPedido estadoPedido);
-
+//    List<Pedido> findByDetallePedido_ClienteId(Integer clienteId); // Filtrar pedidos por clienteId
 }

@@ -2,7 +2,6 @@ package com.example.pedido_db.dto;
 
 import jakarta.persistence.*;
 
-@Entity
 public class Producto {
 
     @Id

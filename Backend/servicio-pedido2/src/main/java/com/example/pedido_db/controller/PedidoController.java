@@ -13,9 +13,25 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
+    private final PedidoService pedidoService;
 
-    @Autowired
-    private PedidoService pedidoService;
+    public PedidoController(PedidoService pedidoService) {
+        this.pedidoService = pedidoService;
+    }
+
+//    @Autowired
+//    private PedidoService pedidoService;
+//
+//    // Endpoint para obtener el historial de pedidos de un cliente
+//    @GetMapping("/historyByCliente")
+//    public ResponseEntity<List<Pedido>> getPedidoHistoryByCliente(@RequestParam Integer clienteId) {
+//        List<Pedido> pedidos = pedidoService.getHistoryByCliente(clienteId);
+//        if (pedidos.isEmpty()) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.ok(pedidos);
+//    }
+
 
 
     // Filtrar pedidos por estado

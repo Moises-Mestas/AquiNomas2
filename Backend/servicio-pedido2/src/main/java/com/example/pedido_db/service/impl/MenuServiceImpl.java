@@ -7,13 +7,22 @@ import com.example.pedido_db.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class MenuServiceImpl implements MenuService {
 
-    private final MenuRepository menuRepository;
+    @Autowired
+    private MenuRepository menuRepository;
+
+    // Método que filtra los menús por un rango de precio
+    @Override
+    public List<Menu> listarPorRangoPrecio(BigDecimal minPrecio, BigDecimal maxPrecio) {
+        return menuRepository.findByPrecioBetween(minPrecio, maxPrecio);
+    }
+
 
     @Autowired
     public MenuServiceImpl(MenuRepository menuRepository) {

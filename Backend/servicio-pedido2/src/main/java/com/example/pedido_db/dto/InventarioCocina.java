@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Entity
 public class InventarioCocina {
 
     @Id
