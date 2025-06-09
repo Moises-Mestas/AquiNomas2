@@ -1,8 +1,12 @@
 package com.example.pedido_db.service.impl;
 
+import com.example.pedido_db.dto.Producto;
 import com.example.pedido_db.entity.Receta;
+import com.example.pedido_db.feign.ProductoFeign;
 import com.example.pedido_db.repository.RecetaRepository;
+import com.example.pedido_db.service.DetallePedidoService;
 import com.example.pedido_db.service.RecetaService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,21 +16,59 @@ import java.util.Optional;
 @Service
 public class RecetaServiceImpl implements RecetaService {
 
-    private final RecetaRepository recetaRepository;
+    @Autowired
+    private RecetaRepository recetaRepository;
+
+    @Autowired
+    private ProductoFeign productoFeign;  // Feign client to fetch Producto data
+
 
     @Autowired
     public RecetaServiceImpl(RecetaRepository recetaRepository) {
         this.recetaRepository = recetaRepository;
     }
 
-    @Override
+    @CircuitBreaker(name = "productoCircuitBreaker", fallbackMethod = "fallbackProducto")
     public List<Receta> listar() {
-        return recetaRepository.findAll();
+        List<Receta> recetas = recetaRepository.findAll();
+
+        // Iterar para cargar el producto de cada receta
+        for (Receta receta : recetas) {
+            if (receta.getProductoId() != null) {
+                Producto producto = productoFeign.listById(receta.getProductoId()).getBody();
+                receta.setProducto(producto);
+            }
+        }
+
+        return recetas;
     }
+
+    // Fallback method in case of failure
+    public List<Receta> fallbackProducto(Throwable throwable) {
+        // Aquí puedes agregar la lógica de fallback, por ejemplo, retornar una lista vacía
+        return List.of();
+    }
+
+
 
     @Override
     public Optional<Receta> listarPorId(Integer id) {
-        return recetaRepository.findById(id);
+        Optional<Receta> recetaOpt = recetaRepository.findById(id);
+
+        // Verificar si la receta existe
+        if (recetaOpt.isPresent()) {
+            Receta receta = recetaOpt.get();
+
+            // Si el productoId no es null, cargar el producto mediante Feign
+            if (receta.getProductoId() != null) {
+                Producto producto = productoFeign.listById(receta.getProductoId()).getBody();
+                receta.setProducto(producto);  // Establecer el producto relacionado
+            }
+
+            return Optional.of(receta);  // Retornar la receta con el producto cargado
+        } else {
+            return Optional.empty();  // Si no se encuentra la receta, retornar Optional vacío
+        }
     }
 
     @Override
