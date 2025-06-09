@@ -35,25 +35,7 @@ public class Receta {
 
     }
 
-    public BigDecimal convertirUnidad(BigDecimal cantidad, String unidadOrigen, String unidadDestino) {
-        // Si las unidades son iguales, no se hace conversión
-        if (unidadOrigen.equals(unidadDestino)) {
-            return cantidad;
-        }
 
-        // Si la unidad de origen es "kg" y la de destino es "g", multiplicamos por 1000
-        if (unidadOrigen.equals("kg") && unidadDestino.equals("g")) {
-            return cantidad.multiply(BigDecimal.valueOf(1000));
-        }
-
-        // Si la unidad de origen es "g" y la de destino es "kg", dividimos por 1000
-        else if (unidadOrigen.equals("g") && unidadDestino.equals("kg")) {
-            return cantidad.divide(BigDecimal.valueOf(1000), 3, BigDecimal.ROUND_HALF_UP);  // Redondear a 3 decimales
-        } else {
-            // Si no se soporta la conversión, lanzar una excepción
-            throw new IllegalArgumentException("Conversión no soportada de " + unidadOrigen + " a " + unidadDestino);
-        }
-    }
     public Integer getId() {
         return id;
     }

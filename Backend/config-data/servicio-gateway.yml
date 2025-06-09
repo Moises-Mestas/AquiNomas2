@@ -43,5 +43,9 @@ spring:
           predicates:
             - Path=/bodega/**, /inventario-cocina/**, /inventario-barra/**
 
-
+        #========servicio reportes=======#
+        - id: servicio-reportes
+          uri: lb://servicio-reportes
+          predicates:
+            - Path=/reportes/**
 
