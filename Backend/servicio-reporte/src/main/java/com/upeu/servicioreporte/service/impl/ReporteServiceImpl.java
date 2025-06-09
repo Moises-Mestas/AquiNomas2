@@ -7,6 +7,7 @@ import com.upeu.servicioreporte.repository.ReporteRepository;
 import com.upeu.servicioreporte.service.ReporteService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ public class ReporteServiceImpl implements ReporteService {
     private final ReporteRepository reporteRepository;
     private final ClienteClient clienteClient;
     private final VentaClient ventaClient;
+    private final PedidoClient pedidoClient;
     private final InventarioClient inventarioClient;
     private final DetallePedidoClient detallePedidoClient;
     private final BodegaClient bodegaClient;
@@ -25,6 +27,7 @@ public class ReporteServiceImpl implements ReporteService {
     public ReporteServiceImpl(ReporteRepository reporteRepository,
                               ClienteClient clienteClient,
                               VentaClient ventaClient,
+                              PedidoClient pedidoClient,
                               InventarioClient inventarioClient,
                               DetallePedidoClient detallePedidoClient,
                               BodegaClient bodegaClient,
@@ -32,6 +35,7 @@ public class ReporteServiceImpl implements ReporteService {
         this.reporteRepository = reporteRepository;
         this.clienteClient = clienteClient;
         this.ventaClient = ventaClient;
+        this.pedidoClient = pedidoClient;
         this.inventarioClient = inventarioClient;
         this.detallePedidoClient = detallePedidoClient;
         this.bodegaClient = bodegaClient;
@@ -62,22 +66,26 @@ public class ReporteServiceImpl implements ReporteService {
     public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
         List<VentaDto> ventas = ventaClient.obtenerTodasVentas();
 
-        Map<Integer, Long> frecuenciaClientes = ventas.stream()
-                .collect(Collectors.groupingBy(VentaDto::getClienteId, Collectors.counting()));
+        Map<Integer, Long> frecuenciaClientes = new HashMap<>();
 
-        List<Map.Entry<Integer, Long>> ordenados = frecuenciaClientes.entrySet().stream()
-                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                .collect(Collectors.toList());
-
-        List<Map<String, Object>> resultado = new ArrayList<>();
-        for (Map.Entry<Integer, Long> entry : ordenados) {
-            ClienteDto cliente = clienteClient.obtenerClientePorId(entry.getKey());
-            Map<String, Object> map = new HashMap<>();
-            map.put("cliente", cliente);
-            map.put("frecuencia", entry.getValue());
-            resultado.add(map);
+        for (VentaDto venta : ventas) {
+            PedidoDto pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+            if (pedido != null && pedido.getClienteId() != null) {
+                Integer clienteId = pedido.getClienteId();
+                frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
+            }
         }
-        return resultado;
+
+        return frecuenciaClientes.entrySet().stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .map(entry -> {
+                    Map<String, Object> map = new HashMap<>();
+                    ClienteDto cliente = clienteClient.obtenerClientePorId(entry.getKey());
+                    map.put("cliente", cliente);
+                    map.put("frecuencia", entry.getValue());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -89,47 +97,51 @@ public class ReporteServiceImpl implements ReporteService {
         resultado.put("fin", fin);
         resultado.put("cantidadVentas", ventas.size());
 
-        Double totalVentas = ventas.stream()
-                .mapToDouble(VentaDto::getTotal)
-                .sum();
-        resultado.put("totalVentas", totalVentas);
+        BigDecimal totalVentas = ventas.stream()
+                .map(VentaDto::getTotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        resultado.put("totalVentas", totalVentas);
         return resultado;
     }
 
     @Override
     public List<Map<String, Object>> obtenerInventariosMasUsados() {
         List<InventarioDto> inventarios = inventarioClient.obtenerTodosInventarios();
-
         Map<String, Double> usoPorProducto = new HashMap<>();
 
         for (InventarioDto inv : inventarios) {
-            String productoId = inv.getProductoId();
-            Double cantidad = inv.getCantidad().doubleValue();
+            String productoId = String.valueOf(inv.getProductoId()); // convertir a String
+            BigDecimal cantidad = inv.getCantidadDisponible();
 
-            usoPorProducto.put(productoId, usoPorProducto.getOrDefault(productoId, 0.0) + cantidad);
+            if (productoId != null && cantidad != null) {
+                usoPorProducto.put(productoId,
+                        usoPorProducto.getOrDefault(productoId, 0.0) + cantidad.doubleValue());
+            }
         }
 
-        List<Map.Entry<String, Double>> ordenados = usoPorProducto.entrySet().stream()
+        return usoPorProducto.entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .map(entry -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("productoId", entry.getKey());
+                    map.put("cantidadUsada", entry.getValue());
+                    return map;
+                })
                 .collect(Collectors.toList());
-
-        List<Map<String, Object>> resultado = new ArrayList<>();
-        for (Map.Entry<String, Double> entry : ordenados) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("productoId", entry.getKey());
-            map.put("cantidadUsada", entry.getValue());
-            resultado.add(map);
-        }
-        return resultado;
     }
+
 
     @Override
     public Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos() {
         List<DetallePedidoDto> detallePedidos = detallePedidoClient.obtenerTodosDetallePedidos();
 
         Map<String, Long> pedidosPorProducto = detallePedidos.stream()
-                .collect(Collectors.groupingBy(DetallePedidoDto::getProductoId, Collectors.counting()));
+                .collect(Collectors.groupingBy(
+                        dp -> String.valueOf(dp.getProductoId()), // conversión explícita
+                        Collectors.counting()
+                ));
 
         List<Map.Entry<String, Long>> ordenados = pedidosPorProducto.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
@@ -138,57 +150,36 @@ public class ReporteServiceImpl implements ReporteService {
         List<Map<String, Object>> masPedidos = ordenados.stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .limit(5)
-                .map(e -> {
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("productoId", e.getKey());
-                    m.put("cantidad", e.getValue());
-                    return m;
-                }).collect(Collectors.toList());
+                .map(e -> Map.of("productoId", e.getKey(), "cantidad", e.getValue()))
+                .collect(Collectors.toList());
 
         List<Map<String, Object>> menosPedidos = ordenados.stream()
                 .limit(5)
-                .map(e -> {
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("productoId", e.getKey());
-                    m.put("cantidad", e.getValue());
-                    return m;
-                }).collect(Collectors.toList());
+                .map(e -> Map.of("productoId", e.getKey(), "cantidad", e.getValue()))
+                .collect(Collectors.toList());
 
-        Map<String, List<Map<String, Object>>> resultado = new HashMap<>();
-        resultado.put("masPedidos", masPedidos);
-        resultado.put("menosPedidos", menosPedidos);
-
-        return resultado;
+        return Map.of("masPedidos", masPedidos, "menosPedidos", menosPedidos);
     }
 
     @Override
     public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {
         List<BodegaDto> bodegas = bodegaClient.obtenerTodasLasBodegas();
-
-        List<BodegaDto> insumoFiltrado = bodegas.stream()
+        Double cantidadTotal = bodegas.stream()
                 .filter(b -> b.getProductoId().equals(insumoId.toString()))
-                .collect(Collectors.toList());
-
-        Double cantidadTotal = insumoFiltrado.stream()
                 .mapToDouble(b -> b.getCantidad().doubleValue())
                 .sum();
 
-        Map<String, Object> resultado = new HashMap<>();
-        resultado.put("insumoId", insumoId);
-        resultado.put("cantidadTotal", cantidadTotal);
-        // Aquí podrías agregar costo si lo tienes disponible
-
-        return resultado;
+        return Map.of(
+                "insumoId", insumoId,
+                "cantidadTotal", cantidadTotal
+        );
     }
 
     @Override
     public Map<String, Long> obtenerComprobantesMasUsados() {
         List<VentaDto> ventas = ventaClient.obtenerTodasVentas();
-
-        Map<String, Long> frecuenciaComprobantes = ventas.stream()
-                .collect(Collectors.groupingBy(VentaDto::getTipoComprobante, Collectors.counting()));
-
-        return frecuenciaComprobantes;
+        return ventas.stream()
+                .collect(Collectors.groupingBy(VentaDto::getMetodoPago, Collectors.counting()));
     }
 
     @Override

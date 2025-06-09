@@ -11,10 +11,10 @@ import java.util.List;
 @FeignClient(name = "servicio-venta", fallback = VentaClientFallback.class)
 public interface VentaClient {
 
-    @GetMapping("/api/ventas")
+    @GetMapping("/ventas")
     List<VentaDto> obtenerTodasVentas();
 
-    @GetMapping("/api/ventas/por-fecha")
+    @GetMapping("/ventas/por-fecha")
     List<VentaDto> obtenerVentasPorFecha(@RequestParam("inicio") LocalDateTime inicio,
                                          @RequestParam("fin") LocalDateTime fin);
 }
