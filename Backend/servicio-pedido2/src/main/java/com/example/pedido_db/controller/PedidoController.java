@@ -1,5 +1,6 @@
 package com.example.pedido_db.controller;
 
+import com.example.pedido_db.entity.EstadoPedido;
 import com.example.pedido_db.entity.Pedido;
 import com.example.pedido_db.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,20 @@ public class PedidoController {
 
     @Autowired
     private PedidoService pedidoService;
+
+
+    // Filtrar pedidos por estado
+    @GetMapping("/filter")
+    public ResponseEntity<List<Pedido>> filterByStatus(@RequestParam EstadoPedido estadoPedido) {
+        List<Pedido> pedidos = pedidoService.listarPorEstado(estadoPedido);
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(pedidos); // Retorna los pedidos con estado filtrado
+    }
+
+
+
 
     @GetMapping
     public ResponseEntity<List<Pedido>> list() {

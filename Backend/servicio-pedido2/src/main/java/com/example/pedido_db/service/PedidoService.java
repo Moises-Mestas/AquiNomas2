@@ -1,5 +1,6 @@
 package com.example.pedido_db.service;
 
+import com.example.pedido_db.entity.EstadoPedido;
 import com.example.pedido_db.entity.Pedido;
 
 import java.util.List;
@@ -21,4 +22,10 @@ public interface PedidoService {
 
     // Método para eliminar un pedido por su ID
     void eliminar(Integer id);
+
+
+
+    // Método para obtener los pedidos por estado
+    List<Pedido> listarPorEstado(EstadoPedido estadoPedido);
+
 }

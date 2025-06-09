@@ -15,7 +15,6 @@ public class DetallePedido {
 
     @Transient
     private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign
-
     private Integer clienteId;
 
     @ManyToOne

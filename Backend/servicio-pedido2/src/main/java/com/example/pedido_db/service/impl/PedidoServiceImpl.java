@@ -2,6 +2,7 @@ package com.example.pedido_db.service.impl;
 
 import com.example.pedido_db.dto.Cliente;
 import com.example.pedido_db.entity.DetallePedido;
+import com.example.pedido_db.entity.EstadoPedido;
 import com.example.pedido_db.entity.Pedido;
 import com.example.pedido_db.feign.ClienteFeign;
 import com.example.pedido_db.repository.DetallePedidoRepository;
@@ -26,6 +27,29 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private DetallePedidoRepository detallePedidoRepository;
 
+    // Filtrar los pedidos por estado
+    @Override
+    public List<Pedido> listarPorEstado(EstadoPedido estadoPedido) {
+        // Obtener los pedidos filtrados por estado
+        List<Pedido> pedidos = pedidoRepository.findByEstadoPedido(estadoPedido);
+
+        // Cargar los detalles de cada pedido
+        for (Pedido pedido : pedidos) {
+            DetallePedido detallePedido = detallePedidoRepository.findById(pedido.getDetallePedidoId())
+                    .orElseThrow(() -> new RuntimeException("DetallePedido no encontrado"));
+
+            // Verificar si tiene clienteId y asignarlo
+            if (detallePedido.getClienteId() != null) {
+                Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                detallePedido.setCliente(cliente); // Asignar cliente al detalle
+            }
+
+            // Asignar el detallePedido al pedido
+            pedido.setDetallePedido(detallePedido);
+        }
+
+        return pedidos; // Devuelve los pedidos con detalles cargados
+    }
 
     @Override
     public List<Pedido> listar() {
