@@ -76,51 +76,39 @@ def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_mi
     try:
         conexion = obtener_conexion()
         with conexion.cursor(dictionary=True) as cursor:
-            # Obtener los datos de la bodega
             cursor.execute("SELECT * FROM bodega WHERE id = %s", (bodega_id,))
             bodega_data = cursor.fetchone()
 
             if not bodega_data:
                 return {"error": "El 'bodega_id' no existe en la tabla 'bodega'."}
 
-            # Validar que el tipo_insumo sea 'bebida' o 'bebidas'
             if bodega_data["tipo_insumo"].lower() not in ["bebida", "bebidas"]:
                 return {"error": "Solo se pueden ingresar datos con 'tipo_insumo' igual a 'bebida' o 'bebidas'."}
 
-            # Convertir la cantidad disponible en bodega a la unidad destino
             cantidad_bodega_convertida = convertir_unidad(bodega_data["cantidad"], bodega_data["unidad_medida"], unidad_destino)
             cantidad_disponible_convertida = convertir_unidad(cantidad_disponible, unidad_destino, unidad_destino)
 
-            # Validar que la cantidad disponible en bodega sea suficiente
             if cantidad_bodega_convertida < cantidad_disponible_convertida:
                 return {"error": "La cantidad disponible en bodega es insuficiente."}
 
-            # Usar el nombre_producto recibido o el producto_id como fallback
             nombre_producto = nombre_producto or bodega_data.get("producto_id", "Producto desconocido")
 
-            # Verificar si ya existe un registro en inventario_barra con el mismo bodega_id
             cursor.execute("SELECT * FROM inventario_barra WHERE bodega_id = %s", (bodega_id,))
             inventario_barra_data = cursor.fetchone()
 
             if inventario_barra_data:
-    # Convertir la cantidad existente en inventario_barra a la misma unidad
                 cantidad_existente_convertida = convertir_unidad(
                 inventario_barra_data["cantidad_disponible"],
                 inventario_barra_data["unidad_medida"],
                 unidad_destino
                 )
-
-    # Sumar las cantidades en la misma unidad
                 nueva_cantidad = cantidad_existente_convertida + cantidad_disponible_convertida
-
-    # Actualizar el registro en inventario_barra
                 cursor.execute("""
                 UPDATE inventario_barra
                 SET cantidad_disponible = %s, fecha_entrada = NOW(), nombre_producto = %s, unidad_medida = %s
                 WHERE bodega_id = %s
                 """, (nueva_cantidad, nombre_producto, unidad_destino, bodega_id))
             else:
-                # Si no existe, insertar un nuevo registro
                 cursor.execute("""
                     INSERT INTO inventario_barra (bodega_id, cantidad_disponible, unidad_medida, stock_minimo, fecha_entrada, nombre_producto)
                     VALUES (%s, %s, %s, %s, NOW(), %s)
@@ -132,7 +120,6 @@ def crear_inventario_barra_desde_bodega(bodega_id, cantidad_disponible, stock_mi
                     nombre_producto
                 ))
 
-            # Actualizar la cantidad en bodega
             nueva_cantidad_bodega = cantidad_bodega_convertida - cantidad_disponible_convertida
             nueva_cantidad_bodega_original = convertir_unidad(nueva_cantidad_bodega, unidad_destino, bodega_data["unidad_medida"])
             cursor.execute("""

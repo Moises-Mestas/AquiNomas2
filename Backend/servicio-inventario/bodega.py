@@ -120,6 +120,8 @@ def obtener_compra_proveedor_por_id(compra_proveedor_id):
 
 
 
+
+
 def obtener_producto_por_id_desde_servicio(producto_id):
     global URL_SERVICIO_PROVEEDOR
     if not URL_SERVICIO_PROVEEDOR:
@@ -311,3 +313,208 @@ def eliminar_bodega(bodega_id):
     finally:
         if conexion:
             conexion.close()
+
+
+def obtener_bodega_por_tipo_insumo(tipo_insumo):
+    """Obtiene registros de bodega filtrados por tipo_insumo."""
+    if not tipo_insumo or not isinstance(tipo_insumo, str):
+        raise ValueError("El tipo_insumo es inválido o no se proporcionó.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
+                FROM bodega
+                WHERE LOWER(tipo_insumo) = LOWER(%s)
+            """, (tipo_insumo,))
+            registros = cursor.fetchall()
+
+        # Enriquecer los registros con datos adicionales del servicio-proveedor
+        for registro in registros:
+            producto = obtener_producto_por_id_desde_servicio(registro["producto_id"])
+            if producto and "nombre" in producto:
+                registro["nombre_producto"] = producto["nombre"]
+            else:
+                registro["nombre_producto"] = "Producto desconocido"
+
+            compra = obtener_compra_proveedor_por_id(registro["compra_proveedor_id"])
+            if "error" not in compra:
+                registro["proveedor_nombre"] = compra.get("proveedor_nombre")
+            else:
+                registro["proveedor_nombre"] = None
+
+        return registros
+    except mysql.connector.Error as e:
+        print(f"Error al obtener los registros de bodega por tipo_insumo: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()
+
+
+def obtener_bodega_por_fecha_entrada(fecha_entrada):
+    """Obtiene registros de bodega filtrados por una fecha específica de entrada."""
+    if not fecha_entrada:
+        raise ValueError("Debe proporcionar una fecha válida.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
+                FROM bodega
+                WHERE DATE(fecha_entrada) = %s
+            """, (fecha_entrada,))
+            registros = cursor.fetchall()
+        return registros
+    except mysql.connector.Error as e:
+        print(f"Error al obtener los registros de bodega por fecha de entrada: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()           
+
+
+def obtener_bodega_por_rango_fecha_entrada(fecha_inicio, fecha_fin):
+    """Obtiene registros de bodega filtrados por un rango de fechas de entrada."""
+    if not fecha_inicio or not fecha_fin:
+        raise ValueError("Debe proporcionar ambas fechas: fecha_inicio y fecha_fin.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
+                FROM bodega
+                WHERE fecha_entrada BETWEEN %s AND %s
+            """, (fecha_inicio, fecha_fin))
+            registros = cursor.fetchall()
+        return registros
+    except mysql.connector.Error as e:
+        print(f"Error al obtener los registros de bodega por rango de fechas de entrada: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()
+
+
+
+
+def obtener_bodega_por_producto_id(producto_id):
+    """Obtiene registros de bodega filtrados por producto_id."""
+    if not producto_id or not isinstance(producto_id, int):
+        raise ValueError("El producto_id es inválido o no se proporcionó.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
+                FROM bodega
+                WHERE producto_id = %s
+            """, (producto_id,))
+            registros = cursor.fetchall()
+        for registro in registros:
+            producto = obtener_producto_por_id_desde_servicio(registro["producto_id"])
+            if producto and "nombre" in producto:
+                registro["nombre_producto"] = producto["nombre"]
+            else:
+                registro["nombre_producto"] = "Producto desconocido"
+
+            compra = obtener_compra_proveedor_por_id(registro["compra_proveedor_id"])
+            if "error" not in compra:
+                registro["proveedor_nombre"] = compra.get("proveedor_nombre")
+            else:
+                registro["proveedor_nombre"] = None
+
+        return registros
+    except mysql.connector.Error as e:
+        print(f"Error al obtener los registros de bodega por producto_id: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()        
+
+            
+
+def obtener_stock_total_por_producto(producto_id):
+    """Obtiene el stock total de un producto en la bodega."""
+    if not producto_id or not isinstance(producto_id, int):
+        raise ValueError("El producto_id es inválido o no se proporcionó.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT SUM(cantidad) AS stock_total, unidad_medida
+                FROM bodega
+                WHERE producto_id = %s
+                GROUP BY unidad_medida
+            """, (producto_id,))
+            resultado = cursor.fetchone()
+        return resultado if resultado else {"mensaje": "No hay stock para el producto especificado."}
+    except mysql.connector.Error as e:
+        print(f"Error al obtener el stock total por producto: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()           
+
+
+def obtener_productos_con_stock_bajo(stock_minimo):
+    """Obtiene productos con stock por debajo del nivel mínimo."""
+    if not isinstance(stock_minimo, (int, float)) or stock_minimo < 0:
+        raise ValueError("El stock mínimo debe ser un número positivo.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT producto_id, SUM(cantidad) AS stock_total, unidad_medida
+                FROM bodega
+                GROUP BY producto_id, unidad_medida
+                HAVING stock_total < %s
+            """, (stock_minimo,))
+            productos = cursor.fetchall()
+        return productos if productos else {"mensaje": "No hay productos con stock bajo."}
+    except mysql.connector.Error as e:
+        print(f"Error al obtener productos con stock bajo: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()            
+
+
+
+def obtener_historial_movimientos_por_producto(producto_id):
+    """Obtiene el historial de movimientos de un producto en la bodega."""
+    if not producto_id or not isinstance(producto_id, int):
+        raise ValueError("El producto_id es inválido o no se proporcionó.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, cantidad, unidad_medida, fecha_entrada, fecha_movimiento
+                FROM bodega
+                WHERE producto_id = %s
+                ORDER BY fecha_movimiento DESC
+            """, (producto_id,))
+            movimientos = cursor.fetchall()
+        return movimientos if movimientos else {"mensaje": "No hay movimientos registrados para este producto."}
+    except mysql.connector.Error as e:
+        print(f"Error al obtener el historial de movimientos: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()            
+
+

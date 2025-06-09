@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import bodega
 import pybreaker
 import os
+from bodega import *
 import random
 import inventarioBarra
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -83,6 +84,116 @@ def eliminar_bodega_ruta(bodega_id):
 
 
 
+@app.route('/bodega/tipo-insumo/<string:tipo_insumo>', methods=['GET'])
+def ruta_obtener_bodega_por_tipo_insumo(tipo_insumo):
+    try:
+        registros = obtener_bodega_por_tipo_insumo(tipo_insumo)
+        if registros:
+            return jsonify(registros), 200
+        else:
+            return jsonify({"error": "No se encontraron registros en bodega para el tipo_insumo especificado."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+
+
+@app.route('/bodega/fecha-entrada', methods=['GET'])
+def ruta_obtener_bodega_por_fecha_entrada():
+    try:
+        fecha_entrada = request.args.get('fecha_entrada')
+
+        if not fecha_entrada:
+            return jsonify({"error": "Debe proporcionar el parámetro 'fecha_entrada'."}), 400
+
+        registros = obtener_bodega_por_fecha_entrada(fecha_entrada)
+        if registros:
+            return jsonify(registros), 200
+        else:
+            return jsonify({"error": "No se encontraron registros en bodega para la fecha especificada."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/bodega/rango-fecha-entrada', methods=['GET'])
+def ruta_obtener_bodega_por_rango_fecha_entrada():
+    try:
+        fecha_inicio = request.args.get('fecha_inicio')
+        fecha_fin = request.args.get('fecha_fin')
+
+        if not fecha_inicio or not fecha_fin:
+            return jsonify({"error": "Debe proporcionar los parámetros 'fecha_inicio' y 'fecha_fin'."}), 400
+
+        registros = obtener_bodega_por_rango_fecha_entrada(fecha_inicio, fecha_fin)
+        if registros:
+            return jsonify(registros), 200
+        else:
+            return jsonify({"error": "No se encontraron registros en bodega para el rango de fechas especificado."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/bodega/producto/<int:producto_id>', methods=['GET'])
+def ruta_obtener_bodega_por_producto_id(producto_id):
+    try:
+        registros = obtener_bodega_por_producto_id(producto_id)
+        if registros:
+            return jsonify(registros), 200
+        else:
+            return jsonify({"error": "No se encontraron registros en bodega para el producto_id especificado."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@app.route('/bodega/stock-total/<int:producto_id>', methods=['GET'])
+def ruta_obtener_stock_total_por_producto(producto_id):
+    try:
+        resultado = obtener_stock_total_por_producto(producto_id)
+        return jsonify(resultado), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+
+@app.route('/bodega/stock-bajo', methods=['GET'])
+def ruta_obtener_productos_con_stock_bajo():
+    try:
+        stock_minimo = request.args.get('stock_minimo', type=float)
+        if stock_minimo is None:
+            return jsonify({"error": "Debe proporcionar el parámetro 'stock_minimo'."}), 400
+
+        productos = obtener_productos_con_stock_bajo(stock_minimo)
+        return jsonify(productos), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/bodega/historial/<int:producto_id>', methods=['GET'])
+def ruta_obtener_historial_movimientos_por_producto(producto_id):
+    try:
+        movimientos = obtener_historial_movimientos_por_producto(producto_id)
+        return jsonify(movimientos), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+
+
 
 @app.route('/inventario-barra/desde-bodega', methods=['POST'])
 def crear_inventario_barra_desde_bodega_ruta():
@@ -133,11 +244,6 @@ def eliminar_inventario_barra_ruta(id):
         return jsonify({"error": str(e)}), 500   
     
 
-@app.route('/inventario-barra/alerta-stock-minimo', methods=['GET'])
-def ruta_alerta_stock_minimo():
-    resultado = alerta_stock_minimo()
-    return jsonify(resultado)
-
 
 
 @app.route('/inventario-cocina/crear', methods=['POST'])
@@ -182,7 +288,16 @@ def ruta_eliminar_inventario_cocina(id):
     resultado = eliminar_inventario_cocina(id)
     return jsonify(resultado)
 
-# Ruta para obtener alertas de stock mínimo en inventario_cocina
+
+
+@app.route('/inventario-barra/alerta-stock-minimo', methods=['GET'])
+def ruta_alerta_stock_minimo():
+    resultado = alerta_stock_minimo()
+    return jsonify(resultado)
+
+
+
+
 @app.route('/inventario-cocina/alerta-stock-minimo', methods=['GET'])
 def ruta_alerta_stock_minimo_cocina():
     resultado = alerta_stock_minimo_cocina()

@@ -18,3 +18,15 @@ spring:
           uri: lb://servicio-auth
           predicates:
             - Path=/auth/**
+
+        #========servicio inventario=======#
+        - id: servicio-inventario
+          uri: lb://servicio-inventario
+          predicates:
+            - Path=/bodega/**, /inventario-barra/**
+
+        #========servicio proveedores=======#
+        - id: servicio-proveedores
+          uri: lb://servicio-proveedores
+          predicates:
+            - Path=/proveedores/**, /compras-proveedores/**, /productos/**

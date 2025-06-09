@@ -193,3 +193,24 @@ def eliminar_proveedor_por_id(proveedor_id):
     finally:
         if conexion:
             conexion.close()
+
+
+
+def obtener_proveedores_por_estado(estado):
+    """Obtiene proveedores filtrados por estado."""
+    if not estado or not isinstance(estado, str):
+        raise ValueError("El estado es inválido o no se proporcionó.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("SELECT * FROM proveedor WHERE LOWER(estado) = LOWER(%s)", (estado,))
+            proveedores = cursor.fetchall()
+        return proveedores
+    except Error as e:
+        print(f"Error al obtener los proveedores por estado: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()

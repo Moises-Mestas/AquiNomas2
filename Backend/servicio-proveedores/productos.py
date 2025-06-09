@@ -200,3 +200,76 @@ def eliminar_producto_por_id(producto_id):
         if conexion:
             conexion.close()
 
+
+
+def obtener_producto_por_nombre(nombre_producto):
+    """Obtiene un producto por su nombre."""
+    if not isinstance(nombre_producto, str) or not nombre_producto.strip():
+        raise ValueError("El nombre del producto es inválido.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+                FROM producto WHERE LOWER(nombre) = LOWER(%s)
+            """, (nombre_producto,))
+            producto = cursor.fetchall()
+        return producto
+    except Error as e:
+        print(f"Error al obtener el producto por nombre: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()
+
+
+def obtener_productos_por_tipo_insumo(tipo_insumo):
+    """Obtiene productos por su tipo de insumo."""
+    if not isinstance(tipo_insumo, str) or not tipo_insumo.strip():
+        raise ValueError("El tipo de insumo es inválido.")
+    
+    conexion = None
+    try:
+        print(f"Buscando productos con tipo_insumo: {tipo_insumo}")
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+                FROM producto WHERE LOWER(tipo_insumo) = LOWER(%s)
+            """, (tipo_insumo,))
+            productos = cursor.fetchall()
+        return productos
+    except Error as e:
+        print(f"Error al obtener los productos por tipo de insumo: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()
+
+
+
+def obtener_productos_por_rango_precio(precio_min, precio_max):
+    """Obtiene productos dentro de un rango de precios."""
+    if not isinstance(precio_min, (int, float)) or not isinstance(precio_max, (int, float)):
+        raise ValueError("Los valores de precio_min y precio_max deben ser números.")
+    if precio_min < 0 or precio_max < 0 or precio_min > precio_max:
+        raise ValueError("El rango de precios es inválido.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+                FROM producto WHERE precio BETWEEN %s AND %s
+            """, (precio_min, precio_max))
+            productos = cursor.fetchall()
+        return productos
+    except Error as e:
+        print(f"Error al obtener los productos por rango de precio: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()

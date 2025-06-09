@@ -215,33 +215,6 @@ def obtener_url_servicio_inventario():
 
 obtener_url_servicio_inventario()
 
-
-# def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=None, duracion_insumo=None):
-#     global URL_SERVICIO_INVENTARIO
-#     if not URL_SERVICIO_INVENTARIO:
-#         if not obtener_url_servicio_inventario():
-#             return {"error": "No se pudo resolver la URL del servicio-inventario"}
-
-#     url_bodega = f"{URL_SERVICIO_INVENTARIO}/bodega"
-#     payload = {
-#         "compra_proveedor_id": compra_proveedor_id
-#     }
-
-#     print("DEBUG: Payload enviado al servicio-inventario:", payload)
-
-#     try:
-#         response = requests.post(url_bodega, json=payload, timeout=5)
-#         response.raise_for_status()
-#         return response.json()
-#     except requests.exceptions.Timeout:
-#         print("Error: La solicitud al servicio-inventario excedió el tiempo de espera.")
-#         return {"error": "Timeout al contactar con servicio-inventario"}
-#     except requests.exceptions.RequestException as e:
-#         print(f"Error al contactar con servicio-inventario: {e}")
-#         obtener_url_servicio_inventario()
-#         return {"error": f"Error al contactar con servicio-inventario: {str(e)}"}
-
-
 def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=None, duracion_insumo=None):
     global URL_SERVICIO_INVENTARIO
     if not URL_SERVICIO_INVENTARIO:
@@ -270,7 +243,6 @@ def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=No
         if conexion:
             conexion.close()
 
-    # Construir el payload con el nombre del producto
     url_bodega = f"{URL_SERVICIO_INVENTARIO}/bodega"
     payload = {
         "compra_proveedor_id": compra_proveedor_id,
@@ -290,3 +262,60 @@ def crear_registro_en_bodega_desde_proveedor(compra_proveedor_id, tipo_insumo=No
         print(f"Error al contactar con servicio-inventario: {e}")
         obtener_url_servicio_inventario()
         return {"error": f"Error al contactar con servicio-inventario: {str(e)}"}
+    
+
+def obtener_compras_por_rango_fecha(fecha_inicio, fecha_fin):
+    """Obtiene compras de proveedores dentro de un rango de fechas basado en fecha_compra."""
+    if not fecha_inicio or not fecha_fin:
+        raise ValueError("Debe proporcionar ambas fechas: fecha_inicio y fecha_fin.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT cp.id, cp.cantidad, cp.unidad_medida, cp.total, cp.fecha_compra,
+                       p.nombre AS proveedor_nombre, p.email AS proveedor_email,
+                       pr.nombre AS producto_nombre, pr.precio AS producto_precio
+                FROM compra_proveedor cp
+                JOIN proveedor p ON cp.proveedor_id = p.id
+                JOIN producto pr ON cp.producto_id = pr.id
+                WHERE cp.fecha_compra BETWEEN %s AND %s
+            """, (fecha_inicio, fecha_fin))
+            compras = cursor.fetchall()
+        return compras
+    except mysql.connector.Error as e:
+        print(f"Error al obtener las compras por rango de fecha: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()
+
+
+
+def obtener_compras_por_fecha(fecha):
+    """Obtiene compras de proveedores en una fecha específica."""
+    if not fecha:
+        raise ValueError("Debe proporcionar una fecha válida.")
+    
+    conexion = None
+    try:
+        conexion = obtener_conexion()
+        with conexion.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT cp.id, cp.cantidad, cp.unidad_medida, cp.total, cp.fecha_compra,
+                       p.nombre AS proveedor_nombre, p.email AS proveedor_email,
+                       pr.nombre AS producto_nombre, pr.precio AS producto_precio
+                FROM compra_proveedor cp
+                JOIN proveedor p ON cp.proveedor_id = p.id
+                JOIN producto pr ON cp.producto_id = pr.id
+                WHERE DATE(cp.fecha_compra) = %s
+            """, (fecha,))
+            compras = cursor.fetchall()
+        return compras
+    except mysql.connector.Error as e:
+        print(f"Error al obtener las compras por fecha: {e}")
+        raise
+    finally:
+        if conexion:
+            conexion.close()           

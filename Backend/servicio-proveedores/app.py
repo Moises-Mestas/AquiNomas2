@@ -7,7 +7,9 @@ import random
 from tenacity import retry, stop_after_attempt, wait_fixed
 import productos  
 import comprasProveedores
-from comprasProveedores import crear_registro_en_bodega_desde_proveedor
+from comprasProveedores import *
+from productos import *
+from proveedores import *
 app = Flask(__name__)
 PORT = int(os.environ.get("PORT", random.randint(5001, 5999)))
 
@@ -82,7 +84,54 @@ def eliminar_producto(producto_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/productos/nombre/<string:nombre_producto>', methods=['GET'])
+def ruta_obtener_producto_por_nombre(nombre_producto):
+    try:
+        producto = obtener_producto_por_nombre(nombre_producto)
+        if producto:
+            return jsonify(producto), 200
+        else:
+            return jsonify({"error": "Producto no encontrado"}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
+@app.route('/productos/tipo/<string:tipo_insumo>', methods=['GET'])
+def ruta_obtener_productos_por_tipo_insumo(tipo_insumo):
+    try:
+        productos = obtener_productos_por_tipo_insumo(tipo_insumo)
+        if productos:
+            return jsonify(productos), 200
+        else:
+            return jsonify({"error": "No se encontraron productos para el tipo de insumo especificado."}), 404
+    except ValueError as e:
+        print(f"Error de validación: {e}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        print(f"Error inesperado: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500
+
+
+@app.route('/productos/precio', methods=['GET'])
+def ruta_obtener_productos_por_rango_precio():
+    try:
+        precio_min = request.args.get('precio_min', type=float)
+        precio_max = request.args.get('precio_max', type=float)
+
+        if precio_min is None or precio_max is None:
+            return jsonify({"error": "Debe proporcionar los parámetros 'precio_min' y 'precio_max'."}), 400
+
+        productos = obtener_productos_por_rango_precio(precio_min, precio_max)
+        if productos:
+            return jsonify(productos), 200
+        else:
+            return jsonify({"error": "No se encontraron productos en el rango de precios especificado."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Ruta para crear un proveedor
 @app.route('/proveedores', methods=['POST'])
@@ -152,7 +201,18 @@ def eliminar_proveedor(proveedor_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+@app.route('/proveedores/estado/<string:estado>', methods=['GET'])
+def ruta_obtener_proveedores_por_estado(estado):
+    try:
+        proveedores = obtener_proveedores_por_estado(estado)
+        if proveedores:
+            return jsonify(proveedores), 200
+        else:
+            return jsonify({"error": "No se encontraron proveedores con el estado especificado."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
@@ -236,6 +296,44 @@ def eliminar_compra_proveedor(compra_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+@app.route('/compras/fecha', methods=['GET'])
+def ruta_obtener_compras_por_rango_fecha():
+    try:
+        fecha_inicio = request.args.get('fecha_inicio')
+        fecha_fin = request.args.get('fecha_fin')
+
+        if not fecha_inicio or not fecha_fin:
+            return jsonify({"error": "Debe proporcionar los parámetros 'fecha_inicio' y 'fecha_fin'."}), 400
+
+        compras = obtener_compras_por_rango_fecha(fecha_inicio, fecha_fin)
+        if compras:
+            return jsonify(compras), 200
+        else:
+            return jsonify({"error": "No se encontraron compras en el rango de fechas especificado."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@app.route('/compras/fecha-especifica', methods=['GET'])
+def ruta_obtener_compras_por_fecha():
+    try:
+        fecha = request.args.get('fecha')
+
+        if not fecha:
+            return jsonify({"error": "Debe proporcionar el parámetro 'fecha'."}), 400
+
+        compras = obtener_compras_por_fecha(fecha)
+        if compras:
+            return jsonify(compras), 200
+        else:
+            return jsonify({"error": "No se encontraron compras en la fecha especificada."}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(port=PORT, debug=False)
