@@ -1,0 +1,8 @@
+#spring.application.name=servicio-venta
+spring:
+  application:
+    name: servicio-venta
+  profiles:
+    active: development
+  config:
+    import: optional:configserver:http://root:123456@localhost:7070
