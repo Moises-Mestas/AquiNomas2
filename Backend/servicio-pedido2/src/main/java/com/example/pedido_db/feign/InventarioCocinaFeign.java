@@ -7,8 +7,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 
@@ -16,11 +14,9 @@ import java.math.BigDecimal;
 public interface InventarioCocinaFeign {
 
     // Cliente Feign para obtener los datos del inventario de cocina con Circuit Breaker
-    @GetMapping("/inventario_cocina/{productoId}")
-    ResponseEntity<InventarioCocina> obtenerInventarioPorProductoId(@PathVariable Integer productoId);
-
-    @PutMapping("/inventario_cocina/{productoId}")
-    void actualizarInventario(@PathVariable Integer productoId, @RequestBody InventarioCocina inventario);
+    @GetMapping("/inventario_cocina/{id}")
+    @CircuitBreaker(name = "inventarioCircuitBreaker", fallbackMethod = "fallbackInventarioCocinaById")
+    ResponseEntity<InventarioCocina> listById(@PathVariable Integer id);
 
     // Fallback method for InventarioCocina
     default ResponseEntity<InventarioCocina> fallbackInventarioCocinaById(Integer id, Throwable e) {

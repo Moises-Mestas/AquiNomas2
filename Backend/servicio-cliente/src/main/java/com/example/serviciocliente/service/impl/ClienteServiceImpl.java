@@ -4,6 +4,7 @@ import com.example.serviciocliente.entity.Cliente;
 import com.example.serviciocliente.repository.ClienteRepository;
 import com.example.serviciocliente.service.ClienteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,10 +12,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
+
+    @Autowired
+    public ClienteServiceImpl(ClienteRepository clienteRepository) {
+        this.clienteRepository = clienteRepository;
+    }
 
     @Override
     public Cliente saveCliente(Cliente cliente) {

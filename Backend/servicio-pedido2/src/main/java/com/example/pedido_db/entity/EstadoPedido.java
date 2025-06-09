@@ -10,6 +10,5 @@ public enum EstadoPedido {
 
 
 
-    //GET /menu/filterByPriceRange?minPrecio=10.00&maxPrecio=50.00
 
 }

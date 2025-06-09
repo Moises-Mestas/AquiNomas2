@@ -4,16 +4,21 @@ import com.example.serviciocliente.entity.Administrador;
 import com.example.serviciocliente.repository.AdministradorRepository;
 import com.example.serviciocliente.service.AdministradorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
+
+    @Autowired
+    public AdministradorServiceImpl(AdministradorRepository administradorRepository) {
+        this.administradorRepository = administradorRepository;
+    }
 
     @Override
     public Administrador saveAdministrador(Administrador administrador) {

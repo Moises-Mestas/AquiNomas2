@@ -4,30 +4,15 @@ package com.example.pedido_db.controller;
 import com.example.pedido_db.entity.Menu;
 import com.example.pedido_db.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/menus")
 public class MenuController {
 
-    @Autowired
-    private MenuService menuService;
-
-    // Filtrar por rango de precio
-    @GetMapping("/filterByPriceRange")
-    public ResponseEntity<List<Menu>> filterByPriceRange(
-            @RequestParam BigDecimal minPrecio,
-            @RequestParam BigDecimal maxPrecio) {
-        List<Menu> menus = menuService.listarPorRangoPrecio(minPrecio, maxPrecio);
-        if (menus.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(menus);
-    }
+    private final MenuService menuService;
 
     @Autowired
     public MenuController(MenuService menuService) {
