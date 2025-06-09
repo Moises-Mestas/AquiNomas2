@@ -13,4 +13,5 @@ public interface ClienteService {
     List<Cliente> getAllClientes();
     List<Cliente> findByNombre(String nombre);
     Optional<Cliente> findByDni(String dni);
+    List<Cliente> listarClientesRecientes(int dias);
 }

@@ -53,4 +53,9 @@ public class ClienteController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/recientes")
+    public List<Cliente> listarClientesRecientes(@RequestParam(defaultValue = "30") int dias) {
+        return clienteService.listarClientesRecientes(dias);
+    }
 }

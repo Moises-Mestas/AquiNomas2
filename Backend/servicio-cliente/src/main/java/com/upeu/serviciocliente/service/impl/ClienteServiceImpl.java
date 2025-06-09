@@ -6,6 +6,7 @@ import com.upeu.serviciocliente.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,5 +49,11 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public Optional<Cliente> findByDni(String dni) {
         return clienteRepository.findByDni(dni);
+    }
+
+    @Override
+    public List<Cliente> listarClientesRecientes(int dias) {
+        LocalDateTime fechaLimite = LocalDateTime.now().minusDays(dias);
+        return clienteRepository.findClientesRecientes(fechaLimite);
     }
 }
