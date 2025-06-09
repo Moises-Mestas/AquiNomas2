@@ -23,7 +23,7 @@ spring:
         - id: servicio-pedido2
           uri: lb://servicio-pedido2
           predicates:
-            - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
+              - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
 
         #========servicio cliente=======#
         - id: servicio-cliente

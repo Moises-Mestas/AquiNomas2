@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Entity
+
 public class Cliente {
 
     @Id

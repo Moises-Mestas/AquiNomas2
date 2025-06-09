@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "comprobante_pago")
 public class ComprobantePago {
@@ -19,7 +20,7 @@ public class ComprobantePago {
 
     @ManyToOne
     @JoinColumn(name = "venta_id", nullable = true)
-    private Venta ventaId; // FK sin relación directa
+    private Venta venta;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 20)
@@ -52,12 +53,12 @@ public class ComprobantePago {
         this.id = id;
     }
 
-    public Venta getVentaId() {
-        return ventaId;
+    public Venta getVenta() {
+        return venta;
     }
 
-    public void setVentaId(Venta ventaId) {
-        this.ventaId = ventaId;
+    public void setVenta(Venta venta) {
+        this.venta = venta;
     }
 
     public TipoComprobante getTipo() {
@@ -105,6 +106,34 @@ public class ComprobantePago {
     }
 
     public void setMontoNeto(BigDecimal montoNeto) {
+        this.montoNeto = montoNeto;
+    }
+
+    @Override
+    public String toString() {
+        return "ComprobantePago{" +
+                "id=" + id +
+                ", venta=" + venta +
+                ", tipo=" + tipo +
+                ", numeroSerie='" + numeroSerie + '\'' +
+                ", numeroComprobante='" + numeroComprobante + '\'' +
+                ", fechaEmision=" + fechaEmision +
+                ", igv=" + igv +
+                ", montoNeto=" + montoNeto +
+                '}';
+    }
+
+    public ComprobantePago() {
+    }
+
+    public ComprobantePago(Long id, Venta venta, TipoComprobante tipo, String numeroSerie, String numeroComprobante, LocalDateTime fechaEmision, BigDecimal igv, BigDecimal montoNeto) {
+        this.id = id;
+        this.venta = venta;
+        this.tipo = tipo;
+        this.numeroSerie = numeroSerie;
+        this.numeroComprobante = numeroComprobante;
+        this.fechaEmision = fechaEmision;
+        this.igv = igv;
         this.montoNeto = montoNeto;
     }
 }

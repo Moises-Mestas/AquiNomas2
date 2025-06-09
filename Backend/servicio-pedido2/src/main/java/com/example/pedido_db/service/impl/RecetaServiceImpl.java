@@ -32,22 +32,41 @@ public class RecetaServiceImpl implements RecetaService {
     public List<Receta> listar() {
         List<Receta> recetas = recetaRepository.findAll();
 
-        // Iterar para cargar el producto de cada receta
+        if (recetas.isEmpty()) {
+            System.out.println("No se encontraron recetas en la base de datos.");
+            return recetas;
+        }
+
+        System.out.println("Recetas obtenidas: " + recetas);
+
         for (Receta receta : recetas) {
             if (receta.getProductoId() != null) {
-                Producto producto = productoFeign.listById(receta.getProductoId()).getBody();
-                receta.setProducto(producto);
+                try {
+                    Producto producto = productoFeign.listById(receta.getProductoId()).getBody();
+                    receta.setProducto(producto);
+                } catch (Exception e) {
+                    System.out.println("Error al obtener producto con ID " + receta.getProductoId() + ": " + e.getMessage());
+                    receta.setProducto(null); // Evita que falle la ejecución
+                }
             }
         }
 
         return recetas;
     }
 
-    // Fallback method in case of failure
+
     public List<Receta> fallbackProducto(Throwable throwable) {
-        // Aquí puedes agregar la lógica de fallback, por ejemplo, retornar una lista vacía
-        return List.of();
+        System.out.println("Fallback activado por error: " + throwable.getMessage());
+
+        // Puedes retornar recetas sin producto o una lista vacía según lo que prefieras
+        return recetaRepository.findAll().stream()
+                .map(receta -> {
+                    receta.setProducto(null);
+                    return receta;
+                })
+                .toList();
     }
+
 
 
 
