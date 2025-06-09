@@ -7,6 +7,7 @@ import com.upeu.servicioreporte.repository.ReporteRepository;
 import com.upeu.servicioreporte.service.ReporteService;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -137,29 +138,41 @@ public class ReporteServiceImpl implements ReporteService {
     public Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos() {
         List<DetallePedidoDto> detallePedidos = detallePedidoClient.obtenerTodosDetallePedidos();
 
-        Map<String, Long> pedidosPorProducto = detallePedidos.stream()
-                .collect(Collectors.groupingBy(
-                        dp -> String.valueOf(dp.getProductoId()), // conversión explícita
-                        Collectors.counting()
-                ));
+        Map<Integer, Long> pedidosPorProducto = detallePedidos.stream()
+                .collect(Collectors.groupingBy(DetallePedidoDto::getProductoId, Collectors.counting()));
 
-        List<Map.Entry<String, Long>> ordenados = pedidosPorProducto.entrySet().stream()
+        List<Map.Entry<Integer, Long>> ordenados = pedidosPorProducto.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toList());
 
         List<Map<String, Object>> masPedidos = ordenados.stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(5)
-                .map(e -> Map.of("productoId", e.getKey(), "cantidad", e.getValue()))
+                .map(e -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("productoId", e.getKey().toString());
+                    map.put("cantidad", e.getValue());
+                    return map;
+                })
                 .collect(Collectors.toList());
 
         List<Map<String, Object>> menosPedidos = ordenados.stream()
                 .limit(5)
-                .map(e -> Map.of("productoId", e.getKey(), "cantidad", e.getValue()))
+                .map(e -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("productoId", e.getKey().toString());
+                    map.put("cantidad", e.getValue());
+                    return map;
+                })
                 .collect(Collectors.toList());
 
-        return Map.of("masPedidos", masPedidos, "menosPedidos", menosPedidos);
+        Map<String, List<Map<String, Object>>> resultado = new HashMap<>();
+        resultado.put("masPedidos", masPedidos);
+        resultado.put("menosPedidos", menosPedidos);
+        return resultado;
     }
+
+
 
     @Override
     public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {
