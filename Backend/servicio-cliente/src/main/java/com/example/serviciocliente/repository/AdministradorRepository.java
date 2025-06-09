@@ -1,6 +1,6 @@
-package com.upeu.serviciocliente.repository;
+package com.example.serviciocliente.repository;
 
-import com.upeu.serviciocliente.entity.Administrador;
+import com.example.serviciocliente.entity.Administrador;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

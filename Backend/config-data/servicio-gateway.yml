@@ -25,17 +25,23 @@ spring:
           predicates:
             - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
 
-        #========servicio auth=======#
-        - id: servicio-auth
-          uri: lb://servicio-auth
-          predicates:
-            - Path=/auth/
-
         #========servicio cliente=======#
         - id: servicio-cliente
           uri: lb://servicio-cliente
           predicates:
             - Path=/clientes/**, /administradores/**
+
+        #========servicio proveedor=======#
+        - id: servicio-proveedor
+          uri: lb://servicio-proveedor
+          predicates:
+            - Path=/productos/**, /proveedores/**, /compras-proveedores
+
+        #========servicio inventario=======#
+        - id: servicio-inventario
+          uri: lb://servicio-inventario
+          predicates:
+            - Path=/bodega/**, /inventario-cocina/**, /inventario-barra/**
 
 
 

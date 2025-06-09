@@ -1,4 +1,4 @@
-package com.upeu.serviciocliente.config;
+package com.example.serviciocliente.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

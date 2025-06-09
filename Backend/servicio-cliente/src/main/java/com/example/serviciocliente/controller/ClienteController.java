@@ -1,7 +1,7 @@
-package com.upeu.serviciocliente.controller;
+package com.example.serviciocliente.controller;
 
-import com.upeu.serviciocliente.entity.Cliente;
-import com.upeu.serviciocliente.service.ClienteService;
+import com.example.serviciocliente.entity.Cliente;
+import com.example.serviciocliente.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,11 +10,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
-@RequiredArgsConstructor
+
 public class ClienteController {
 
     private final ClienteService clienteService;
 
+    // Constructor explícito
+    public ClienteController(ClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
     @GetMapping
     public List<Cliente> getAllClientes() {
         return clienteService.getAllClientes();

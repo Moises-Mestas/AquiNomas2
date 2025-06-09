@@ -1,8 +1,8 @@
-package com.upeu.serviciocliente.service.impl;
+package com.example.serviciocliente.service.impl;
 
-import com.upeu.serviciocliente.entity.Administrador;
-import com.upeu.serviciocliente.repository.AdministradorRepository;
-import com.upeu.serviciocliente.service.AdministradorService;
+import com.example.serviciocliente.entity.Administrador;
+import com.example.serviciocliente.repository.AdministradorRepository;
+import com.example.serviciocliente.service.AdministradorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

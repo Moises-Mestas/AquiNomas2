@@ -1,6 +1,6 @@
-package com.upeu.serviciocliente.service;
+package com.example.serviciocliente.service;
 
-import com.upeu.serviciocliente.entity.Administrador;
+import com.example.serviciocliente.entity.Administrador;
 
 import java.util.List;
 import java.util.Optional;

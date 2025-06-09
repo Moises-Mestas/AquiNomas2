@@ -1,7 +1,7 @@
-package com.upeu.serviciocliente.controller;
+package com.example.serviciocliente.controller;
 
-import com.upeu.serviciocliente.entity.Administrador;
-import com.upeu.serviciocliente.service.AdministradorService;
+import com.example.serviciocliente.entity.Administrador;
+import com.example.serviciocliente.service.AdministradorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,11 +10,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/administradores")
-@RequiredArgsConstructor
+
 public class AdministradorController {
 
     private final AdministradorService administradorService;
 
+    // Constructor explícito en lugar de Lombok
+    public AdministradorController(AdministradorService administradorService) {
+        this.administradorService = administradorService;
+    }
     @GetMapping
     public List<Administrador> getAllAdministradores() {
         return administradorService.getAllAdministradores();

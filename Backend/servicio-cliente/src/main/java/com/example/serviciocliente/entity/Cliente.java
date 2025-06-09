@@ -1,6 +1,7 @@
-package com.upeu.serviciocliente.entity;
+package com.example.serviciocliente.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity

@@ -1,8 +1,8 @@
-package com.upeu.serviciocliente.service.impl;
+package com.example.serviciocliente.service.impl;
 
-import com.upeu.serviciocliente.entity.Cliente;
-import com.upeu.serviciocliente.repository.ClienteRepository;
-import com.upeu.serviciocliente.service.ClienteService;
+import com.example.serviciocliente.entity.Cliente;
+import com.example.serviciocliente.repository.ClienteRepository;
+import com.example.serviciocliente.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,9 @@
-package com.upeu.serviciocliente.repository;
+package com.example.serviciocliente.repository;
 
-import com.upeu.serviciocliente.entity.Cliente;
+import com.example.serviciocliente.entity.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
