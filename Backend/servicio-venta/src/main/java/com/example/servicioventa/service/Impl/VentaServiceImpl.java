@@ -1,6 +1,5 @@
 package com.example.servicioventa.service.Impl;
 
-import com.example.servicioventa.dto.DetallePedidoDTO;
 import com.example.servicioventa.dto.Pedido;
 import com.example.servicioventa.dto.VentaDTO;
 import com.example.servicioventa.entity.Promocion;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,16 +46,16 @@ public class VentaServiceImpl implements VentaService {
                 System.out.println("Error al obtener el pedido ID " + venta.getPedidoId() + ": " + e.getMessage());
             }
 
-            // Validar si el pedido y el detalle existen
-            DetallePedidoDTO detallePedido = (pedido != null) ? pedido.getDetallePedido() : null;
-            String nombreCliente = (detallePedido != null) ? detallePedido.getNombreCliente() : "Cliente desconocido";
-            String nombreMenu = (detallePedido != null) ? detallePedido.getNombreMenu() : "Menú no disponible";
-            int cantidad = (detallePedido != null) ? detallePedido.getCantidad() : 0;
-            BigDecimal precioUnitario = (detallePedido != null) ? detallePedido.getPrecioUnitario() : BigDecimal.ZERO;
+            // Validación para evitar errores
+            String nombreCliente = (pedido != null && pedido.getDetallePedido() != null) ? pedido.getDetallePedido().getNombreCliente() : "Cliente desconocido";
+            String nombreMenu = (pedido != null && pedido.getDetallePedido() != null) ? pedido.getDetallePedido().getNombreMenu() : "Menú no disponible";
+            int cantidad = (pedido != null && pedido.getDetallePedido() != null) ? pedido.getDetallePedido().getCantidad() : 0;
+
+            String metodoPagoStr = (venta.getMetodoPago() != null) ? venta.getMetodoPago().name() : "SIN DEFINIR";
 
             return new VentaDTO(
                     venta.getId(),
-                    venta.getMetodoPago(),
+                    metodoPagoStr,
                     venta.getFechaVenta(),
                     venta.getTotal(),
                     nombreCliente,
@@ -66,47 +66,74 @@ public class VentaServiceImpl implements VentaService {
     }
 
 
-
     @Override
     @Transactional
-    public Venta guardarVenta(Venta venta) {
-        Pedido pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+    public ResponseEntity<?> guardarVenta(Venta venta) {
+        try {
+            Pedido pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
 
-        if (pedido == null) {
-            throw new RuntimeException("❌ El pedido con ID " + venta.getPedidoId() + " no existe.");
+            if (pedido == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ El pedido con ID " + venta.getPedidoId() + " no existe.");
+            }
+
+            if (!"COMPLETADO".equalsIgnoreCase(pedido.getEstado())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("⚠ No se puede procesar la venta. El pedido está en estado '" + pedido.getEstado() + "'.");
+            }
+
+            // ✅ Calcular el total basado en el detalle del pedido
+            BigDecimal totalCalculado = pedido.getDetallePedido().getPrecioUnitario()
+                    .multiply(BigDecimal.valueOf(pedido.getDetallePedido().getCantidad()));
+
+            venta.setTotal(totalCalculado);
+
+            aplicarDescuentoSiCorresponde(venta);
+
+            Venta nuevaVenta = ventaRepository.save(venta);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaVenta);
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ El pedido con ID " + venta.getPedidoId() + " no existe en el microservicio de pedidos.");
         }
-
-        if (!"COMPLETADO".equalsIgnoreCase(pedido.getEstado())) {
-            throw new RuntimeException("⚠ No se puede procesar la venta. El pedido está en estado '" + pedido.getEstado() + "'.");
-        }
-
-        aplicarDescuentoSiCorresponde(venta);
-        return ventaRepository.save(venta);
     }
 
 
+
     @Override
     @Transactional
-    public Venta actualizar(Venta venta) {
-        Optional<Venta> ventaExistenteOpt = ventaRepository.findById(venta.getId());
+    public ResponseEntity<?> actualizar(Long id, Venta venta) {
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ El ID de la venta no puede ser nulo.");
+        }
+
+        Optional<Venta> ventaExistenteOpt = ventaRepository.findById(id);
 
         if (ventaExistenteOpt.isEmpty()) {
-            throw new RuntimeException("❌ La venta con ID " + venta.getId() + " no existe.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ La venta con ID " + id + " no existe.");
         }
 
         Venta ventaExistente = ventaExistenteOpt.get();
 
-        // Actualizar los valores editados por el usuario
         ventaExistente.setMetodoPago(venta.getMetodoPago());
         ventaExistente.setFechaVenta(venta.getFechaVenta());
 
-        // Si el precio cambió, recalcular el descuento
-        if (venta.getTotal() != null && !venta.getTotal().equals(ventaExistente.getTotal())) {
-            ventaExistente.setTotal(venta.getTotal());
+        // ✅ Obtener los datos originales del pedido para calcular el total base
+        Pedido pedido = pedidoClient.obtenerPedidoPorId(ventaExistente.getPedidoId());
+        BigDecimal totalBase = pedido.getDetallePedido().getPrecioUnitario()
+                .multiply(BigDecimal.valueOf(pedido.getDetallePedido().getCantidad()));
+
+        // ✅ Si la promoción se eliminó, restauramos el total original
+        if (venta.getPromocionId() == null) {
+            ventaExistente.setPromocionId(null);
+            ventaExistente.setTotal(totalBase);
+        }
+        // ✅ Si se asignó una promoción o cambió, aplicamos el nuevo descuento
+        else if (!Objects.equals(ventaExistente.getPromocionId(), venta.getPromocionId())) {
+            ventaExistente.setPromocionId(venta.getPromocionId());
             aplicarDescuentoSiCorresponde(ventaExistente);
         }
 
-        return ventaRepository.save(ventaExistente);
+        Venta ventaActualizada = ventaRepository.save(ventaExistente);
+        return ResponseEntity.ok(ventaActualizada);
     }
 
 
@@ -147,15 +174,20 @@ public class VentaServiceImpl implements VentaService {
             if (promocionOpt.isPresent()) {
                 BigDecimal descuento = promocionOpt.get().getValorDescuento();
 
+                // ✅ Evitar error si venta.getTotal() es null
+                if (venta.getTotal() == null) {
+                    venta.setTotal(BigDecimal.ZERO);
+                }
+
                 if (venta.getTotal().compareTo(descuento) < 0) {
                     throw new RuntimeException("❌ El total de la venta no puede ser menor que el descuento aplicado.");
                 }
 
-                // Aplicar el descuento con el nuevo precio actualizado
                 venta.setTotal(venta.getTotal().subtract(descuento));
             } else {
                 throw new RuntimeException("❌ La promoción con ID " + venta.getPromocionId() + " no existe.");
             }
         }
     }
+
 }

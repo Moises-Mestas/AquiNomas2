@@ -1,5 +1,6 @@
 package com.example.servicioventa.controller;
 
+import com.example.servicioventa.dto.VentaDTO;
 import com.example.servicioventa.entity.Venta;
 import com.example.servicioventa.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,11 @@ public class VentaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Venta>> listar() {
-        List<Venta> ventas = ventaService.listar();
+    public ResponseEntity<List<VentaDTO>> listar() { // ✅ Ahora devuelve VentaDTO
+        List<VentaDTO> ventas = ventaService.listar();
         return ResponseEntity.ok(ventas);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Venta> listarPorId(@PathVariable Long id) {
@@ -35,14 +37,14 @@ public class VentaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody Venta venta) {
+    public ResponseEntity<?> guardarVenta(@RequestBody Venta venta) {
         try {
-            Venta nuevaVenta = ventaService.guardarVenta(venta);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaVenta);
+            return ventaService.guardarVenta(venta);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
     @GetMapping("/buscar/cliente")
     public ResponseEntity<List<Venta>> buscarPorNombreCliente(@RequestParam String nombreCliente) {
         List<Venta> ventas = ventaService.buscarPorNombreCliente(nombreCliente);
@@ -58,13 +60,10 @@ public class VentaController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Venta> actualizar(@PathVariable Long id, @RequestBody Venta venta) {
-        if (!ventaService.listarPorId(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        Venta ventaActualizada = ventaService.actualizar(venta);
-        return ResponseEntity.ok(ventaActualizada);
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Venta venta) {
+        return ventaService.actualizar(id, venta);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
