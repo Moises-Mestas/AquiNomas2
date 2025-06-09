@@ -18,10 +18,10 @@ public class Venta {
     @Column(name = "pedido_id", nullable = false)
     private Long pedidoId; // FK sin relación
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "promocion_id", nullable = true)
-    private Promocion promocion;
+//    @ManyToOne
+//    @JsonIgnore
+//    @JoinColumn(name = "promocion_id", nullable = true)
+    private Long promocionId;
 
     @Column(name = "fecha_venta")
     private LocalDateTime fechaVenta;
@@ -53,12 +53,12 @@ public class Venta {
         this.pedidoId = pedidoId;
     }
 
-    public Promocion getPromocion() {
-        return promocion;
+    public Long getPromocionId() {
+        return promocionId;
     }
 
-    public void setPromocion(Promocion promocion) {
-        this.promocion = promocion;
+    public void setPromocionId(Long promocionId) {
+        this.promocionId = promocionId;
     }
 
     public LocalDateTime getFechaVenta() {
@@ -83,20 +83,5 @@ public class Venta {
 
     public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
-    }
-
-    public Venta() {
-    }
-
-    @Override
-    public String toString() {
-        return "Venta{" +
-                "id=" + id +
-                ", pedidoId=" + pedidoId +
-                ", promocion=" + promocion +
-                ", fechaVenta=" + fechaVenta +
-                ", total=" + total +
-                ", metodoPago=" + metodoPago +
-                '}';
     }
 }

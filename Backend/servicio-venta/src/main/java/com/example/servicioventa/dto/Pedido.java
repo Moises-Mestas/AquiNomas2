@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 public class Pedido {
     private Long id;
     private String nombreCliente;
+    private DetallePedidoDTO detallePedido;
     private OffsetDateTime fechaPedido;
     private BigDecimal total;
     @JsonProperty("estadoPedido") // Mapea el nombre correcto desde JSON
@@ -28,6 +29,14 @@ public class Pedido {
 
     public void setNombreCliente(String nombreCliente) {
         this.nombreCliente = nombreCliente;
+    }
+
+    public DetallePedidoDTO getDetallePedido() {
+        return detallePedido;
+    }
+
+    public void setDetallePedido(DetallePedidoDTO detallePedido) {
+        this.detallePedido = detallePedido;
     }
 
     public OffsetDateTime getFechaPedido() {
@@ -52,5 +61,17 @@ public class Pedido {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Pedido{" +
+                "id=" + id +
+                ", nombreCliente='" + nombreCliente + '\'' +
+                ", detallePedido=" + detallePedido +
+                ", fechaPedido=" + fechaPedido +
+                ", total=" + total +
+                ", estado='" + estado + '\'' +
+                '}';
     }
 }

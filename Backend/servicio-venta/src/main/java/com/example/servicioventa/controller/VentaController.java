@@ -3,6 +3,7 @@ package com.example.servicioventa.controller;
 import com.example.servicioventa.entity.Venta;
 import com.example.servicioventa.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,11 +35,14 @@ public class VentaController {
     }
 
     @PostMapping
-    public ResponseEntity<Venta> guardar(@RequestBody Venta venta) {
-        Venta nuevaVenta = ventaService.guardarVenta(venta);
-        return ResponseEntity.status(201).body(nuevaVenta);
+    public ResponseEntity<?> guardar(@RequestBody Venta venta) {
+        try {
+            Venta nuevaVenta = ventaService.guardarVenta(venta);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaVenta);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
-
     @GetMapping("/buscar/cliente")
     public ResponseEntity<List<Venta>> buscarPorNombreCliente(@RequestParam String nombreCliente) {
         List<Venta> ventas = ventaService.buscarPorNombreCliente(nombreCliente);
