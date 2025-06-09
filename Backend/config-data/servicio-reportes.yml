@@ -1,18 +1,20 @@
 server:
   port: ${PORT:${SERVER_PORT:0}}
 
-
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   datasource:
     url: jdbc:mysql://localhost:3306/reportes_db
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-
 
 springdoc:
   api-docs:
@@ -21,14 +23,11 @@ springdoc:
     enabled: true
     path: /doc/swagger-ui.html
 
-
 eureka:
   client:
     serviceUrl:
-      #defaultZone: http://localhost:8090/eureka
       defaultZone: ${EUREKA_URI:http://localhost:8090/eureka}
   instance:
-    #hostname: localhost
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 
 resilience4j:
