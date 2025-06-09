@@ -12,7 +12,12 @@ public class ClienteAdministradorClientFallback implements ClienteAdministradorC
         ClienteDto cliente = new ClienteDto();
         cliente.setId(id);
         cliente.setNombre("Servicio Cliente no disponible");
-        // puedes dejar otros campos nulos o con valores por defecto
+        cliente.setApellido("");
+        cliente.setDni("");
+        cliente.setTelefono("");
+        cliente.setEmail("");
+        cliente.setDireccion("");
+        cliente.setFechaRegistro(null);
         return cliente;
     }
 
@@ -21,7 +26,8 @@ public class ClienteAdministradorClientFallback implements ClienteAdministradorC
         AdministradorDto admin = new AdministradorDto();
         admin.setId(id);
         admin.setNombre("Servicio Administrador no disponible");
-        // otros campos nulos o por defecto
+        admin.setEmail("");
+        admin.setFechaCreacion(null);
         return admin;
     }
 }
