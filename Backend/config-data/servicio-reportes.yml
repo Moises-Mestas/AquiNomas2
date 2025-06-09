@@ -4,7 +4,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/_db
+    url: jdbc:mysql://localhost:3306/reportes_db
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -33,13 +33,30 @@ eureka:
 
 resilience4j:
   circuitbreaker:
-    instances:
-      clienteFeign:
+    configs:
+      default:
         registerHealthIndicator: true
         slidingWindowSize: 10
+        minimumNumberOfCalls: 5
         permittedNumberOfCallsInHalfOpenState: 3
-        slidingWindowType: TIME_BASED
-        minimumNumberOfCalls: 4
-        waitDurationInOpenState: 5s
+        waitDurationInOpenState: 5000
         failureRateThreshold: 50
-        eventConsumerBufferSize: 10
+    instances:
+      clienteClient:
+        baseConfig: default
+      ventaClient:
+        baseConfig: default
+      inventarioClient:
+        baseConfig: default
+      detallePedidoClient:
+        baseConfig: default
+      bodegaClient:
+        baseConfig: default
+      administradorClient:
+        baseConfig: default
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakerevents

@@ -25,3 +25,8 @@ spring:
             - Path=/clientes/**, /administradores/**
           filters:
             - AuthFilter
+        #========servicio reportes=======#
+        - id: servicio-reportes
+          uri: lb://servicio-reportes
+          predicates:
+            - Path=/reportes/**
