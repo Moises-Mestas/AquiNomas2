@@ -14,9 +14,12 @@ public class Receta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private Integer productoId;  // ID del cliente que realizó el pedido
     @Transient
-    private Producto Producto;  // Relación con Cliente, que se llena mediante Feign
-    private Integer productoId;
+    private Producto producto;  // Relación con Cliente, que se llena mediante Feign
+
+
+
 
     @Column(name = "descripcion", nullable = true, columnDefinition = "TEXT")
     private String descripcion;
@@ -54,6 +57,8 @@ public class Receta {
             throw new IllegalArgumentException("Conversión no soportada de " + unidadOrigen + " a " + unidadDestino);
         }
     }
+
+
     public Integer getId() {
         return id;
     }
@@ -62,20 +67,20 @@ public class Receta {
         this.id = id;
     }
 
-    public com.example.pedido_db.dto.Producto getProducto() {
-        return Producto;
-    }
-
-    public void setProducto(com.example.pedido_db.dto.Producto producto) {
-        Producto = producto;
-    }
-
     public Integer getProductoId() {
         return productoId;
     }
 
     public void setProductoId(Integer productoId) {
         this.productoId = productoId;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
     }
 
     public String getDescripcion() {
@@ -110,22 +115,23 @@ public class Receta {
         this.menu = menu;
     }
 
-    public Receta(Integer id, Integer productoId, com.example.pedido_db.dto.Producto producto, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu) {
+    public Receta(Integer id, Integer productoId, Producto producto, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu) {
         this.id = id;
         this.productoId = productoId;
-        Producto = producto;
+        this.producto = producto;
         this.descripcion = descripcion;
         this.cantidad = cantidad;
         this.unidadMedida = unidadMedida;
         this.menu = menu;
     }
 
+
     @Override
     public String toString() {
         return "Receta{" +
                 "id=" + id +
-                ", Producto=" + Producto +
                 ", productoId=" + productoId +
+                ", producto=" + producto +
                 ", descripcion='" + descripcion + '\'' +
                 ", cantidad=" + cantidad +
                 ", unidadMedida='" + unidadMedida + '\'' +

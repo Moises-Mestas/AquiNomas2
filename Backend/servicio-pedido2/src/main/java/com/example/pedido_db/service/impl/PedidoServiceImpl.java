@@ -35,13 +35,21 @@ public class PedidoServiceImpl implements PedidoService {
 
         // Cargar los detalles de cada pedido
         for (Pedido pedido : pedidos) {
-            DetallePedido detallePedido = detallePedidoRepository.findById(pedido.getDetallePedidoId())
-                    .orElseThrow(() -> new RuntimeException("DetallePedido no encontrado"));
+            // Accedemos al detallePedido que ya está mapeado en la entidad
+            DetallePedido detallePedido = pedido.getDetallePedido();
 
             // Verificar si tiene clienteId y asignarlo
             if (detallePedido.getClienteId() != null) {
-                Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
-                detallePedido.setCliente(cliente); // Asignar cliente al detalle
+                try {
+                    Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                    if (cliente != null) {
+                        detallePedido.setCliente(cliente); // Asignar cliente al detalle
+                    } else {
+                        throw new RuntimeException("Cliente no encontrado con ID: " + detallePedido.getClienteId());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Error al cargar cliente con ID: " + detallePedido.getClienteId(), e);
+                }
             }
 
             // Asignar el detallePedido al pedido
@@ -51,6 +59,7 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidos; // Devuelve los pedidos con detalles cargados
     }
 
+
     @Override
     public List<Pedido> listar() {
         // Traemos todos los pedidos desde la base de datos
@@ -58,14 +67,22 @@ public class PedidoServiceImpl implements PedidoService {
 
         // Cargar los detalles para cada pedido
         for (Pedido pedido : pedidos) {
-            // Usamos el detallePedidoId para cargar el detalle asociado
-            DetallePedido detallePedido = detallePedidoRepository.findById(pedido.getDetallePedidoId())
-                    .orElseThrow(() -> new RuntimeException("DetallePedido no encontrado"));
+            // No es necesario buscar por ID de detallePedido, ya está cargado en el objeto Pedido
+            DetallePedido detallePedido = pedido.getDetallePedido();
 
-            // Verificamos si tiene clienteId y lo asignamos
+            // Verificamos si el detallePedido tiene clienteId y lo asignamos
             if (detallePedido.getClienteId() != null) {
-                Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
-                detallePedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
+                try {
+                    Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                    if (cliente != null) {
+                        detallePedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
+                    } else {
+                        throw new RuntimeException("Cliente no encontrado con ID: " + detallePedido.getClienteId());
+                    }
+                } catch (Exception e) {
+                    // Manejo de excepciones de llamada al clienteFeign
+                    throw new RuntimeException("Error al cargar cliente con ID: " + detallePedido.getClienteId(), e);
+                }
             }
 
             // Asignamos el detallePedido al pedido
@@ -84,15 +101,21 @@ public class PedidoServiceImpl implements PedidoService {
         if (pedido.isPresent()) {
             Pedido pedidoFound = pedido.get(); // Obtener el pedido encontrado
 
-            // Usamos el detallePedidoId para obtener el detalle relacionado
-            DetallePedido detallePedido = detallePedidoRepository.findById(pedidoFound.getDetallePedidoId())
-                    .orElseThrow(() -> new RuntimeException("DetallePedido no encontrado"));
+            // Accedemos al detallePedido que ya está mapeado en la entidad
+            DetallePedido detallePedido = pedidoFound.getDetallePedido();
 
             // Verificar si el detallePedido tiene un clienteId y cargar el cliente
             if (detallePedido.getClienteId() != null) {
-                // Llamada al ClienteFeign para obtener el cliente por clienteId
-                Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
-                detallePedido.setCliente(cliente); // Asignar cliente a DetallePedido
+                try {
+                    Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                    if (cliente != null) {
+                        detallePedido.setCliente(cliente); // Asignar cliente a DetallePedido
+                    } else {
+                        throw new RuntimeException("Cliente no encontrado con ID: " + detallePedido.getClienteId());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Error al cargar cliente con ID: " + detallePedido.getClienteId(), e);
+                }
             }
 
             // Asignamos el detallePedido al pedido

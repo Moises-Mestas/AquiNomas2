@@ -31,7 +31,8 @@ public class DetallePedidoServiceImpl implements DetallePedidoService {
         for (DetallePedido detalle : detalles) {
             if (detalle.getClienteId() != null) {
                 Cliente cliente = clienteFeign.listById(detalle.getClienteId()).getBody();
-                detalle.setCliente(cliente);
+                // Crear un cliente y asignarlo al detalle, asumiendo que tienes un setter para cliente.
+                detalle.setCliente(cliente); // Aquí se debe definir el setter 'setCliente()' si no existe
             }
         }
 

@@ -7,11 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "servicio-proveedor") // Nombre del microservicio
+@FeignClient(name = "servicio-proveedor", path = "/productos")
 public interface ProductoFeign {
 
-    // Cliente Feign para obtener los datos del cliente con Circuit Breaker
-    @GetMapping("/productos/{id}")
+    @GetMapping("/{id}")
     @CircuitBreaker(name = "productoCircuitBreaker", fallbackMethod = "fallbackCProductoById")
     ResponseEntity<Producto> listById(@PathVariable Integer id);
 

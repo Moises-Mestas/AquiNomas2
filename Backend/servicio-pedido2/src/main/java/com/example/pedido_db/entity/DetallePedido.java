@@ -14,9 +14,9 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private Integer clienteId;  // ID del cliente que realizó el pedido
     @Transient
     private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign
-    private Integer clienteId;
 
 
     @ManyToOne
@@ -41,20 +41,20 @@ public class DetallePedido {
         this.id = id;
     }
 
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
     public Integer getClienteId() {
         return clienteId;
     }
 
     public void setClienteId(Integer clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public Menu getMenu() {
@@ -81,24 +81,12 @@ public class DetallePedido {
         this.precioUnitario = precioUnitario;
     }
 
-    public DetallePedido(Integer id, Cliente cliente, Integer clienteId, Menu menu, BigDecimal precioUnitario, int cantidad) {
+    public DetallePedido(Integer id, Integer clienteId, Cliente cliente, Menu menu, int cantidad, BigDecimal precioUnitario) {
         this.id = id;
-        this.cliente = cliente;
         this.clienteId = clienteId;
+        this.cliente = cliente;
         this.menu = menu;
-        this.precioUnitario = precioUnitario;
         this.cantidad = cantidad;
-    }
-
-    @Override
-    public String toString() {
-        return "DetallePedido{" +
-                "id=" + id +
-                ", cliente=" + cliente +
-                ", clienteId=" + clienteId +
-                ", menu=" + menu +
-                ", cantidad=" + cantidad +
-                ", precioUnitario=" + precioUnitario +
-                '}';
+        this.precioUnitario = precioUnitario;
     }
 }

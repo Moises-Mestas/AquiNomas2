@@ -25,9 +25,10 @@ public class RecetaController {
 
     @GetMapping("/{id}")
     public Receta buscarPorId(@PathVariable Integer id) {
-        return recetaService.listarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Receta no encontrada con id: " + id));
+        // Utilizamos ifPresentOrElse() para manejar de manera explícita los casos cuando el Optional está vacío
+        return recetaService.listarPorId(id).orElseThrow(() -> new RuntimeException("Receta no encontrada con id: " + id));
     }
+
 
     @PostMapping
     public Receta crear(@RequestBody Receta receta) {
