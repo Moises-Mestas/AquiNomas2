@@ -1,6 +1,7 @@
 package com.example.pedido_db.entity;
 
 import com.example.pedido_db.dto.Cliente;
+import com.example.pedido_db.dto.Producto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class DetallePedido {
     @Transient
     private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign
     private Integer clienteId;
+
 
     @ManyToOne
     @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
