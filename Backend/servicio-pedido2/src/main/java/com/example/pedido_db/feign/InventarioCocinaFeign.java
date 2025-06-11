@@ -23,11 +23,10 @@ public interface InventarioCocinaFeign {
         // Crear una respuesta ficticia de InventarioCocina en caso de fallo
         InventarioCocina inventarioCocina = new InventarioCocina();
         inventarioCocina.setId(id);
-        inventarioCocina.setProductoId(id);  // Aquí podrías setear un valor por defecto si lo necesitas
-        inventarioCocina.setCantidadDisponible(BigDecimal.ZERO);  // Valor por defecto
-        inventarioCocina.setUnidadMedida(InventarioCocina.UnidadMedida.KG);  // Valor por defecto
+        inventarioCocina.setProductoId(null); // No disponible
+        inventarioCocina.setCantidadDisponible(BigDecimal.ZERO);
+        inventarioCocina.setUnidadMedida(InventarioCocina.UnidadMedida.kg); // Valor por defecto
 
-        // Retornar la respuesta de InventarioCocina con valores por defecto
         return ResponseEntity.ok(inventarioCocina);
     }
 }

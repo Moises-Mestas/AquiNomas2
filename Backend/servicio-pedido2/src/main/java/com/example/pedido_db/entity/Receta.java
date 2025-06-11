@@ -1,6 +1,7 @@
 package com.example.pedido_db.entity;
 
 import com.example.pedido_db.dto.Cliente;
+import com.example.pedido_db.dto.InventarioCocina;
 import com.example.pedido_db.dto.Producto;
 import jakarta.persistence.*;
 
@@ -19,6 +20,9 @@ public class Receta {
     private Producto producto;  // Relación con Cliente, que se llena mediante Feign
 
 
+    private Integer inventarioCocinaId;  // ID del cliente que realizó el pedido
+    @Transient
+    private InventarioCocina inventarioCocina;  // Relación con Cliente, que se llena mediante Feign
 
 
     @Column(name = "descripcion", nullable = true, columnDefinition = "TEXT")
@@ -58,7 +62,6 @@ public class Receta {
         }
     }
 
-
     public Integer getId() {
         return id;
     }
@@ -83,12 +86,28 @@ public class Receta {
         this.producto = producto;
     }
 
+    public Integer getInventarioCocinaId() {
+        return inventarioCocinaId;
+    }
+
+    public void setInventarioCocinaId(Integer inventarioCocinaId) {
+        this.inventarioCocinaId = inventarioCocinaId;
+    }
+
     public String getDescripcion() {
         return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public InventarioCocina getInventarioCocina() {
+        return inventarioCocina;
+    }
+
+    public void setInventarioCocina(InventarioCocina inventarioCocina) {
+        this.inventarioCocina = inventarioCocina;
     }
 
     public BigDecimal getCantidad() {
@@ -115,16 +134,17 @@ public class Receta {
         this.menu = menu;
     }
 
-    public Receta(Integer id, Integer productoId, Producto producto, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu) {
+    public Receta(Integer id, Integer productoId, Producto producto, Integer inventarioCocinaId, InventarioCocina inventarioCocina, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu) {
         this.id = id;
         this.productoId = productoId;
         this.producto = producto;
+        this.inventarioCocinaId = inventarioCocinaId;
+        this.inventarioCocina = inventarioCocina;
         this.descripcion = descripcion;
         this.cantidad = cantidad;
         this.unidadMedida = unidadMedida;
         this.menu = menu;
     }
-
 
     @Override
     public String toString() {
@@ -132,6 +152,8 @@ public class Receta {
                 "id=" + id +
                 ", productoId=" + productoId +
                 ", producto=" + producto +
+                ", inventarioCocinaId=" + inventarioCocinaId +
+                ", inventarioCocina=" + inventarioCocina +
                 ", descripcion='" + descripcion + '\'' +
                 ", cantidad=" + cantidad +
                 ", unidadMedida='" + unidadMedida + '\'' +
