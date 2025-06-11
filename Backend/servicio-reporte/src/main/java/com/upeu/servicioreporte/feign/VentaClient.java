@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "servicio-venta", fallback = VentaClientFallback.class)
+@FeignClient(name = "venta-service", fallback = VentaClientFallback.class)
 public interface VentaClient {
 
     @GetMapping("/ventas")
     List<VentaDto> obtenerTodasVentas();
 
     @GetMapping("/ventas/por-fecha")
-    List<VentaDto> obtenerVentasPorFecha(@RequestParam("inicio") LocalDateTime inicio,
-                                         @RequestParam("fin") LocalDateTime fin);
+    List<VentaDto> obtenerVentasPorFecha(@RequestParam("inicio") String inicio,
+                                         @RequestParam("fin") String fin);
 }
+
