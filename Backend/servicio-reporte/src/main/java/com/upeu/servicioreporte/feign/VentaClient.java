@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "venta-service", fallback = VentaClientFallback.class)
+@FeignClient(name = "servicio-venta", fallback = VentaClientFallback.class)
 public interface VentaClient {
 
     @GetMapping("/ventas")

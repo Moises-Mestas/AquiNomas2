@@ -206,8 +206,10 @@ public class ReporteServiceImpl implements ReporteService {
         Map<String, List<Map<String, Object>>> resultado = new HashMap<>();
         resultado.put("masPedidos", masPedidos);
         resultado.put("menosPedidos", menosPedidos);
+
         return resultado;
     }
+
 
     @Override
     public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {
