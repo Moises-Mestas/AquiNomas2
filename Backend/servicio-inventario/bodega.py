@@ -194,10 +194,17 @@ def convertir_a_kg(cantidad, unidad_medida):
         raise ValueError(f"Unidad de medida no soportada: {unidad_medida}")
 
 def parse_fecha_compra(fecha_str):
-    fecha_str_clean = fecha_str.replace('Sat, ', '').replace(' GMT', '')
-    fecha_dt = datetime.strptime(fecha_str_clean, '%d %b %Y %H:%M:%S')
-    return fecha_dt.strftime('%Y-%m-%d %H:%M:%S')
+    try:
+        if ', ' in fecha_str:
+            fecha_str_clean = fecha_str.split(', ')[1].replace(' GMT', '')
+        else:
+            fecha_str_clean = fecha_str.replace(' GMT', '')
 
+        fecha_dt = datetime.strptime(fecha_str_clean, '%d %b %Y %H:%M:%S')
+        return fecha_dt.strftime('%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        print(f"DEBUG error en parse_fecha_compra: {e}")
+        raise
 
 def crear_bodega(compra_proveedor_id):
     conexion = None
@@ -278,7 +285,6 @@ def crear_bodega(compra_proveedor_id):
         if conexion:
             conexion.close()
 
-# Retorna el dict con el producto
 
 def actualizar_bodega(bodega_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo):
     conexion = None
@@ -331,7 +337,6 @@ def obtener_bodega_por_tipo_insumo(tipo_insumo):
             """, (tipo_insumo,))
             registros = cursor.fetchall()
 
-        # Enriquecer los registros con datos adicionales del servicio-proveedor
         for registro in registros:
             producto = obtener_producto_por_id_desde_servicio(registro["producto_id"])
             if producto and "nombre" in producto:
