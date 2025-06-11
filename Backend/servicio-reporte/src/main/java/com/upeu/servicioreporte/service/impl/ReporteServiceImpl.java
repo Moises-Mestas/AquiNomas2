@@ -100,16 +100,12 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        String inicioStr = inicio.format(formatter);
-        String finStr = fin.format(formatter);
-
-        List<VentaDto> ventas = ventaClient.obtenerVentasPorFecha(inicioStr, finStr);
+        List<VentaDto> ventas = ventaClient.obtenerVentasPorFecha(inicio.toString(), fin.toString());
 
         Map<String, Object> resultado = new HashMap<>();
-        resultado.put("inicio", inicioStr);
-        resultado.put("fin", finStr);
-        resultado.put("cantidadVentas", ventas.size());
+        resultado.put("totalVentas", ventas.size());
+        resultado.put("fechaInicio", inicio);
+        resultado.put("fechaFin", fin);
 
         BigDecimal totalVentas = ventas.stream()
                 .map(VentaDto::getTotal)
