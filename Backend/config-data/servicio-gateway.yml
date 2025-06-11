@@ -26,7 +26,7 @@ spring:
             - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
 
 
-        #========servicio venta=======#
+        #========servicio venta=============#
         - id: servicio-venta
           uri: lb://servicio-venta
           predicates:
