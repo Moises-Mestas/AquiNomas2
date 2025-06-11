@@ -8,6 +8,7 @@ import com.example.pedido_db.feign.ClienteFeign;
 import com.example.pedido_db.repository.DetallePedidoRepository;
 import com.example.pedido_db.repository.PedidoRepository;
 import com.example.pedido_db.service.PedidoService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -27,105 +28,127 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private DetallePedidoRepository detallePedidoRepository;
 
-    // Filtrar los pedidos por estado
+    @CircuitBreaker(name = "clienteCircuitBreaker", fallbackMethod = "fallbackCliente")
     @Override
     public List<Pedido> listarPorEstado(EstadoPedido estadoPedido) {
         // Obtener los pedidos filtrados por estado
         List<Pedido> pedidos = pedidoRepository.findByEstadoPedido(estadoPedido);
 
-        // Cargar los detalles de cada pedido
+        // Cargar el cliente y los detalles para cada pedido
         for (Pedido pedido : pedidos) {
-            // Accedemos al detallePedido que ya está mapeado en la entidad
-            DetallePedido detallePedido = pedido.getDetallePedido();
-
-            // Verificar si tiene clienteId y asignarlo
-            if (detallePedido.getClienteId() != null) {
+            // Verificamos si el pedido tiene un clienteId
+            if (pedido.getClienteId() != null) {
                 try {
-                    Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                    // Obtener el cliente por el clienteId usando Feign
+                    Cliente cliente = clienteFeign.listById(pedido.getClienteId()).getBody();
+
                     if (cliente != null) {
-                        detallePedido.setCliente(cliente); // Asignar cliente al detalle
+                        pedido.setCliente(cliente);  // Asignamos el cliente al pedido
                     } else {
-                        throw new RuntimeException("Cliente no encontrado con ID: " + detallePedido.getClienteId());
+                        throw new RuntimeException("Cliente no encontrado con ID: " + pedido.getClienteId());
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException("Error al cargar cliente con ID: " + detallePedido.getClienteId(), e);
+                    // Manejo de excepciones de la llamada a clienteFeign
+                    throw new RuntimeException("Error al cargar cliente con ID: " + pedido.getClienteId(), e);
                 }
             }
 
-            // Asignar el detallePedido al pedido
-            pedido.setDetallePedido(detallePedido);
+            // Cargar detalles de los pedidos (esto se puede hacer ya que la relación @OneToMany se encargará de cargar los detalles si está bien configurada)
+            if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
+                // Aquí deberías cargar los detalles de Pedido si no están cargados
+                // Puedes hacerlo de forma explícita si usas un repositorio para `DetallePedido`
+                List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedido.getId());
+                pedido.setDetalles(detalles);  // Asignamos los detalles al pedido
+            }
         }
 
-        return pedidos; // Devuelve los pedidos con detalles cargados
+        return pedidos;  // Devolvemos la lista de pedidos con clientes y detalles cargados
     }
 
 
+
+    @CircuitBreaker(name = "clienteCircuitBreaker", fallbackMethod = "fallbackCliente")
     @Override
     public List<Pedido> listar() {
-        // Traemos todos los pedidos desde la base de datos
+        // Traemos todos los pedidos desde la base de datos (esto incluye la relación con DetallePedido si la configuraste correctamente)
         List<Pedido> pedidos = pedidoRepository.findAll();
 
-        // Cargar los detalles para cada pedido
+        // Cargar el cliente y los detalles para cada pedido
         for (Pedido pedido : pedidos) {
-            // No es necesario buscar por ID de detallePedido, ya está cargado en el objeto Pedido
-            DetallePedido detallePedido = pedido.getDetallePedido();
-
-            // Verificamos si el detallePedido tiene clienteId y lo asignamos
-            if (detallePedido.getClienteId() != null) {
+            // Verificamos si el pedido tiene un clienteId
+            if (pedido.getClienteId() != null) {
                 try {
-                    Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                    // Obtener el cliente por el clienteId usando Feign
+                    Cliente cliente = clienteFeign.listById(pedido.getClienteId()).getBody();
+
                     if (cliente != null) {
-                        detallePedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
+                        pedido.setCliente(cliente);  // Asignamos el cliente al pedido
                     } else {
-                        throw new RuntimeException("Cliente no encontrado con ID: " + detallePedido.getClienteId());
+                        throw new RuntimeException("Cliente no encontrado con ID: " + pedido.getClienteId());
                     }
                 } catch (Exception e) {
-                    // Manejo de excepciones de llamada al clienteFeign
-                    throw new RuntimeException("Error al cargar cliente con ID: " + detallePedido.getClienteId(), e);
+                    // Manejo de excepciones de la llamada a clienteFeign
+                    throw new RuntimeException("Error al cargar cliente con ID: " + pedido.getClienteId(), e);
                 }
             }
 
-            // Asignamos el detallePedido al pedido
-            pedido.setDetallePedido(detallePedido);
+            // Cargar detalles de los pedidos (esto se puede hacer ya que la relación @OneToMany se encargará de cargar los detalles si está bien configurada)
+            if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
+                // Aquí deberías cargar los detalles de Pedido si no están cargados
+                // Puedes hacerlo de forma explícita si usas un repositorio para `DetallePedido`
+                List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedido.getId());
+                pedido.setDetalles(detalles);  // Asignamos los detalles al pedido
+            }
         }
 
-        return pedidos; // Devolvemos la lista de pedidos con sus detalles y clientes cargados
+        return pedidos;  // Devolvemos la lista de pedidos con clientes y detalles cargados
     }
 
 
+
+
+
+    @CircuitBreaker(name = "clienteCircuitBreaker", fallbackMethod = "fallbackCliente")
     @Override
     public Optional<Pedido> listarPorId(Integer id) {
         Optional<Pedido> pedido = pedidoRepository.findById(id); // Obtener solo el pedido por ID
 
-        // Si el pedido existe, cargar los detalles y cliente asociado
+        // Si el pedido existe, cargar el cliente y los detalles asociados
         if (pedido.isPresent()) {
             Pedido pedidoFound = pedido.get(); // Obtener el pedido encontrado
 
-            // Accedemos al detallePedido que ya está mapeado en la entidad
-            DetallePedido detallePedido = pedidoFound.getDetallePedido();
-
-            // Verificar si el detallePedido tiene un clienteId y cargar el cliente
-            if (detallePedido.getClienteId() != null) {
+            // Verificar si el pedido tiene un clienteId y cargar el cliente
+            if (pedidoFound.getClienteId() != null) {
                 try {
-                    Cliente cliente = clienteFeign.listById(detallePedido.getClienteId()).getBody();
+                    // Obtener el cliente por el clienteId usando Feign
+                    Cliente cliente = clienteFeign.listById(pedidoFound.getClienteId()).getBody();
+
                     if (cliente != null) {
-                        detallePedido.setCliente(cliente); // Asignar cliente a DetallePedido
+                        pedidoFound.setCliente(cliente); // Asignar cliente al pedido
                     } else {
-                        throw new RuntimeException("Cliente no encontrado con ID: " + detallePedido.getClienteId());
+                        throw new RuntimeException("Cliente no encontrado con ID: " + pedidoFound.getClienteId());
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException("Error al cargar cliente con ID: " + detallePedido.getClienteId(), e);
+                    // Manejo de excepciones de la llamada a clienteFeign
+                    throw new RuntimeException("Error al cargar cliente con ID: " + pedidoFound.getClienteId(), e);
                 }
             }
 
-            // Asignamos el detallePedido al pedido
-            pedidoFound.setDetallePedido(detallePedido);
+            // Cargar detalles de los pedidos (esto se puede hacer ya que la relación @OneToMany se encargará de cargar los detalles si está bien configurada)
+            if (pedidoFound.getDetalles() == null || pedidoFound.getDetalles().isEmpty()) {
+                // Aquí deberías cargar los detalles de Pedido si no están cargados
+                // Puedes hacerlo de forma explícita si usas un repositorio para `DetallePedido`
+                List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedidoFound.getId());
+                pedidoFound.setDetalles(detalles);  // Asignamos los detalles al pedido
+            }
 
-            return Optional.of(pedidoFound); // Devolver el pedido con el detalle y cliente cargado
+            return Optional.of(pedidoFound); // Devolver el pedido con cliente y detalles cargados
         }
 
         return Optional.empty(); // Si el pedido no existe, devolver Optional vacío
     }
+
+
 
 
 

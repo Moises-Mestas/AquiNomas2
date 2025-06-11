@@ -2,6 +2,7 @@ package com.example.pedido_db.entity;
 
 import com.example.pedido_db.dto.Cliente;
 import com.example.pedido_db.dto.Producto;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,9 +15,11 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer clienteId;  // ID del cliente que realizó el pedido
-    @Transient
-    private Cliente cliente;  // Relación con Cliente, que se llena mediante Feign
+
+    @ManyToOne
+    @JoinColumn(name = "pedido_id", referencedColumnName = "id")
+    @JsonBackReference  // Evita referencia circular con Pedido
+    private Pedido pedido;
 
 
     @ManyToOne
@@ -26,14 +29,14 @@ public class DetallePedido {
     @Column(name = "cantidad")
     private int cantidad;
 
-    @Column(name = "precio_unitario", precision = 10, scale = 2)
-    private BigDecimal precioUnitario;
+
 
     public DetallePedido() {
 
     }
 
     public Integer getId() {
+
         return id;
     }
 
@@ -41,20 +44,12 @@ public class DetallePedido {
         this.id = id;
     }
 
-    public Integer getClienteId() {
-        return clienteId;
+    public Pedido getPedido() {
+        return pedido;
     }
 
-    public void setClienteId(Integer clienteId) {
-        this.clienteId = clienteId;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
     }
 
     public Menu getMenu() {
@@ -73,20 +68,22 @@ public class DetallePedido {
         this.cantidad = cantidad;
     }
 
-    public BigDecimal getPrecioUnitario() {
-        return precioUnitario;
-    }
 
-    public void setPrecioUnitario(BigDecimal precioUnitario) {
-        this.precioUnitario = precioUnitario;
-    }
-
-    public DetallePedido(Integer id, Integer clienteId, Cliente cliente, Menu menu, int cantidad, BigDecimal precioUnitario) {
+    public DetallePedido(Integer id, Pedido pedido, Menu menu, int cantidad, BigDecimal precioUnitario) {
         this.id = id;
-        this.clienteId = clienteId;
-        this.cliente = cliente;
+        this.pedido = pedido;
         this.menu = menu;
         this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
+    }
+
+    @Override
+    public String toString() {
+        return "DetallePedido{" +
+                "id=" + id +
+                ", pedido=" + pedido +
+                ", menu=" + menu +
+                ", cantidad=" + cantidad +
+                '}';
     }
 }
+
