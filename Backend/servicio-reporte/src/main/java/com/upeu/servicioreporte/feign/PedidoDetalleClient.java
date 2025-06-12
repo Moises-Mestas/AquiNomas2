@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Collections;
 import java.util.List;
 
-@FeignClient(name = "servicio-pedido", fallback = PedidoDetalleClientFallback.class)
+@FeignClient(name = "servicio-pedido2", fallback = PedidoDetalleClientFallback.class)
 public interface PedidoDetalleClient {
 
     @GetMapping("/detalle-pedidos")

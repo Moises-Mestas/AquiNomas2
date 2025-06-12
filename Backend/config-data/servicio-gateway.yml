@@ -30,3 +30,13 @@ spring:
           uri: lb://servicio-reportes
           predicates:
             - Path=/reportes/**
+        #========servicio pedido=======#
+        - id: servicio-pedido2
+          uri: lb://servicio-pedido2
+          predicates:
+            - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
+        #========servicio venta=============#
+        - id: servicio-venta
+          uri: lb://servicio-venta
+          predicates:
+            - Path=/ventas/**, /promociones/**, /comprobantes/**
