@@ -11,20 +11,6 @@ public class PedidoDto {
     private String estadoPedido;
     private List<DetallePedidoDto> detalles;
 
-    // Constructor vacío
-    public PedidoDto() {
-    }
-
-    // Constructor con todos los campos
-    public PedidoDto(Integer id, Integer clienteId, ClienteDto cliente, LocalDateTime fechaPedido, String estadoPedido, List<DetallePedidoDto> detalles) {
-        this.id = id;
-        this.clienteId = clienteId;
-        this.cliente = cliente;
-        this.fechaPedido = fechaPedido;
-        this.estadoPedido = estadoPedido;
-        this.detalles = detalles;
-    }
-
     // Getters y setters
     public Integer getId() {
         return id;
@@ -72,18 +58,5 @@ public class PedidoDto {
 
     public void setDetalles(List<DetallePedidoDto> detalles) {
         this.detalles = detalles;
-    }
-
-    // toString
-    @Override
-    public String toString() {
-        return "PedidoDto{" +
-                "id=" + id +
-                ", clienteId=" + clienteId +
-                ", cliente=" + cliente +
-                ", fechaPedido=" + fechaPedido +
-                ", estadoPedido='" + estadoPedido + '\'' +
-                ", detalles=" + detalles +
-                '}';
     }
 }
