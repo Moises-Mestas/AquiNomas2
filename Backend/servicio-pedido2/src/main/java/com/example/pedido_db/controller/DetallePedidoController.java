@@ -3,7 +3,9 @@ package com.example.pedido_db.controller;
 
 import com.example.pedido_db.entity.DetallePedido;
 import com.example.pedido_db.service.DetallePedidoService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +16,12 @@ import java.util.Optional;
 @RequestMapping("/detalle-pedidos")
 public class DetallePedidoController {
 
+    private final DetallePedidoService detallePedidoService;
+
     @Autowired
-    private DetallePedidoService detallePedidoService;
+    public DetallePedidoController(DetallePedidoService detallePedidoService) {
+        this.detallePedidoService = detallePedidoService;
+    }
 
     // Listar todos los detalles de pedido
     @GetMapping
@@ -33,10 +39,19 @@ public class DetallePedidoController {
         try {
             DetallePedido detalleGuardado = detallePedidoService.guardar(detallePedido);
             return ResponseEntity.ok(detalleGuardado);
+        } catch (InventoryShortageException e) {
+            // 409 Conflict si hay un problema de inventario
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            // 404 Not Found si no se encuentra una entidad
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (RuntimeException e) {
+            // 400 Bad Request para otros errores generales
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 
     // Actualizar un detalle de pedido existente
     @PutMapping("/{id}")

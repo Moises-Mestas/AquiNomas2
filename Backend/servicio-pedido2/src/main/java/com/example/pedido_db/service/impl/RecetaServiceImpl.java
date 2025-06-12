@@ -11,8 +11,11 @@ import com.example.pedido_db.service.RecetaService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,41 +28,23 @@ public class RecetaServiceImpl implements RecetaService {
     @Autowired
     private ProductoFeign productoFeign;  // Feign client to fetch Producto data
     @Autowired
-    private InventarioCocinaFeign inventarioCocinaFeign;  // Feign client to fetch Producto data
+    private InventarioCocinaFeign inventarioCocinaFeign;
 
-
-    @Autowired
-    public RecetaServiceImpl(RecetaRepository recetaRepository) {
-        this.recetaRepository = recetaRepository;
-    }
-
-    @CircuitBreaker(name = "recetaCircuitBreaker", fallbackMethod = "fallbackRecetaListar")
+    @CircuitBreaker(name = "productoCircuitBreaker", fallbackMethod = "fallbackCProductoById")
     public List<Receta> listar() {
         List<Receta> recetas = recetaRepository.findAll();
 
+        // Iterar para cargar el producto de cada receta
         for (Receta receta : recetas) {
-
-            // Obtener producto
             if (receta.getProductoId() != null) {
                 try {
                     Producto producto = productoFeign.listById(receta.getProductoId()).getBody();
                     if (producto != null) {
-                        receta.setProducto(producto);
+                        receta.setProducto(producto);  // Asegúrate de tener el setter 'setProducto()' en Receta
                     }
                 } catch (Exception e) {
-                    receta.setProducto(new Producto()); // Producto por defecto o loguear el error
-                }
-            }
-
-            // Obtener inventario de cocina
-            if (receta.getInventarioCocinaId() != null) {
-                try {
-                    InventarioCocina inventario = inventarioCocinaFeign.listById(receta.getInventarioCocinaId()).getBody();
-                    if (inventario != null) {
-                        receta.setInventarioCocina(inventario);
-                    }
-                } catch (Exception e) {
-                    receta.setInventarioCocina(new InventarioCocina()); // Inventario por defecto o loguear
+                    // En caso de fallo en la llamada al servicio, manejarlo con un valor predeterminado o loguear el error
+                    receta.setProducto(new Producto());  // Opcional: Setear un producto vacío en caso de error
                 }
             }
         }
@@ -67,9 +52,16 @@ public class RecetaServiceImpl implements RecetaService {
         return recetas;
     }
 
+    // Método fallback que se invoca si hay una falla en la llamada al servicio de Producto
+    public List<Receta> fallbackCProductoById(Exception ex) {
+        // En caso de error, puedes devolver una lista vacía o algún valor predeterminado
+        // También podrías loggear el error o realizar otras acciones
+        return List.of();  // Devuelve una lista vacía
+    }
 
 
-    @CircuitBreaker(name = "recetaCircuitBreaker", fallbackMethod = "fallbackRecetaPorId")
+
+    @CircuitBreaker(name = "productoCircuitBreaker", fallbackMethod = "fallbackCProductoById")
     @Override
     public Optional<Receta> listarPorId(Integer id) {
         Optional<Receta> recetaOpt = recetaRepository.findById(id);
@@ -77,37 +69,21 @@ public class RecetaServiceImpl implements RecetaService {
         if (recetaOpt.isPresent()) {
             Receta receta = recetaOpt.get();
 
-            // Obtener producto
             if (receta.getProductoId() != null) {
                 try {
                     Producto producto = productoFeign.listById(receta.getProductoId()).getBody();
                     if (producto != null) {
                         receta.setProducto(producto);
                     } else {
-                        receta.setProducto(new Producto());
+                        receta.setProducto(new Producto()); // Fallback si no se encuentra el producto
                     }
                 } catch (Exception e) {
                     receta.setProducto(new Producto()); // Fallback si ocurre un error en Feign
                 }
             }
 
-            // Obtener inventario de cocina
-            if (receta.getInventarioCocinaId() != null) {
-                try {
-                    InventarioCocina inventario = inventarioCocinaFeign.listById(receta.getInventarioCocinaId()).getBody();
-                    if (inventario != null) {
-                        receta.setInventarioCocina(inventario);
-                    } else {
-                        receta.setInventarioCocina(new InventarioCocina());
-                    }
-                } catch (Exception e) {
-                    receta.setInventarioCocina(new InventarioCocina()); // Fallback si ocurre un error
-                }
-            }
-
             return Optional.of(receta);
         }
-
         return Optional.empty();
     }
 

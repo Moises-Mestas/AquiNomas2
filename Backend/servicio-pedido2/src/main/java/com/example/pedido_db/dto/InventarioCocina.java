@@ -1,18 +1,19 @@
 package com.example.pedido_db.dto;
 
-
-
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+
 public class InventarioCocina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "bodega_id")
     private Integer bodegaId;
 
+    @Column(name = "producto_id")
     private Integer productoId;
 
     @Column(name = "cantidad_disponible", columnDefinition = "DECIMAL(10,3)")
@@ -23,20 +24,17 @@ public class InventarioCocina {
     private UnidadMedida unidadMedida;
 
 
-    @Transient
-    private Producto producto;
-
     public InventarioCocina() {
-
     }
-
 
     public enum UnidadMedida {
         kg, g, l, ml, unidad
     }
 
-    public Integer getId() {
+    // Getters and Setters
 
+
+    public Integer getId() {
         return id;
     }
 
@@ -76,21 +74,12 @@ public class InventarioCocina {
         this.unidadMedida = unidadMedida;
     }
 
-    public Producto getProducto() {
-        return producto;
-    }
-
-    public void setProducto(Producto producto) {
-        this.producto = producto;
-    }
-
-    public InventarioCocina(Integer id, Integer bodegaId, Integer productoId, BigDecimal cantidadDisponible, UnidadMedida unidadMedida, Producto producto) {
+    public InventarioCocina(Integer id, Integer bodegaId, Integer productoId, BigDecimal cantidadDisponible, UnidadMedida unidadMedida) {
         this.id = id;
         this.bodegaId = bodegaId;
         this.productoId = productoId;
         this.cantidadDisponible = cantidadDisponible;
         this.unidadMedida = unidadMedida;
-        this.producto = producto;
     }
 
     @Override
@@ -101,7 +90,6 @@ public class InventarioCocina {
                 ", productoId=" + productoId +
                 ", cantidadDisponible=" + cantidadDisponible +
                 ", unidadMedida=" + unidadMedida +
-                ", producto=" + producto +
                 '}';
     }
 }

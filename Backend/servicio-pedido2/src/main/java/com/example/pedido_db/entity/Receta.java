@@ -20,9 +20,6 @@ public class Receta {
     private Producto producto;  // Relación con Cliente, que se llena mediante Feign
 
 
-    private Integer inventarioCocinaId;  // ID del cliente que realizó el pedido
-    @Transient
-    private InventarioCocina inventarioCocina;  // Relación con Cliente, que se llena mediante Feign
 
 
     @Column(name = "descripcion", nullable = true, columnDefinition = "TEXT")
@@ -37,6 +34,9 @@ public class Receta {
     @ManyToOne
     @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
     private Menu menu;
+
+    @Column(name = "cantidad_disponible", nullable = false, columnDefinition = "DECIMAL(10,3)")
+    private BigDecimal cantidadDisponible;  // Cambiado a BigDecimal
 
     public Receta() {
 
@@ -62,6 +62,7 @@ public class Receta {
         }
     }
 
+
     public Integer getId() {
         return id;
     }
@@ -86,28 +87,12 @@ public class Receta {
         this.producto = producto;
     }
 
-    public Integer getInventarioCocinaId() {
-        return inventarioCocinaId;
-    }
-
-    public void setInventarioCocinaId(Integer inventarioCocinaId) {
-        this.inventarioCocinaId = inventarioCocinaId;
-    }
-
     public String getDescripcion() {
         return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public InventarioCocina getInventarioCocina() {
-        return inventarioCocina;
-    }
-
-    public void setInventarioCocina(InventarioCocina inventarioCocina) {
-        this.inventarioCocina = inventarioCocina;
     }
 
     public BigDecimal getCantidad() {
@@ -134,16 +119,23 @@ public class Receta {
         this.menu = menu;
     }
 
-    public Receta(Integer id, Integer productoId, Producto producto, Integer inventarioCocinaId, InventarioCocina inventarioCocina, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu) {
+    public BigDecimal getCantidadDisponible() {
+        return cantidadDisponible;
+    }
+
+    public void setCantidadDisponible(BigDecimal cantidadDisponible) {
+        this.cantidadDisponible = cantidadDisponible;
+    }
+
+    public Receta(Integer id, Integer productoId, Producto producto, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu, BigDecimal cantidadDisponible) {
         this.id = id;
         this.productoId = productoId;
         this.producto = producto;
-        this.inventarioCocinaId = inventarioCocinaId;
-        this.inventarioCocina = inventarioCocina;
         this.descripcion = descripcion;
         this.cantidad = cantidad;
         this.unidadMedida = unidadMedida;
         this.menu = menu;
+        this.cantidadDisponible = cantidadDisponible;
     }
 
     @Override
@@ -152,12 +144,11 @@ public class Receta {
                 "id=" + id +
                 ", productoId=" + productoId +
                 ", producto=" + producto +
-                ", inventarioCocinaId=" + inventarioCocinaId +
-                ", inventarioCocina=" + inventarioCocina +
                 ", descripcion='" + descripcion + '\'' +
                 ", cantidad=" + cantidad +
                 ", unidadMedida='" + unidadMedida + '\'' +
                 ", menu=" + menu +
+                ", cantidadDisponible=" + cantidadDisponible +
                 '}';
     }
 }
