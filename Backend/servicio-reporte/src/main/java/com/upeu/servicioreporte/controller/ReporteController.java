@@ -1,7 +1,10 @@
 package com.upeu.servicioreporte.controller;
 
+import com.upeu.servicioreporte.dto.VentaDto;
 import com.upeu.servicioreporte.entity.Reporte;
+import com.upeu.servicioreporte.feign.VentaClient;
 import com.upeu.servicioreporte.service.ReporteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,13 +27,17 @@ public class ReporteController {
         return reporteService.obtenerClientesMasFrecuentes();
     }
 
-    @GetMapping("/ventas-periodo")
-    public Map<String, Object> ventasPorPeriodo(@RequestParam("inicio") String inicio,
-                                                @RequestParam("fin") String fin) {
-        // Convierte los parámetros de fecha (inicio y fin) y pasa a obtener ventas por periodo
-        return reporteService.obtenerCantidadVentasPorPeriodo(
-                LocalDateTime.parse(inicio), LocalDateTime.parse(fin));
+    @GetMapping("/por-fecha")
+    public Map<String, Object> obtenerCantidadVentasPorPeriodo(
+            @RequestParam("inicio") String inicioStr,
+            @RequestParam("fin") String finStr) {
+
+        LocalDateTime inicio = LocalDateTime.parse(inicioStr);
+        LocalDateTime fin = LocalDateTime.parse(finStr);
+
+        return reporteService.obtenerCantidadVentasPorPeriodo(inicio, fin);
     }
+
 
     @GetMapping("/inventarios-mas-usados")
     public List<Map<String, Object>> inventariosMasUsados() {

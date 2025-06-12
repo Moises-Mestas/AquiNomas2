@@ -15,6 +15,7 @@ public interface VentaClient {
     List<VentaDto> obtenerTodasVentas();
 
     @GetMapping("/ventas/por-fecha")
-    List<VentaDto> obtenerVentasPorFecha(@RequestParam("inicio") LocalDateTime inicio,
-                                         @RequestParam("fin") LocalDateTime fin);
+    List<VentaDto> obtenerVentasPorFecha(@RequestParam("inicio") String inicio,
+                                         @RequestParam("fin") String fin);
 }
+

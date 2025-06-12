@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,14 +56,27 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
-        List<VentaDto> ventas = ventaClient.obtenerTodasVentas();
+        List<VentaDto> ventas;
+        try {
+            ventas = ventaClient.obtenerTodasVentas();
+        } catch (Exception e) {
+            System.out.println("Error al obtener ventas: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+
         Map<Integer, Long> frecuenciaClientes = new HashMap<>();
 
         for (VentaDto venta : ventas) {
-            PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(venta.getPedidoId());
-            if (pedido != null && pedido.getClienteId() != null) {
-                Integer clienteId = pedido.getClienteId();
-                frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
+            try {
+                if (venta.getPedidoId() == null) continue;
+                PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(venta.getPedidoId());
+                if (pedido != null && pedido.getClienteId() != null) {
+                    Integer clienteId = pedido.getClienteId();
+                    frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
+                }
+            } catch (Exception e) {
+                System.out.println("Error al procesar venta con ID " + venta.getId() + ": " + e.getMessage());
             }
         }
 
@@ -70,22 +84,28 @@ public class ReporteServiceImpl implements ReporteService {
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .map(entry -> {
                     Map<String, Object> map = new HashMap<>();
-                    ClienteDto cliente = clienteAdministradorClient.obtenerClientePorId(entry.getKey());
-                    map.put("cliente", cliente);
+                    try {
+                        ClienteDto cliente = clienteAdministradorClient.obtenerClientePorId(entry.getKey());
+                        map.put("cliente", cliente);
+                    } catch (Exception e) {
+                        System.out.println("Error al obtener cliente con ID " + entry.getKey() + ": " + e.getMessage());
+                        map.put("cliente", null);
+                    }
                     map.put("frecuencia", entry.getValue());
                     return map;
                 })
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin) {
-        List<VentaDto> ventas = ventaClient.obtenerVentasPorFecha(inicio, fin);
+        List<VentaDto> ventas = ventaClient.obtenerVentasPorFecha(inicio.toString(), fin.toString());
 
         Map<String, Object> resultado = new HashMap<>();
-        resultado.put("inicio", inicio);
-        resultado.put("fin", fin);
-        resultado.put("cantidadVentas", ventas.size());
+        resultado.put("totalVentas", ventas.size());
+        resultado.put("fechaInicio", inicio);
+        resultado.put("fechaFin", fin);
 
         BigDecimal totalVentas = ventas.stream()
                 .map(VentaDto::getTotal)
@@ -95,6 +115,7 @@ public class ReporteServiceImpl implements ReporteService {
         resultado.put("totalVentas", totalVentas);
         return resultado;
     }
+
 
     @Override
     public List<Map<String, Object>> obtenerInventariosMasUsados() {
@@ -181,8 +202,10 @@ public class ReporteServiceImpl implements ReporteService {
         Map<String, List<Map<String, Object>>> resultado = new HashMap<>();
         resultado.put("masPedidos", masPedidos);
         resultado.put("menosPedidos", menosPedidos);
+
         return resultado;
     }
+
 
     @Override
     public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {

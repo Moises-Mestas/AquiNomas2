@@ -21,8 +21,9 @@ public class VentaClientFallback implements VentaClient {
     }
 
     @Override
-    public List<VentaDto> obtenerVentasPorFecha(LocalDateTime inicio, LocalDateTime fin) {
+    public List<VentaDto> obtenerVentasPorFecha(String inicio, String fin) {
         logger.warn("Fallback activado: Venta service no disponible para rango {} - {}", inicio, fin);
         return Collections.emptyList();
     }
+
 }
