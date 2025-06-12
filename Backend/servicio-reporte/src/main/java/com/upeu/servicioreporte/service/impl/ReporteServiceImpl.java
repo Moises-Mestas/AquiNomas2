@@ -144,51 +144,64 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public List<Map<String, Object>> obtenerInventariosMasUsados() {
-        // Traer inventarios de cocina, barra y bodegas
-        List<InventarioCocinaDto> inventariosCocina = inventarioClient.obtenerInventariosCocina();
-        List<InventarioBarraDto> inventariosBarra = inventarioClient.obtenerInventariosBarra();
-        List<BodegaDto> bodegas = inventarioClient.obtenerTodasLasBodegas();
+        // Manejo de posibles listas nulas
+        List<InventarioCocinaDto> inventariosCocina = Optional.ofNullable(inventarioClient.obtenerInventariosCocina())
+                .orElse(Collections.emptyList());
+        List<InventarioBarraDto> inventariosBarra = Optional.ofNullable(inventarioClient.obtenerInventariosBarra())
+                .orElse(Collections.emptyList());
+        List<BodegaDto> bodegas = Optional.ofNullable(inventarioClient.obtenerTodasLasBodegas())
+                .orElse(Collections.emptyList());
 
         Map<Integer, Double> usoPorProducto = new HashMap<>();
 
-        // Procesar inventarios de cocina
-        for (InventarioCocinaDto cocina : inventariosCocina) {
-            Integer id = cocina.getId(); // Aquí tomamos el ID directamente
-            BigDecimal cantidad = cocina.getCantidadDisponible(); // La cantidad disponible es de tipo BigDecimal
-            if (id != null && cantidad != null) {
-                usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
+        try {
+            // Procesar inventarios de cocina
+            for (InventarioCocinaDto cocina : inventariosCocina) {
+                Integer id = cocina.getId();
+                BigDecimal cantidad = cocina.getCantidadDisponible();
+                if (id != null && cantidad != null) {
+                    usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
+                }
             }
+
+            // Procesar inventarios de barra
+            for (InventarioBarraDto barra : inventariosBarra) {
+                Integer id = barra.getId();
+                BigDecimal cantidad = barra.getCantidadDisponible();
+                if (id != null && cantidad != null) {
+                    usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
+                }
+            }
+
+            // Procesar bodegas
+            for (BodegaDto bodega : bodegas) {
+                Integer id = bodega.getId();
+                BigDecimal cantidad = bodega.getCantidad();
+                if (id != null && cantidad != null) {
+                    usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al procesar inventarios: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
         }
 
-        // Procesar inventarios de barra
-        for (InventarioBarraDto barra : inventariosBarra) {
-            Integer id = barra.getId(); // Tomamos el ID
-            BigDecimal cantidad = barra.getCantidadDisponible(); // Cantidad disponible de tipo BigDecimal
-            if (id != null && cantidad != null) {
-                usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
-            }
-        }
-
-        // Procesar bodegas (si es necesario)
-        for (BodegaDto bodega : bodegas) {
-            Integer id = bodega.getId(); // Tomamos el ID de la bodega
-            BigDecimal cantidad = bodega.getCantidad(); // Ahora usamos el campo cantidad
-            if (id != null && cantidad != null) {
-                usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
-            }
-        }
+        System.out.println("Productos con cantidades acumuladas: " + usoPorProducto.size());
 
         // Ordenar los productos más usados
         return usoPorProducto.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .map(entry -> {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("productoId", entry.getKey()); // Usamos el ID aquí
+                    map.put("productoId", entry.getKey());
                     map.put("cantidadUsada", entry.getValue());
                     return map;
                 })
                 .collect(Collectors.toList());
     }
+
 
 
 
