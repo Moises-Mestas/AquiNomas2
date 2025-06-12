@@ -7,24 +7,13 @@ public class ClienteDto {
     private String nombre;
     private String apellido;
     private String dni;
+    private String ruc;
     private String telefono;
     private String email;
     private String direccion;
     private LocalDateTime fechaRegistro;
 
     public ClienteDto() {}
-
-    public ClienteDto(Integer id, String nombre, String apellido, String dni,
-                      String telefono, String email, String direccion, LocalDateTime fechaRegistro) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.dni = dni;
-        this.telefono = telefono;
-        this.email = email;
-        this.direccion = direccion;
-        this.fechaRegistro = fechaRegistro;
-    }
 
     // Getters y Setters
     public Integer getId() { return id; }
@@ -39,6 +28,9 @@ public class ClienteDto {
     public String getDni() { return dni; }
     public void setDni(String dni) { this.dni = dni; }
 
+    public String getRuc() { return ruc; }
+    public void setRuc(String ruc) { this.ruc = ruc; }
+
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
 
@@ -50,18 +42,4 @@ public class ClienteDto {
 
     public LocalDateTime getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
-
-    @Override
-    public String toString() {
-        return "ClienteDto{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", apellido='" + apellido + '\'' +
-                ", dni='" + dni + '\'' +
-                ", telefono='" + telefono + '\'' +
-                ", email='" + email + '\'' +
-                ", direccion='" + direccion + '\'' +
-                ", fechaRegistro=" + fechaRegistro +
-                '}';
-    }
 }

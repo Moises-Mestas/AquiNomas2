@@ -60,7 +60,8 @@ public class VentaServiceImpl implements VentaService {
                     venta.getTotal(),
                     nombreCliente,
                     nombreMenu,
-                    cantidad
+                    cantidad,
+                    venta.getPedidoId()
             );
         }).collect(Collectors.toList());
     }

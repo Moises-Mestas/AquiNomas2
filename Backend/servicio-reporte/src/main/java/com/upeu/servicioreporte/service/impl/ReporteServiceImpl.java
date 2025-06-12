@@ -57,28 +57,52 @@ public class ReporteServiceImpl implements ReporteService {
     @Override
     public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
         List<VentaDto> ventas;
+        List<DetallePedidoDto> todosDetalles;
+
         try {
             ventas = ventaClient.obtenerTodasVentas();
+            todosDetalles = pedidoDetalleClient.obtenerTodosDetallePedidos();
         } catch (Exception e) {
-            System.out.println("Error al obtener ventas: " + e.getMessage());
+            System.out.println("Error al obtener ventas o detalles: " + e.getMessage());
             e.printStackTrace();
             return Collections.emptyList();
         }
 
         Map<Integer, Long> frecuenciaClientes = new HashMap<>();
+        System.out.println("VENTAS TOTALES: " + ventas.size());
 
         for (VentaDto venta : ventas) {
             try {
-                if (venta.getPedidoId() == null) continue;
-                PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(venta.getPedidoId());
-                if (pedido != null && pedido.getClienteId() != null) {
-                    Integer clienteId = pedido.getClienteId();
-                    frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
+                System.out.println("Procesando venta ID: " + venta.getId());
+
+                if (venta.getPedidoId() == null) {
+                    System.out.println("PedidoId NULL en venta " + venta.getId());
+                    continue;
                 }
+
+                PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(venta.getPedidoId());
+                if (pedido == null || pedido.getClienteId() == null) {
+                    System.out.println("Pedido o clienteId nulo para venta: " + venta.getId());
+                    continue;
+                }
+
+                // Filtramos los detalles que pertenecen a este pedido
+                List<DetallePedidoDto> detalles = todosDetalles.stream()
+                        .filter(d -> d.getPedidoId().equals(pedido.getId()))
+                        .collect(Collectors.toList());
+
+                pedido.setDetalles(detalles); // Asignamos los detalles al pedido
+
+                Integer clienteId = pedido.getClienteId();
+                System.out.println("ClienteId encontrado: " + clienteId);
+                frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
+
             } catch (Exception e) {
                 System.out.println("Error al procesar venta con ID " + venta.getId() + ": " + e.getMessage());
             }
         }
+
+        System.out.println("FRECUENCIA FINAL: " + frecuenciaClientes);
 
         return frecuenciaClientes.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
@@ -96,6 +120,7 @@ public class ReporteServiceImpl implements ReporteService {
                 })
                 .collect(Collectors.toList());
     }
+
 
 
     @Override
@@ -171,40 +196,46 @@ public class ReporteServiceImpl implements ReporteService {
     public Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos() {
         List<DetallePedidoDto> detallePedidos = pedidoDetalleClient.obtenerTodosDetallePedidos();
 
-        Map<Integer, Long> pedidosPorProducto = detallePedidos.stream()
-                .collect(Collectors.groupingBy(DetallePedidoDto::getProductoId, Collectors.counting()));
+        // Agrupar por menuId y contar cuántas veces aparece cada uno
+        Map<Integer, Long> pedidosPorMenu = detallePedidos.stream()
+                .collect(Collectors.groupingBy(DetallePedidoDto::getMenuId, Collectors.counting()));
 
-        List<Map.Entry<Integer, Long>> ordenados = pedidosPorProducto.entrySet().stream()
+        // Ordenar por cantidad ascendente
+        List<Map.Entry<Integer, Long>> ordenados = pedidosPorMenu.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toList());
 
+        // Top 5 más pedidos
         List<Map<String, Object>> masPedidos = ordenados.stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(5)
                 .map(e -> {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("productoId", e.getKey().toString());
+                    map.put("menuId", e.getKey());  // ID del producto (menu)
                     map.put("cantidad", e.getValue());
                     return map;
                 })
                 .collect(Collectors.toList());
 
+        // Top 5 menos pedidos
         List<Map<String, Object>> menosPedidos = ordenados.stream()
                 .limit(5)
                 .map(e -> {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("productoId", e.getKey().toString());
+                    map.put("menuId", e.getKey());
                     map.put("cantidad", e.getValue());
                     return map;
                 })
                 .collect(Collectors.toList());
 
+        // Devolver el resultado
         Map<String, List<Map<String, Object>>> resultado = new HashMap<>();
         resultado.put("masPedidos", masPedidos);
         resultado.put("menosPedidos", menosPedidos);
 
         return resultado;
     }
+
 
 
     @Override

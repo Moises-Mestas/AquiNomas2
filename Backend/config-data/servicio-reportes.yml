@@ -46,8 +46,6 @@ resilience4j:
         baseConfig: default
       inventarioClient:
         baseConfig: default
-      bodegaClient:
-        baseConfig: default
 
 
 management:

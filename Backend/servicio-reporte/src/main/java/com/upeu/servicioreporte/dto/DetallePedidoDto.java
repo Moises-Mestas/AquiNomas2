@@ -3,53 +3,98 @@ package com.upeu.servicioreporte.dto;
 import java.math.BigDecimal;
 
 public class DetallePedidoDto {
-    private Integer id;
-    private Integer pedidoId;
-    private Integer productoId;
+    private Long id;
     private Integer cantidad;
     private BigDecimal precioUnitario;
-    private BigDecimal subtotal;
+    private String nombreCliente;
+    private String nombreMenu;
+    private Integer pedidoId;
+    private Integer menuId; // ✅ Campo añadido para identificar el producto
 
-    public DetallePedidoDto() {}
+    // Constructor vacío
+    public DetallePedidoDto() {
+    }
 
-    public DetallePedidoDto(Integer id, Integer pedidoId, Integer productoId, Integer cantidad,
-                            BigDecimal precioUnitario, BigDecimal subtotal) {
+    // Constructor con todos los campos
+    public DetallePedidoDto(Long id, Integer cantidad, BigDecimal precioUnitario, String nombreCliente,
+                            String nombreMenu, Integer pedidoId, Integer menuId) {
         this.id = id;
-        this.pedidoId = pedidoId;
-        this.productoId = productoId;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
-        this.subtotal = subtotal;
+        this.nombreCliente = nombreCliente;
+        this.nombreMenu = nombreMenu;
+        this.pedidoId = pedidoId;
+        this.menuId = menuId;
     }
 
     // Getters y setters
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Integer getPedidoId() { return pedidoId; }
-    public void setPedidoId(Integer pedidoId) { this.pedidoId = pedidoId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Integer getProductoId() { return productoId; }
-    public void setProductoId(Integer productoId) { this.productoId = productoId; }
+    public Integer getCantidad() {
+        return cantidad;
+    }
 
-    public Integer getCantidad() { return cantidad; }
-    public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
 
-    public BigDecimal getPrecioUnitario() { return precioUnitario; }
-    public void setPrecioUnitario(BigDecimal precioUnitario) { this.precioUnitario = precioUnitario; }
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
+    }
 
-    public BigDecimal getSubtotal() { return subtotal; }
-    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
 
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public String getNombreMenu() {
+        return nombreMenu;
+    }
+
+    public void setNombreMenu(String nombreMenu) {
+        this.nombreMenu = nombreMenu;
+    }
+
+    public Integer getPedidoId() {
+        return pedidoId;
+    }
+
+    public void setPedidoId(Integer pedidoId) {
+        this.pedidoId = pedidoId;
+    }
+
+    public Integer getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(Integer menuId) {
+        this.menuId = menuId;
+    }
+
+    // toString
     @Override
     public String toString() {
         return "DetallePedidoDto{" +
                 "id=" + id +
-                ", pedidoId=" + pedidoId +
-                ", productoId=" + productoId +
                 ", cantidad=" + cantidad +
                 ", precioUnitario=" + precioUnitario +
-                ", subtotal=" + subtotal +
+                ", nombreCliente='" + nombreCliente + '\'' +
+                ", nombreMenu='" + nombreMenu + '\'' +
+                ", pedidoId=" + pedidoId +
+                ", menuId=" + menuId +
                 '}';
     }
 }

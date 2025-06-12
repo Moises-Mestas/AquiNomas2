@@ -13,6 +13,7 @@ public class VentaDTO {
     private String nombreCliente;
     private String nombreMenu;
     private int cantidad;
+    private Long pedidoId;
 
     public Long getId() {
         return id;
@@ -70,7 +71,15 @@ public class VentaDTO {
         this.cantidad = cantidad;
     }
 
-    public VentaDTO(Long id, String metodoPago, LocalDateTime fechaVenta, BigDecimal total, String nombreCliente, String nombreMenu, int cantidad) {
+    public Long getPedidoId() {
+        return pedidoId;
+    }
+
+    public void setPedidoId(Long pedidoId) {
+        this.pedidoId = pedidoId;
+    }
+
+    public VentaDTO(Long id, String metodoPago, LocalDateTime fechaVenta, BigDecimal total, String nombreCliente, String nombreMenu, int cantidad, Long pedidoId) {
         this.id = id;
         this.metodoPago = metodoPago;
         this.fechaVenta = fechaVenta;
@@ -78,5 +87,6 @@ public class VentaDTO {
         this.nombreCliente = nombreCliente;
         this.nombreMenu = nombreMenu;
         this.cantidad = cantidad;
+        this.pedidoId = pedidoId;
     }
 }

@@ -1,58 +1,37 @@
 package com.upeu.servicioreporte.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PedidoDto {
     private Integer id;
-    private Integer detallePedidoId;
-    private String estadoPedido;
-    private LocalDateTime fechaPedido;
     private Integer clienteId;
+    private ClienteDto cliente;
+    private LocalDateTime fechaPedido;
+    private String estadoPedido;
+    private List<DetallePedidoDto> detalles;
 
     // Constructor vacío
     public PedidoDto() {
     }
 
     // Constructor con todos los campos
-    public PedidoDto(Integer id, Integer detallePedidoId, String estadoPedido, LocalDateTime fechaPedido, Integer clienteId) {
+    public PedidoDto(Integer id, Integer clienteId, ClienteDto cliente, LocalDateTime fechaPedido, String estadoPedido, List<DetallePedidoDto> detalles) {
         this.id = id;
-        this.detallePedidoId = detallePedidoId;
-        this.estadoPedido = estadoPedido;
-        this.fechaPedido = fechaPedido;
         this.clienteId = clienteId;
+        this.cliente = cliente;
+        this.fechaPedido = fechaPedido;
+        this.estadoPedido = estadoPedido;
+        this.detalles = detalles;
     }
 
-    // Getters y Setters
+    // Getters y setters
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getDetallePedidoId() {
-        return detallePedidoId;
-    }
-
-    public void setDetallePedidoId(Integer detallePedidoId) {
-        this.detallePedidoId = detallePedidoId;
-    }
-
-    public String getEstadoPedido() {
-        return estadoPedido;
-    }
-
-    public void setEstadoPedido(String estadoPedido) {
-        this.estadoPedido = estadoPedido;
-    }
-
-    public LocalDateTime getFechaPedido() {
-        return fechaPedido;
-    }
-
-    public void setFechaPedido(LocalDateTime fechaPedido) {
-        this.fechaPedido = fechaPedido;
     }
 
     public Integer getClienteId() {
@@ -63,15 +42,48 @@ public class PedidoDto {
         this.clienteId = clienteId;
     }
 
+    public ClienteDto getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClienteDto cliente) {
+        this.cliente = cliente;
+    }
+
+    public LocalDateTime getFechaPedido() {
+        return fechaPedido;
+    }
+
+    public void setFechaPedido(LocalDateTime fechaPedido) {
+        this.fechaPedido = fechaPedido;
+    }
+
+    public String getEstadoPedido() {
+        return estadoPedido;
+    }
+
+    public void setEstadoPedido(String estadoPedido) {
+        this.estadoPedido = estadoPedido;
+    }
+
+    public List<DetallePedidoDto> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetallePedidoDto> detalles) {
+        this.detalles = detalles;
+    }
+
     // toString
     @Override
     public String toString() {
         return "PedidoDto{" +
                 "id=" + id +
-                ", detallePedidoId=" + detallePedidoId +
-                ", estadoPedido='" + estadoPedido + '\'' +
-                ", fechaPedido=" + fechaPedido +
                 ", clienteId=" + clienteId +
+                ", cliente=" + cliente +
+                ", fechaPedido=" + fechaPedido +
+                ", estadoPedido='" + estadoPedido + '\'' +
+                ", detalles=" + detalles +
                 '}';
     }
 }
