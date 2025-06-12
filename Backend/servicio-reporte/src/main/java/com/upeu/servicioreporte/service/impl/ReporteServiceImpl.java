@@ -125,21 +125,39 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin) {
-        List<VentaDto> ventas = ventaClient.obtenerVentasPorFecha(inicio.toString(), fin.toString());
-
         Map<String, Object> resultado = new HashMap<>();
-        resultado.put("totalVentas", ventas.size());
-        resultado.put("fechaInicio", inicio);
-        resultado.put("fechaFin", fin);
 
-        BigDecimal totalVentas = ventas.stream()
-                .map(VentaDto::getTotal)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        try {
+            // ✅ Formatear fechas correctamente con segundos
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            String inicioStr = inicio.format(formatter);
+            String finStr = fin.format(formatter);
 
-        resultado.put("totalVentas", totalVentas);
+            // ✅ Llamar al Feign client con fechas formateadas correctamente
+            List<VentaDto> ventas = Optional.ofNullable(
+                    ventaClient.obtenerVentasPorFecha(inicioStr, finStr)
+            ).orElse(Collections.emptyList());
+
+            BigDecimal totalMontoVentas = ventas.stream()
+                    .map(VentaDto::getTotal)
+                    .filter(Objects::nonNull)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            resultado.put("cantidadVentas", ventas.size());
+            resultado.put("montoTotal", totalMontoVentas);
+            resultado.put("fechaInicio", inicioStr);
+            resultado.put("fechaFin", finStr);
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener ventas por periodo: " + e.getMessage());
+            e.printStackTrace();
+            resultado.put("error", "No se pudo calcular las ventas en el periodo especificado.");
+        }
+
         return resultado;
     }
+
+
 
 
     @Override
