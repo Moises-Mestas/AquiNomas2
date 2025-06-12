@@ -104,33 +104,50 @@ public class DetallePedidoServiceImpl implements DetallePedidoService {
     @Override
     public DetallePedido guardar(DetallePedido detallePedido) {
         // Paso 1: Guardar el detalle del pedido en la base de datos
-        DetallePedido detalleGuardado = detallePedidoRepository.save(detallePedido);
         Integer menuId = detallePedido.getMenu().getId();
 
         // Paso 2: Consultar las recetas asociadas a ese menu_id
         List<Receta> recetas = recetaRepository.findByMenuId(menuId);
 
-        // Paso 3: Para cada receta, obtener el producto_id y la cantidad
+        // Paso 3: Verificar disponibilidad de stock para todos los ingredientes
         for (Receta receta : recetas) {
             Integer productoId = receta.getProductoId();
             BigDecimal cantidadReceta = receta.getCantidad();
 
-            // Paso 4: Calcular la cantidad total de ese ingrediente
+            // Paso 4: Calcular la cantidad total de ese ingrediente para el pedido
             BigDecimal cantidadTotal = cantidadReceta.multiply(new BigDecimal(detallePedido.getCantidad()));
 
-            // Paso 5: Restar esa cantidad de cantidad_disponible en la tabla receta
-            BigDecimal nuevaCantidadDisponible = receta.getCantidadDisponible().subtract(cantidadTotal);
+            // Verificar si hay suficiente stock en receta
+            BigDecimal cantidadDisponible = receta.getCantidadDisponible();
 
-            if (nuevaCantidadDisponible.compareTo(BigDecimal.ZERO) >= 0) {
-                // Actualizamos la cantidad disponible de la receta
-                receta.setCantidadDisponible(nuevaCantidadDisponible);
-                recetaRepository.save(receta); // Guardamos la receta actualizada
-            } else {
-                throw new RuntimeException("No hay suficiente cantidad de ingrediente para la receta ID: " + receta.getId());
+            if (cantidadDisponible.compareTo(cantidadTotal) < 0) {
+                // Si el stock no es suficiente, lanzamos un error y no guardamos el pedido
+                throw new RuntimeException("Stock del ingrediente agotado. Producto ID: " + productoId + " no tiene suficiente cantidad disponible.");
             }
         }
-        return detalleGuardado; // Devolvemos el detalle de pedido guardado
+
+        // Paso 5: Ahora que hemos verificado que hay suficiente stock, guardamos el detalle del pedido
+        DetallePedido detalleGuardado = detallePedidoRepository.save(detallePedido);
+
+        // Paso 6: Actualizar cantidad disponible de cada receta
+        for (Receta receta : recetas) {
+            Integer productoId = receta.getProductoId();
+            BigDecimal cantidadReceta = receta.getCantidad();
+
+            // Calcular la cantidad total de ese ingrediente
+            BigDecimal cantidadTotal = cantidadReceta.multiply(new BigDecimal(detallePedido.getCantidad()));
+
+            // Actualizamos la cantidad disponible en receta
+            BigDecimal nuevaCantidadDisponible = receta.getCantidadDisponible().subtract(cantidadTotal);
+            receta.setCantidadDisponible(nuevaCantidadDisponible);
+
+            // Guardamos la receta actualizada
+            recetaRepository.save(receta);
+        }
+
+        return detalleGuardado; // Devolvemos el detalle de pedido guardado si todo fue correcto
     }
+
 
 
 

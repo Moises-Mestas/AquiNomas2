@@ -1,7 +1,5 @@
 package com.example.pedido_db.entity;
 
-import com.example.pedido_db.dto.Cliente;
-import com.example.pedido_db.dto.InventarioCocina;
 import com.example.pedido_db.dto.Producto;
 import jakarta.persistence.*;
 
@@ -18,8 +16,6 @@ public class Receta {
     private Integer productoId;  // ID del cliente que realizó el pedido
     @Transient
     private Producto producto;  // Relación con Cliente, que se llena mediante Feign
-
-
 
 
     @Column(name = "descripcion", nullable = true, columnDefinition = "TEXT")
