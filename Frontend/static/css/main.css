@@ -1,146 +1,128 @@
+/* Fondo oscuro para toda la página */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+    background-color: #1d1f20;  /* Color de fondo oscuro */
+    color: white;  /* Texto en blanco para resaltar en el fondo oscuro */
 }
 
-.container-fluid {
-    margin-top: 50px;
-    width: 100%;
-}
-
-.sidebar {
-    background-color: #343a40;
-    color: #fff;
+/* Estilo para el contenedor principal */
+.container {
+    background-color: #2c2f33;  /* Fondo ligeramente más claro */
     padding: 20px;
-    position: fixed;
-    width: 280px;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    border-radius: 0;
-    z-index: 999;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    margin-top: 30px;
 }
 
-.sidebar .profile img {
-    border: 3px solid #007bff;
+/* Barra de navegación con fondo oscuro */
+.navbar {
+    background-color: #121212;  /* Color más oscuro para la barra de navegación */
 }
 
-.sidebar button {
-    margin-top: 10px;
-    padding: 12px;
-    font-size: 1rem;
+.navbar a {
+    color: #ddd;  /* Texto en gris claro para los enlaces */
 }
 
-.sidebar button:hover {
-    opacity: 0.8;
-}
-
-.main-content {
-    margin-left: 300px;
-    padding: 20px;
-    width: calc(100% - 300px);
-}
-
-h1 {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 30px;
-}
-
-.table {
-    width: 100%;
-    table-layout: fixed;  /* Ajusta el ancho de las columnas */
-    border-spacing: 0;
-    border-collapse: collapse;
-    background-color: #fff;
-}
-
-.table th, .table td {
-    text-align: center;
-    vertical-align: middle;
-    padding: 8px 12px;  /* Reduce el padding */
-    border: 1px solid #ddd;
-    font-size: 0.9rem;  /* Reduce el tamaño de la fuente en las celdas */
-}
-
-.table th {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f9f9f9;
-}
-
-.table-striped tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-.table-responsive {
-    margin-top: 20px;
-    width: 100%;
-    overflow-x: auto;
-}
-
-.table td {
-    word-wrap: break-word;
-}
-
-.btn-warning, .btn-danger, .btn-success {
-    padding: 5px 10px;  /* Botones más pequeños */
-    font-size: 0.8rem;  /* Reducir el tamaño de los botones */
-    border-radius: 5px;
-}
-
-.btn-warning {
-    background-color: #ffc107;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-}
-
-.btn-success {
-    background-color: #28a745;
-}
-
-.btn-block {
-    margin-top: 10px;
-}
-
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.pagination a {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border-radius: 5px;
-    background-color: #007bff;
+/* Estilo para el formulario de filtro */
+.form-select {
+    background-color: #444;
+    border-color: #555;
     color: white;
-    text-decoration: none;
 }
 
-.pagination a:hover {
-    background-color: #0056b3;
+.form-select:focus {
+    background-color: #555;
+    border-color: #777;
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        position: relative;
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
+/* Botón "Listar por Estado" con gris medio */
+.btn-primary {
+    background-color: #6c757d;  /* Gris medio */
+    border-color: #6c757d;
 }
-/* Aseguramos que ambos botones tengan el mismo tamaño de texto */
-.modal-footer .btn {
-    font-size: 1rem;  /* Tamaño de fuente más pequeño */
-    padding: 10px 20px; /* Botones más grandes si lo deseas */
+
+.btn-primary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Estilo de los botones (Eliminar y Crear Pedido) */
+.btn-danger, .btn-success {
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Personalización de la tabla */
+.table {
+    background-color: #2c2f33;  /* Fondo gris oscuro */
+    color: white;  /* Texto blanco */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Encabezados de la tabla */
+.table th {
+    background-color: #444;
+    color: #ddd;  /* Texto en gris claro */
+}
+
+/* Fila de la tabla */
+.table td {
+    background-color: #2c2f33;
+    border-top: 1px solid #444;
+}
+
+/* Paginación */
+.pagination {
+    justify-content: center;
+}
+
+.pagination .page-item {
+    background-color: #2c2f33;
+    border: none;
+}
+
+.pagination .page-link {
+    color: #ddd;  /* Color gris claro para los enlaces de paginación */
+    background-color: #444;
+}
+
+.pagination .page-link:hover {
+    background-color: #555;  /* Fondo más claro al pasar el ratón por encima */
+}
+
+/* Modal de creación de pedido */
+.modal-content {
+    background-color: #1d1f20;
+    color: white;
+}
+
+.modal-header {
+    background-color: #333;
+    border-bottom: 1px solid #444;
+}
+
+/* Estilo del formulario en el modal */
+.form-label {
+    color: #ddd;
+}
+
+.form-select, .form-control {
+    background-color: #444;
+    border-color: #555;
+    color: white;
+}
+
+.form-select:focus, .form-control:focus {
+    background-color: #555;
+    border-color: #777;
+}
+
+/* Flechas de paginación */
+.pagination .page-item .page-link {
+    background-color: #444;
+    border: none;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #555;
 }
