@@ -85,5 +85,7 @@ public class DetallePedido {
                 ", cantidad=" + cantidad +
                 '}';
     }
+
+
 }
 

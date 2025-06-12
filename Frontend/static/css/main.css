@@ -1,0 +1,146 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container-fluid {
+    margin-top: 50px;
+    width: 100%;
+}
+
+.sidebar {
+    background-color: #343a40;
+    color: #fff;
+    padding: 20px;
+    position: fixed;
+    width: 280px;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    border-radius: 0;
+    z-index: 999;
+}
+
+.sidebar .profile img {
+    border: 3px solid #007bff;
+}
+
+.sidebar button {
+    margin-top: 10px;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+.sidebar button:hover {
+    opacity: 0.8;
+}
+
+.main-content {
+    margin-left: 300px;
+    padding: 20px;
+    width: calc(100% - 300px);
+}
+
+h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.table {
+    width: 100%;
+    table-layout: fixed;  /* Ajusta el ancho de las columnas */
+    border-spacing: 0;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 12px;  /* Reduce el padding */
+    border: 1px solid #ddd;
+    font-size: 0.9rem;  /* Reduce el tamaño de la fuente en las celdas */
+}
+
+.table th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+.table-striped tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table-responsive {
+    margin-top: 20px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table td {
+    word-wrap: break-word;
+}
+
+.btn-warning, .btn-danger, .btn-success {
+    padding: 5px 10px;  /* Botones más pequeños */
+    font-size: 0.8rem;  /* Reducir el tamaño de los botones */
+    border-radius: 5px;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+.btn-success {
+    background-color: #28a745;
+}
+
+.btn-block {
+    margin-top: 10px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+/* Aseguramos que ambos botones tengan el mismo tamaño de texto */
+.modal-footer .btn {
+    font-size: 1rem;  /* Tamaño de fuente más pequeño */
+    padding: 10px 20px; /* Botones más grandes si lo deseas */
+}
