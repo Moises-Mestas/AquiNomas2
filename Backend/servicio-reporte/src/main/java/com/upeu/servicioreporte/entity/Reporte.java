@@ -51,8 +51,9 @@ public class Reporte {
         ventas,
         clientes,
         inventario,
-        administración
+        administracion
     }
+
 
     // Constructor vacío
     public Reporte() {}

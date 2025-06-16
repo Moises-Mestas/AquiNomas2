@@ -292,7 +292,12 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public Reporte guardarReporte(Reporte reporte) {
-        return reporteRepository.save(reporte);
+        try {
+            return reporteRepository.save(reporte);
+        } catch (Exception e) {
+            e.printStackTrace(); // Esto imprime el error completo en consola
+            throw new RuntimeException("Error al guardar el reporte: " + e.getMessage());
+        }
     }
 
     @Override
