@@ -11,4 +11,6 @@ public interface RecetaService {
     Receta guardar(Receta receta);
     Receta actualizar(Receta receta);
     void eliminar(Integer id);
+    void sincronizarDesdeInventario(Integer productoId);
+
 }

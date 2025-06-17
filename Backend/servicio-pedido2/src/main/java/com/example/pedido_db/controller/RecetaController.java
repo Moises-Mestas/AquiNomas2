@@ -3,6 +3,8 @@ package com.example.pedido_db.controller;
 import com.example.pedido_db.entity.Receta;
 import com.example.pedido_db.service.RecetaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +42,30 @@ public class RecetaController {
         receta.setId(id);
         return recetaService.actualizar(receta);
     }
+
+
+
+
+    @PutMapping("/sincronizar-inventario/{productoId}")
+    public ResponseEntity<?> sincronizarDesdeInventario(@PathVariable Integer productoId) {
+        try {
+            recetaService.sincronizarDesdeInventario(productoId);
+            return ResponseEntity.ok("Receta actualizada con stock del inventario");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al sincronizar: " + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Integer id) {
