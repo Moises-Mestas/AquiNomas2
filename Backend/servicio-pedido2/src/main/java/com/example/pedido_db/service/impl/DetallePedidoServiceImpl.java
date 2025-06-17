@@ -10,6 +10,7 @@ import com.example.pedido_db.repository.RecetaRepository;
 import com.example.pedido_db.service.DetallePedidoService;
 import com.example.pedido_db.dto.Cliente;
 import com.example.pedido_db.feign.ClienteFeign;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -102,51 +103,66 @@ public class DetallePedidoServiceImpl implements DetallePedidoService {
 
 
     @Override
+    @Transactional
     public DetallePedido guardar(DetallePedido detallePedido) {
-        // Paso 1: Guardar el detalle del pedido en la base de datos
         Integer menuId = detallePedido.getMenu().getId();
-
-        // Paso 2: Consultar las recetas asociadas a ese menu_id
         List<Receta> recetas = recetaRepository.findByMenuId(menuId);
 
-        // Paso 3: Verificar disponibilidad de stock para todos los ingredientes
+        // Verificar disponibilidad
         for (Receta receta : recetas) {
             Integer productoId = receta.getProductoId();
             BigDecimal cantidadReceta = receta.getCantidad();
-
-            // Paso 4: Calcular la cantidad total de ese ingrediente para el pedido
             BigDecimal cantidadTotal = cantidadReceta.multiply(new BigDecimal(detallePedido.getCantidad()));
-
-            // Verificar si hay suficiente stock en receta
             BigDecimal cantidadDisponible = receta.getCantidadDisponible();
 
             if (cantidadDisponible.compareTo(cantidadTotal) < 0) {
-                // Si el stock no es suficiente, lanzamos un error y no guardamos el pedido
                 throw new RuntimeException("Stock del ingrediente agotado. Producto ID: " + productoId + " no tiene suficiente cantidad disponible.");
             }
         }
 
-        // Paso 5: Ahora que hemos verificado que hay suficiente stock, guardamos el detalle del pedido
+        // Guardar el detalle del pedido
         DetallePedido detalleGuardado = detallePedidoRepository.save(detallePedido);
 
-        // Paso 6: Actualizar cantidad disponible de cada receta
+        // Actualizar stock en receta y inventario cocina
         for (Receta receta : recetas) {
             Integer productoId = receta.getProductoId();
             BigDecimal cantidadReceta = receta.getCantidad();
-
-            // Calcular la cantidad total de ese ingrediente
             BigDecimal cantidadTotal = cantidadReceta.multiply(new BigDecimal(detallePedido.getCantidad()));
 
-            // Actualizamos la cantidad disponible en receta
+            // 🔸 ACTUALIZAR RECETA
             BigDecimal nuevaCantidadDisponible = receta.getCantidadDisponible().subtract(cantidadTotal);
             receta.setCantidadDisponible(nuevaCantidadDisponible);
-
-            // Guardamos la receta actualizada
             recetaRepository.save(receta);
+
+            // 🔸 BUSCAR INVENTARIO COCINA
+            ResponseEntity<List<InventarioCocina>> response = inventarioCocinaFeign.listarInventarios();
+            List<InventarioCocina> inventarios = response.getBody();
+
+            Optional<InventarioCocina> inventarioOpt = inventarios.stream()
+                    .filter(inv -> inv.getProductoId() != null && inv.getProductoId().equals(productoId))
+                    .findFirst();
+
+            if (inventarioOpt.isPresent()) {
+                InventarioCocina inventario = inventarioOpt.get();
+
+                BigDecimal cantidadDescontar = receta.convertirUnidad(
+                        receta.getCantidad(),
+                        receta.getUnidadMedida(),
+                        inventario.getUnidadMedida()
+                ).multiply(new BigDecimal(detallePedido.getCantidad()));
+
+                BigDecimal nuevoStock = inventario.getCantidadDisponible().subtract(cantidadDescontar);
+                inventario.setCantidadDisponible(nuevoStock);
+
+                inventarioCocinaFeign.updateInventarioCocina(inventario.getId(), inventario);
+            } else {
+                throw new RuntimeException("No se encontró inventario para el producto ID: " + productoId);
+            }
         }
 
-        return detalleGuardado; // Devolvemos el detalle de pedido guardado si todo fue correcto
+        return detalleGuardado;
     }
+
 
 
     @Override

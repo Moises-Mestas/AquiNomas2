@@ -128,14 +128,7 @@ public class RecetaServiceImpl implements RecetaService {
         Receta recetaGuardada = recetaRepository.save(receta);
 
         // (Opcional) actualizar solo ese inventario
-// Restar la cantidad usada en la receta
-        BigDecimal cantidadRestante = inventarioSeleccionado.getCantidadDisponible().subtract(receta.getCantidad());
-
-// Asignar la nueva cantidad restante al inventario
-        inventarioSeleccionado.setCantidadDisponible(cantidadRestante);
-
-// Actualizar el inventario
-        inventarioCocinaFeign.updateInventarioCocina(inventarioSeleccionado.getId(), inventarioSeleccionado);
+// NO ACTUALIZAR INVENTARIO EN ESTA ETAPA
 
 
         return recetaGuardada;
