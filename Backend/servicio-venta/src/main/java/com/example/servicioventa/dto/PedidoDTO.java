@@ -16,6 +16,16 @@ public class PedidoDTO {
     private String estadoPedido;
     private List<DetallePedidoDTO> detalles;
 
+    public PedidoDTO(Integer id, Integer clienteId, String nombreCliente, OffsetDateTime fechaPedido,
+                     String estadoPedido, List<DetallePedidoDTO> detalles) {
+        this.id = id;
+        this.clienteId = clienteId;
+        this.nombreCliente = nombreCliente;
+        this.fechaPedido = fechaPedido;
+        this.estadoPedido = estadoPedido;
+        this.detalles = detalles;
+    }
+
     public Integer getId() {
         return id;
     }
