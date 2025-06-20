@@ -23,9 +23,8 @@ public class ReporteController {
         this.reporteService = reporteService;
     }
 
-    @GetMapping("/clientes-frecuentes")
-    public List<Map<String, Object>> clientesMasFrecuentes() {
-        // Devuelve los clientes más frecuentes
+    @GetMapping("/clientes-mas-frecuentes")
+    public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
         return reporteService.obtenerClientesMasFrecuentes();
     }
 

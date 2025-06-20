@@ -12,15 +12,11 @@ public class PedidoDetalleClientFallback implements PedidoDetalleClient {
 
     @Override
     public List<DetallePedidoDto> obtenerTodosDetallePedidos() {
-        System.err.println("Servicio 'servicio-pedido' - detalle pedidos no disponible");
-        return Collections.emptyList(); // devolver lista vacía para no romper flujo
+        return Collections.emptyList(); // nunca null
     }
 
     @Override
     public PedidoDto obtenerPedidoPorId(Integer id) {
-        System.err.println("Servicio 'servicio-pedido' - pedido no disponible para id " + id);
-        PedidoDto dto = new PedidoDto();
-        dto.setId(id);
-        return dto;
+        return null; // retorno seguro
     }
 }

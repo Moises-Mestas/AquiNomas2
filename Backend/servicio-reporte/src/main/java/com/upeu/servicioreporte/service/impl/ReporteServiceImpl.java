@@ -56,67 +56,50 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
-        List<VentaDto> ventas;
-        List<DetallePedidoDto> todosDetalles;
+        List<PedidoDto> pedidos = new ArrayList<>();
 
-        try {
-            ventas = ventaClient.obtenerTodasVentas();
-            todosDetalles = pedidoDetalleClient.obtenerTodosDetallePedidos();
-        } catch (Exception e) {
-            System.out.println("Error al obtener ventas o detalles: " + e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
+        pedidoDetalleClient.obtenerTodosDetallePedidos().forEach(detalle -> {
+            Integer pedidoId = detalle.getPedidoId();
 
-        Map<Integer, Long> frecuenciaClientes = new HashMap<>();
-        System.out.println("VENTAS TOTALES: " + ventas.size());
-
-        for (VentaDto venta : ventas) {
-            try {
-                System.out.println("Procesando venta ID: " + venta.getId());
-
-                if (venta.getPedidoId() == null) {
-                    System.out.println("PedidoId NULL en venta " + venta.getId());
-                    continue;
+            // Validación importante para evitar error 404
+            if (pedidoId != null) {
+                try {
+                    PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(pedidoId);
+                    if (pedido != null && pedido.getClienteId() != null) {
+                        pedidos.add(pedido);
+                    }
+                } catch (Exception e) {
+                    // Omitir si el pedido no se encuentra o da error
+                    System.out.println("No se encontró pedido con ID: " + pedidoId);
                 }
-
-                PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(venta.getPedidoId());
-                if (pedido == null || pedido.getClienteId() == null) {
-                    System.out.println("Pedido o clienteId nulo para venta: " + venta.getId());
-                    continue;
-                }
-
-                // Filtramos los detalles que pertenecen a este pedido
-                List<DetallePedidoDto> detalles = todosDetalles.stream()
-                        .filter(d -> d.getPedidoId().equals(pedido.getId()))
-                        .collect(Collectors.toList());
-
-                pedido.setDetalles(detalles); // Asignamos los detalles al pedido
-
-                Integer clienteId = pedido.getClienteId();
-                System.out.println("ClienteId encontrado: " + clienteId);
-                frecuenciaClientes.put(clienteId, frecuenciaClientes.getOrDefault(clienteId, 0L) + 1);
-
-            } catch (Exception e) {
-                System.out.println("Error al procesar venta con ID " + venta.getId() + ": " + e.getMessage());
             }
-        }
+        });
 
-        System.out.println("FRECUENCIA FINAL: " + frecuenciaClientes);
+        // Agrupar por clienteId y contar
+        Map<Integer, Long> conteoPorCliente = pedidos.stream()
+                .collect(Collectors.groupingBy(PedidoDto::getClienteId, Collectors.counting()));
 
-        return frecuenciaClientes.entrySet().stream()
+        // Obtener los datos del cliente
+        Map<Integer, ClienteDto> clientesMap = pedidos.stream()
+                .map(PedidoDto::getCliente)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        ClienteDto::getId,
+                        c -> c,
+                        (c1, c2) -> c1
+                ));
+
+        // Armar resultado ordenado
+        return conteoPorCliente.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .map(entry -> {
-                    Map<String, Object> map = new HashMap<>();
-                    try {
-                        ClienteDto cliente = clienteAdministradorClient.obtenerClientePorId(entry.getKey());
-                        map.put("cliente", cliente);
-                    } catch (Exception e) {
-                        System.out.println("Error al obtener cliente con ID " + entry.getKey() + ": " + e.getMessage());
-                        map.put("cliente", null);
-                    }
-                    map.put("frecuencia", entry.getValue());
-                    return map;
+                    Map<String, Object> datos = new HashMap<>();
+                    ClienteDto cliente = clientesMap.get(entry.getKey());
+                    datos.put("clienteId", entry.getKey());
+                    datos.put("nombre", cliente != null ? cliente.getNombre() : "Desconocido");
+                    datos.put("apellido", cliente != null ? cliente.getApellido() : "");
+                    datos.put("cantidadPedidos", entry.getValue());
+                    return datos;
                 })
                 .collect(Collectors.toList());
     }
