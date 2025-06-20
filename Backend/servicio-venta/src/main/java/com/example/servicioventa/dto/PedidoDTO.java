@@ -12,7 +12,7 @@ public class PedidoDTO {
     private Integer id;
     private Integer clienteId;
     private String nombreCliente;
-    private LocalDateTime fechaPedido;
+    private OffsetDateTime fechaPedido;
     private String estadoPedido;
     private List<DetallePedidoDTO> detalles;
 
@@ -40,11 +40,11 @@ public class PedidoDTO {
         this.nombreCliente = nombreCliente;
     }
 
-    public LocalDateTime getFechaPedido() {
+    public OffsetDateTime getFechaPedido() {
         return fechaPedido;
     }
 
-    public void setFechaPedido(LocalDateTime fechaPedido) {
+    public void setFechaPedido(OffsetDateTime fechaPedido) {
         this.fechaPedido = fechaPedido;
     }
 
