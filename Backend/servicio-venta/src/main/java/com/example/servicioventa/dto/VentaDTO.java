@@ -6,21 +6,28 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class VentaDTO {
-    private Long id;
-    private String metodoPago; // ✅ Ahora recibe un String
-    private LocalDateTime fechaVenta;
+    private Integer id;
     private BigDecimal total;
+    private String metodoPago;
+    private LocalDateTime fechaVenta;
     private String nombreCliente;
-    private String nombreMenu;
-    private int cantidad;
-    private Long pedidoId;
+    private PedidoDTO pedido;
 
-    public Long getId() {
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
     public String getMetodoPago() {
@@ -39,14 +46,6 @@ public class VentaDTO {
         this.fechaVenta = fechaVenta;
     }
 
-    public BigDecimal getTotal() {
-        return total;
-    }
-
-    public void setTotal(BigDecimal total) {
-        this.total = total;
-    }
-
     public String getNombreCliente() {
         return nombreCliente;
     }
@@ -55,38 +54,36 @@ public class VentaDTO {
         this.nombreCliente = nombreCliente;
     }
 
-    public String getNombreMenu() {
-        return nombreMenu;
+    public PedidoDTO getPedido() {
+        return pedido;
     }
 
-    public void setNombreMenu(String nombreMenu) {
-        this.nombreMenu = nombreMenu;
+    public void setPedido(PedidoDTO pedido) {
+        this.pedido = pedido;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public VentaDTO() {
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public VentaDTO(Venta venta, PedidoDTO pedido) {
+        this.id = venta.getId();
+        this.total = venta.getTotal();
+        this.metodoPago = venta.getMetodoPago().name();
+        this.fechaVenta = venta.getFechaVenta();
+        this.nombreCliente = pedido.getNombreCliente();
+        this.pedido = pedido;
     }
 
-    public Long getPedidoId() {
-        return pedidoId;
-    }
 
-    public void setPedidoId(Long pedidoId) {
-        this.pedidoId = pedidoId;
-    }
-
-    public VentaDTO(Long id, String metodoPago, LocalDateTime fechaVenta, BigDecimal total, String nombreCliente, String nombreMenu, int cantidad, Long pedidoId) {
-        this.id = id;
-        this.metodoPago = metodoPago;
-        this.fechaVenta = fechaVenta;
-        this.total = total;
-        this.nombreCliente = nombreCliente;
-        this.nombreMenu = nombreMenu;
-        this.cantidad = cantidad;
-        this.pedidoId = pedidoId;
+    @Override
+    public String toString() {
+        return "VentaDTO{" +
+                "id=" + id +
+                ", total=" + total +
+                ", metodoPago='" + metodoPago + '\'' +
+                ", fechaVenta=" + fechaVenta +
+                ", nombreCliente='" + nombreCliente + '\'' +
+                ", pedido=" + pedido +
+                '}';
     }
 }

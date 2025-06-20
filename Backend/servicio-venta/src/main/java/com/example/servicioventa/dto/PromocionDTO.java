@@ -1,53 +1,22 @@
-package com.example.servicioventa.entity;
+package com.example.servicioventa.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import com.example.servicioventa.entity.MenuPromocion;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "promociones")
-public class Promocion {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class PromocionDTO {
     private Long id;
-
-    @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
-
-    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_descuento", nullable = false)
-    private TipoDescuento tipoDescuento;  // MONTO o PORCENTAJE
-
-    @Column(name = "valorDescuento", precision = 10, scale = 2)
-    private BigDecimal valorDescuento; // Monto fijo o porcentaje (ej. 10.00 = 10%)
-
-    @Column(name = "cantidad_minima", nullable = true)
-    private Integer cantidadMinima; // Opcional: aplica si se compran >= X unidades
-
-    @Column(name = "monto_minimo", precision = 10, scale = 2)
+    private String tipoDescuento;
+    private BigDecimal valorDescuento;
+    private Integer cantidadMinima;
     private BigDecimal montoMinimo;
-
-    @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
-
-    @Column(name = "fecha_fin")
     private LocalDate fechaFin;
-
-    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<MenuPromocion> menu;
-
-    public enum TipoDescuento {
-        MONTO, PORCENTAJE
-    }
 
     public Long getId() {
         return id;
@@ -73,11 +42,11 @@ public class Promocion {
         this.descripcion = descripcion;
     }
 
-    public TipoDescuento getTipoDescuento() {
+    public String getTipoDescuento() {
         return tipoDescuento;
     }
 
-    public void setTipoDescuento(TipoDescuento tipoDescuento) {
+    public void setTipoDescuento(String tipoDescuento) {
         this.tipoDescuento = tipoDescuento;
     }
 
@@ -129,16 +98,16 @@ public class Promocion {
         this.menu = menu;
     }
 
-    public Promocion() {
+    public PromocionDTO() {
     }
 
     @Override
     public String toString() {
-        return "Promocion{" +
+        return "PromocionDTO{" +
                 "id=" + id +
                 ", nombre='" + nombre + '\'' +
                 ", descripcion='" + descripcion + '\'' +
-                ", tipoDescuento=" + tipoDescuento +
+                ", tipoDescuento='" + tipoDescuento + '\'' +
                 ", valorDescuento=" + valorDescuento +
                 ", cantidadMinima=" + cantidadMinima +
                 ", montoMinimo=" + montoMinimo +

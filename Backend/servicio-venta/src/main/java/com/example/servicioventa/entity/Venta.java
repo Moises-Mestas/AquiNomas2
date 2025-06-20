@@ -1,7 +1,5 @@
 package com.example.servicioventa.entity;
 
-import com.example.servicioventa.dto.Pedido;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -10,18 +8,18 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "venta")
 public class Venta {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "pedido_id", nullable = false)
-    private Long pedidoId; // FK sin relación
+    private Integer pedidoId;
 
-//    @ManyToOne
-//    @JsonIgnore
-//    @JoinColumn(name = "promocion_id", nullable = true)
-    private Long promocionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "promocion_id", nullable = true)
+    private Promocion promocion;
+
+    private Integer cliente;
 
     @Column(name = "fecha_venta")
     private LocalDateTime fechaVenta;
@@ -37,28 +35,37 @@ public class Venta {
         EFECTIVO, TARJETA, TRANSFERENCIA
     }
 
-    public Long getId() {
+    /// //////////////////////
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getPedidoId() {
+    public Integer getPedidoId() {
         return pedidoId;
     }
 
-    public void setPedidoId(Long pedidoId) {
+    public void setPedidoId(Integer pedidoId) {
         this.pedidoId = pedidoId;
     }
 
-    public Long getPromocionId() {
-        return promocionId;
+    public Promocion getPromocion() {
+        return promocion;
     }
 
-    public void setPromocionId(Long promocionId) {
-        this.promocionId = promocionId;
+    public void setPromocion(Promocion promocion) {
+        this.promocion = promocion;
+    }
+
+    public Integer getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Integer cliente) {
+        this.cliente = cliente;
     }
 
     public LocalDateTime getFechaVenta() {
@@ -83,5 +90,21 @@ public class Venta {
 
     public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
+    }
+
+    @Override
+    public String toString() {
+        return "Venta{" +
+                "id=" + id +
+                ", pedidoId=" + pedidoId +
+                ", promocion=" + promocion +
+                ", cliente=" + cliente +
+                ", fechaVenta=" + fechaVenta +
+                ", total=" + total +
+                ", metodoPago=" + metodoPago +
+                '}';
+    }
+
+    public Venta() {
     }
 }

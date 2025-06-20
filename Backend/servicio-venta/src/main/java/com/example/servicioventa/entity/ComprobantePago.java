@@ -13,10 +13,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "comprobante_pago")
 public class ComprobantePago {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "venta_id", nullable = true)
@@ -29,6 +28,12 @@ public class ComprobantePago {
     public enum TipoComprobante {
         BOLETA, FACTURA
     }
+
+    @Column(name = "razonSocial", length = 100, nullable = true)
+    private String razonSocial;
+
+    @Column(name = "direccionFiscal", length = 255, nullable = true)
+    private String direccionFiscal;
 
     @Column(name = "numeroSerie", nullable = false, length = 10)
     private String numeroSerie;
@@ -45,11 +50,12 @@ public class ComprobantePago {
     @Column(name = "montoNeto", precision = 10, scale = 2)
     private BigDecimal montoNeto;
 
-    public Long getId() {
+    ////////////////////
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -67,6 +73,22 @@ public class ComprobantePago {
 
     public void setTipo(TipoComprobante tipo) {
         this.tipo = tipo;
+    }
+
+    public String getRazonSocial() {
+        return razonSocial;
+    }
+
+    public void setRazonSocial(String razonSocial) {
+        this.razonSocial = razonSocial;
+    }
+
+    public String getDireccionFiscal() {
+        return direccionFiscal;
+    }
+
+    public void setDireccionFiscal(String direccionFiscal) {
+        this.direccionFiscal = direccionFiscal;
     }
 
     public String getNumeroSerie() {
@@ -109,31 +131,22 @@ public class ComprobantePago {
         this.montoNeto = montoNeto;
     }
 
+    public ComprobantePago() {
+    }
+
     @Override
     public String toString() {
         return "ComprobantePago{" +
                 "id=" + id +
                 ", venta=" + venta +
                 ", tipo=" + tipo +
+                ", razonSocial='" + razonSocial + '\'' +
+                ", direccionFiscal='" + direccionFiscal + '\'' +
                 ", numeroSerie='" + numeroSerie + '\'' +
                 ", numeroComprobante='" + numeroComprobante + '\'' +
                 ", fechaEmision=" + fechaEmision +
                 ", igv=" + igv +
                 ", montoNeto=" + montoNeto +
                 '}';
-    }
-
-    public ComprobantePago() {
-    }
-
-    public ComprobantePago(Long id, Venta venta, TipoComprobante tipo, String numeroSerie, String numeroComprobante, LocalDateTime fechaEmision, BigDecimal igv, BigDecimal montoNeto) {
-        this.id = id;
-        this.venta = venta;
-        this.tipo = tipo;
-        this.numeroSerie = numeroSerie;
-        this.numeroComprobante = numeroComprobante;
-        this.fechaEmision = fechaEmision;
-        this.igv = igv;
-        this.montoNeto = montoNeto;
     }
 }
