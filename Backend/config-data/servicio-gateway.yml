@@ -9,6 +9,13 @@ eureka:
 spring:
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
       discovery:
         locator:
           enabled: true
@@ -54,3 +61,13 @@ spring:
           uri: lb://servicio-reportes
           predicates:
             - Path=/reportes/**
+
+
+          #filters:
+            #- AuthFilter
+          #filters:
+            #- AuthFilter
+          #filters:
+            #- AuthFilter
+          #filters:
+            #- AuthFilter

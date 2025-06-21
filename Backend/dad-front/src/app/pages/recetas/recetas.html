@@ -1,0 +1,26 @@
+<div class="container mt-4">
+  <h2>Listado de Recetas</h2>
+
+  <table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+      <th>Producto ID</th>
+      <th>Descripción</th>
+      <th>Cantidad</th>
+      <th>Unidad Medida</th>
+      <th>Cantidad Disponible</th>
+      <th>Menu ID</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let receta of recetas">
+      <td>{{ receta.productoId }}</td>
+      <td>{{ receta.descripcion }}</td>
+      <td>{{ receta.cantidad }}</td>
+      <td>{{ receta.unidadMedida }}</td>
+      <td>{{ receta.cantidadDisponible }}</td>
+      <td>{{ receta.menu.id }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,30 @@
+<div class="d-flex flex-column vh-100">
+  <!-- Header -->
+  <header class="bg-dark text-white p-3">
+    <h4 class="m-0">Sistema de Ventas AquiNomas</h4>
+  </header>
+
+  <div class="d-flex flex-grow-1">
+    <!-- Barra lateral -->
+    <aside class="bg-dark p-3" style="width: 220px;">
+      <div class="d-grid gap-2">
+        <button class="btn custom-btn text-start text-white" routerLink="/productos">🛒 Productos</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/pedidos">📋 Pedidos</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/clientes">👥 Clientes</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/inventario">📦 Inventario</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/reportes">📈 Reportes</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/recetas">📑 Recetas</button>
+
+      </div>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="p-4 flex-grow-1 bg-light">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+
+<!-- src/app/app.html -->
+<!-- <router-outlet></router-outlet> -->
