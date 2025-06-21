@@ -1,0 +1,42 @@
+<h1>Gestión de Menús</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Descripción</th>
+    <th>Precio</th>
+    <th>Tipo</th>
+    <th>Imagen</th>
+    <th>Acciones</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let menu of menus">
+    <td>{{menu.id}}</td>
+    <td>{{menu.nombre}}</td>
+    <td>{{menu.descripcion}}</td>
+    <td>{{menu.precio}}</td>
+    <td>{{menu.tipo}}</td>
+    <td><img *ngIf="menu.imagen" [src]="menu.imagen" alt="Imagen menú" width="50"></td>
+    <td>
+      <button (click)="startEdit(menu)">Editar</button>
+      <button (click)="deleteMenu(menu.id!)">Eliminar</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<div>
+  <h2>{{editing ? 'Editar Menú' : 'Nuevo Menú'}}</h2>
+  <form (ngSubmit)="saveMenu()">
+    <input type="text" [(ngModel)]="formMenu.nombre" name="nombre" placeholder="Nombre" required>
+    <input type="text" [(ngModel)]="formMenu.descripcion" name="descripcion" placeholder="Descripción">
+    <input type="number" [(ngModel)]="formMenu.precio" name="precio" placeholder="Precio">
+    <input type="text" [(ngModel)]="formMenu.tipo" name="tipo" placeholder="Tipo">
+    <input type="text" [(ngModel)]="formMenu.imagen" name="imagen" placeholder="URL de Imagen">
+    <button type="submit">{{editing ? 'Actualizar' : 'Crear'}}</button>
+    <button *ngIf="editing" type="button" (click)="cancel()">Cancelar</button>
+  </form>
+</div>
