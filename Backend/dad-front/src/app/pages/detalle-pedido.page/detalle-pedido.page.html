@@ -1,0 +1,74 @@
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Gestión de Detalles de Pedido</h1>
+
+  <!-- Formulario Crear/Editar Detalle -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">{{editing ? 'Editar Detalle' : 'Nuevo Detalle'}}</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="saveDetalle()" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Pedido</label>
+          <select class="form-select" [(ngModel)]="formDetalle.pedido" name="pedido" required>
+            <option *ngFor="let p of pedidos" [ngValue]="p">Pedido #{{p.id}}</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Menú</label>
+          <select class="form-select" [(ngModel)]="formDetalle.menu" name="menu" required>
+            <option *ngFor="let m of menus" [ngValue]="m">{{m.nombre}} - S/. {{m.precio | number:'1.2-2'}}</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Cantidad</label>
+          <input class="form-control" type="number" min="1" [(ngModel)]="formDetalle.cantidad" name="cantidad" required>
+        </div>
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-success me-2">
+            {{editing ? 'Actualizar' : 'Crear'}}
+          </button>
+          <button *ngIf="editing" type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla de Detalles de Pedido -->
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      Lista de Detalles de Pedido
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+          <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Menú</th>
+            <th>Precio Menú</th>
+            <th>Cantidad</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let detalle of detalles">
+            <td>{{detalle.id}}</td>
+            <td>{{detalle.menu?.nombre}}</td>
+            <td>S/. {{detalle.menu?.precio | number:'1.2-2'}}</td>
+            <td>{{detalle.cantidad}}</td>
+            <td>
+              <button class="btn btn-warning btn-sm me-1" (click)="startEdit(detalle)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="deleteDetalle(detalle.id!)">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
