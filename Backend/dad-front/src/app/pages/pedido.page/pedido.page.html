@@ -1,0 +1,79 @@
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Gestión de Pedidos</h1>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">{{editing ? 'Editar Pedido' : 'Nuevo Pedido'}}</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="savePedido()" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">ID Cliente</label>
+          <input class="form-control" type="number" [(ngModel)]="formPedido.clienteId" name="clienteId" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Fecha del Pedido</label>
+          <input
+            class="form-control"
+            type="datetime-local"
+            [(ngModel)]="formPedido.fechaPedido"
+            name="fechaPedido"
+            required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Estado</label>
+          <select class="form-select" [(ngModel)]="formPedido.estadoPedido" name="estadoPedido">
+            <option *ngFor="let estado of estadoOpciones" [value]="estado">{{estado}}</option>
+          </select>
+        </div>
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-success me-2">
+            {{editing ? 'Actualizar' : 'Crear'}}
+          </button>
+          <button *ngIf="editing" type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      Lista de Pedidos
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+          <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let pedido of pedidos">
+            <td>{{pedido.id}}</td>
+            <td>
+              <span *ngIf="pedido.cliente">{{pedido.cliente.nombre}} {{pedido.cliente.apellido}}</span>
+              <span *ngIf="!pedido.cliente">{{pedido.clienteId}}</span>
+            </td>
+            <td>{{pedido.fechaPedido | date:'yyyy-MM-dd HH:mm'}}</td>
+            <td>{{pedido.estadoPedido}}</td>
+            <td>
+              <button class="btn btn-warning btn-sm me-1" (click)="startEdit(pedido)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="deletePedido(pedido.id!)">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
