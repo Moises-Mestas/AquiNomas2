@@ -1,6 +1,7 @@
 package com.example.servicioventa.feing;
 
 import com.example.servicioventa.dto.ClienteDTO;
+import com.example.servicioventa.dto.MenuDTO;
 import com.example.servicioventa.dto.PedidoDTO;
 import org.springframework.stereotype.Component;
 
@@ -21,19 +22,7 @@ public class PedidoClientFallback implements PedidoClient {
     }
 
     @Override
-    public List<PedidoDTO> buscarPedidosPorNombreCliente(String nombreCliente) {
-        return Collections.singletonList(
-                crearPedidoIndisponible("Datos de pedido no disponibles por el momento")
-        );
-    }
-
-    @Override
-    public void eliminarPedidoPorId(Long id) {
-        System.out.println("⚠️ No se pudo eliminar el pedido: servicio no disponible.");
-    }
-
-    @Override
-    public ClienteDTO obtenerClientePorId(Long id) {
+    public ClienteDTO obtenerClientePorId(Integer id) {
         ClienteDTO cliente = new ClienteDTO();
         cliente.setId(id);
         cliente.setNombre("No disponible");
@@ -42,24 +31,12 @@ public class PedidoClientFallback implements PedidoClient {
     }
 
     @Override
-    public List<ClienteDTO> buscarClientesPorNombre(String nombre) {
-        ClienteDTO cliente = new ClienteDTO();
-        cliente.setNombre("No disponible");
-        cliente.setCorreo("N/A");
-        return List.of(cliente);
-    }
-
-    @Override
-    public PedidoDTO obtenerPedidoConDetalles(Integer id) {
+    public MenuDTO obtenerMenuPorId(Integer id) {
         return null;
     }
 
-    private PedidoDTO crearPedidoIndisponible(String mensaje) {
-        PedidoDTO pedido = new PedidoDTO();
-        pedido.setId(null);
-        pedido.setNombreCliente(mensaje);
-        pedido.setEstadoPedido("desconocido");
-        pedido.setDetalles(Collections.emptyList());
-        return pedido;
+    @Override
+    public List<PedidoDTO> buscarPedidosPorNombreCliente(String nombre) {
+        return List.of();
     }
 }

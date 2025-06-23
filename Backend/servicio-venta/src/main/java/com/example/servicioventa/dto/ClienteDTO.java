@@ -1,17 +1,17 @@
 package com.example.servicioventa.dto;
 
 public class ClienteDTO {
-    private Long id;
+    private Integer id;
     private String nombre;
     private String correo;
     private String tipoDocumento;
     private String numeroDocumento;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

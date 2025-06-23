@@ -1,5 +1,6 @@
 package com.example.servicioventa.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
@@ -10,21 +11,12 @@ import java.util.Objects;
 
 public class PedidoDTO {
     private Integer id;
-    private Integer clienteId;
+    private ClienteDTO cliente;
     private String nombreCliente;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private OffsetDateTime fechaPedido;
     private String estadoPedido;
     private List<DetallePedidoDTO> detalles;
-
-    public PedidoDTO(Integer id, Integer clienteId, String nombreCliente, OffsetDateTime fechaPedido,
-                     String estadoPedido, List<DetallePedidoDTO> detalles) {
-        this.id = id;
-        this.clienteId = clienteId;
-        this.nombreCliente = nombreCliente;
-        this.fechaPedido = fechaPedido;
-        this.estadoPedido = estadoPedido;
-        this.detalles = detalles;
-    }
 
     public Integer getId() {
         return id;
@@ -34,12 +26,12 @@ public class PedidoDTO {
         this.id = id;
     }
 
-    public Integer getClienteId() {
-        return clienteId;
+    public ClienteDTO getCliente() {
+        return cliente;
     }
 
-    public void setClienteId(Integer clienteId) {
-        this.clienteId = clienteId;
+    public void setCliente(ClienteDTO cliente) {
+        this.cliente = cliente;
     }
 
     public String getNombreCliente() {
@@ -91,13 +83,12 @@ public class PedidoDTO {
     public String toString() {
         return "PedidoDTO{" +
                 "id=" + id +
-                ", clienteId=" + clienteId +
+                ", cliente=" + cliente +
                 ", nombreCliente='" + nombreCliente + '\'' +
                 ", fechaPedido=" + fechaPedido +
                 ", estadoPedido='" + estadoPedido + '\'' +
                 ", detalles=" + detalles +
                 '}';
     }
-
 }
 

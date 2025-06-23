@@ -1,74 +1,76 @@
 package com.example.servicioventa.service.Impl;
 
 import com.example.servicioventa.dto.PromocionDTO;
+import com.example.servicioventa.entity.MenuPromocion;
 import com.example.servicioventa.entity.Promocion;
+import com.example.servicioventa.feing.PedidoClient;
+import com.example.servicioventa.mapper.PromocionMapper;
 import com.example.servicioventa.repository.PromocionRepository;
 import com.example.servicioventa.service.PromocionService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PromocionServiceImpl implements PromocionService {
 
     private final PromocionRepository promocionRepository;
+    private final PedidoClient pedidoClient;
 
     @Autowired
-    public PromocionServiceImpl(PromocionRepository promocionRepository) {
+    public PromocionServiceImpl(PromocionRepository promocionRepository, @Qualifier("com.example.servicioventa.feing.PedidoClient") PedidoClient pedidoClient) {
         this.promocionRepository = promocionRepository;
+        this.pedidoClient = pedidoClient;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public PromocionDTO crear(PromocionDTO dto) {
-        Promocion promocion = new Promocion();
-
-        promocion.setNombre(dto.getNombre());
-        promocion.setDescripcion(dto.getDescripcion());
-        promocion.setTipoDescuento(Promocion.TipoDescuento.valueOf(dto.getTipoDescuento()));
-        promocion.setValorDescuento(dto.getValorDescuento());
-        promocion.setCantidadMinima(dto.getCantidadMinima());
-        promocion.setMontoMinimo(dto.getMontoMinimo());
-        promocion.setFechaInicio(dto.getFechaInicio());
-        promocion.setFechaFin(dto.getFechaFin());
-
-        // 👇 Si el DTO ya trae los MenuPromocion listos
-        if (dto.getMenu() != null) {
-            dto.getMenu().forEach(m -> m.setPromocion(promocion)); // asegúrate que se setee la relación inversa
-            promocion.setMenu(dto.getMenu());
-        }
-
+        // Conversión de DTO a entidad y guardado
+        Promocion promocion = PromocionMapper.toEntity(dto);
         Promocion guardada = promocionRepository.save(promocion);
-
-        // 🔁 Puedes devolver el mismo DTO o actualizar el ID si quieres:
-        dto.setId(guardada.getId());
-        return dto;
+        // Conversión de entidad a DTO enriquecido usando el Feign client
+        return PromocionMapper.toDTO(guardada, pedidoClient);
     }
-
 
     @Override
     @Transactional
-    public Optional<Promocion> actualizar(Long id, PromocionDTO dto) {
-        return promocionRepository.findById(id).map(promo -> {
-            promo.setNombre(dto.getNombre());
-            promo.setDescripcion(dto.getDescripcion());
-            promo.setTipoDescuento(Promocion.TipoDescuento.valueOf(dto.getTipoDescuento()));
-            promo.setValorDescuento(dto.getValorDescuento());
-            promo.setCantidadMinima(dto.getCantidadMinima());
-            promo.setMontoMinimo(dto.getMontoMinimo());
-            promo.setFechaInicio(dto.getFechaInicio());
-            promo.setFechaFin(dto.getFechaFin());
+    public PromocionDTO actualizar(PromocionDTO dto, Long id) {
+        Promocion promo = promocionRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Promoción no encontrada con ID: " + id));
 
-            promo.getMenu().clear();
-            promo.getMenu().addAll(dto.getMenu());
+        // Actualiza los campos básicos
+        promo.setNombre(dto.getNombre());
+        promo.setDescripcion(dto.getDescripcion());
+        promo.setTipoDescuento(Promocion.TipoDescuento.valueOf(dto.getTipoDescuento()));
+        promo.setValorDescuento(dto.getValorDescuento());
+        promo.setCantidadMinima(dto.getCantidadMinima());
+        promo.setMontoMinimo(dto.getMontoMinimo());
+        promo.setFechaInicio(dto.getFechaInicio());
+        promo.setFechaFin(dto.getFechaFin());
 
-            return promocionRepository.save(promo);
-        });
+        // Actualiza la colección de menús
+        promo.getMenu().clear();
+        if (dto.getMenuRequerido() != null && !dto.getMenuRequerido().isEmpty()) {
+            promo.getMenu().addAll(
+                    dto.getMenuRequerido().stream().map(req -> {
+                        var mp = new com.example.servicioventa.entity.MenuPromocion();
+                        mp.setMenuId(req.getMenuId());
+                        mp.setCantidadRequerida(req.getCantidadRequerida());
+                        mp.setPromocion(promo);
+                        return mp;
+                    }).toList()
+            );
+        }
+        Promocion guardada = promocionRepository.save(promo);
+        return PromocionMapper.toDTO(guardada, pedidoClient);
     }
 
     @Override
@@ -120,4 +122,10 @@ public class PromocionServiceImpl implements PromocionService {
                 .filter(p -> p.getTipoDescuento().name().equalsIgnoreCase(tipoDescuento))
                 .toList();
     }
+
+    @Override
+    public PromocionDTO toDTO(Promocion promocion) {
+        return PromocionMapper.toDTO(promocion, pedidoClient);
+    }
+
 }

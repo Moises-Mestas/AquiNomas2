@@ -1,18 +1,24 @@
 package com.example.servicioventa.dto;
 
+import com.example.servicioventa.entity.Promocion;
 import com.example.servicioventa.entity.Venta;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 public class VentaDTO {
     private Integer id;
     private BigDecimal total;
     private String metodoPago;
-    private LocalDateTime fechaVenta;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    private OffsetDateTime fechaVenta;
     private String nombreCliente;
     private PedidoDTO pedido;
-
+    private List<Promocion> promociones;
+    private int maximoPromocionesPermitidas;
 
     public Integer getId() {
         return id;
@@ -38,11 +44,11 @@ public class VentaDTO {
         this.metodoPago = metodoPago;
     }
 
-    public LocalDateTime getFechaVenta() {
+    public OffsetDateTime getFechaVenta() {
         return fechaVenta;
     }
 
-    public void setFechaVenta(LocalDateTime fechaVenta) {
+    public void setFechaVenta(OffsetDateTime fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
 
@@ -62,18 +68,37 @@ public class VentaDTO {
         this.pedido = pedido;
     }
 
-    public VentaDTO() {
+    public List<Promocion> getPromociones() {
+        return promociones;
+    }
+
+    public void setPromociones(List<Promocion> promociones) {
+        this.promociones = promociones;
+    }
+
+    public int getMaximoPromocionesPermitidas() {
+        return maximoPromocionesPermitidas;
+    }
+
+    public void setMaximoPromocionesPermitidas(int maximoPromocionesPermitidas) {
+        this.maximoPromocionesPermitidas = maximoPromocionesPermitidas;
     }
 
     public VentaDTO(Venta venta, PedidoDTO pedido) {
         this.id = venta.getId();
         this.total = venta.getTotal();
-        this.metodoPago = venta.getMetodoPago().name();
+        this.metodoPago = venta.getMetodoPago() != null ? venta.getMetodoPago().name() : null;
         this.fechaVenta = venta.getFechaVenta();
-        this.nombreCliente = pedido.getNombreCliente();
+        this.promociones = venta.getPromociones();
+        this.maximoPromocionesPermitidas = venta.getMaximoPromocionesPermitidas() != null
+                ? venta.getMaximoPromocionesPermitidas() : 1;
         this.pedido = pedido;
-    }
 
+        // ✅ Extraer el nombre directamente del objeto cliente
+        this.nombreCliente = (pedido.getCliente() != null && pedido.getCliente().getNombre() != null)
+                ? pedido.getCliente().getNombre()
+                : "Desconocido";
+    }
 
     @Override
     public String toString() {
@@ -84,6 +109,8 @@ public class VentaDTO {
                 ", fechaVenta=" + fechaVenta +
                 ", nombreCliente='" + nombreCliente + '\'' +
                 ", pedido=" + pedido +
+                ", promociones=" + promociones +
+                ", maximoPromocionesPermitidas=" + maximoPromocionesPermitidas +
                 '}';
     }
 }

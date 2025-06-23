@@ -1,6 +1,9 @@
 package com.example.servicioventa.controller;
 
+import com.example.servicioventa.dto.PedidoDTO;
+import com.example.servicioventa.dto.ResultadoAnalisisPromocionesDTO;
 import com.example.servicioventa.dto.VentaDTO;
+import com.example.servicioventa.entity.Promocion;
 import com.example.servicioventa.entity.Venta;
 import com.example.servicioventa.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @RestController
@@ -43,6 +48,26 @@ public class VentaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Actualiza la ruta para evitar duplicación
+    @GetMapping("/promociones-aplicables/{pedidoId}")
+    public ResponseEntity<?> obtenerPromocionesAplicables(@PathVariable Integer pedidoId) {
+        PedidoDTO pedido = ventaService.obtenerPedidoPorId(pedidoId);
+        if (pedido == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("❌ Pedido no encontrado para ID: " + pedidoId);
+        }
+
+        List<Promocion> promociones = ventaService.obtenerTodasLasPromociones();
+        if (promociones == null || promociones.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("⚠️ No hay promociones registradas actualmente.");
+        }
+
+        ResultadoAnalisisPromocionesDTO resultado = ventaService.analizarPromocionesAplicables(pedido, promociones);
+        return ResponseEntity.ok(resultado);
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         ventaService.eliminarPorId(id);
@@ -63,11 +88,19 @@ public class VentaController {
     public ResponseEntity<List<VentaDTO>> porFechas(
             @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
             @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
-        return ResponseEntity.ok(ventaService.buscarVentasPorFecha(inicio, fin));
+
+        // Convierte a OffsetDateTime con zona -05:00
+        ZoneOffset zonaPeru = ZoneOffset.of("-05:00");
+        OffsetDateTime inicioOffset = inicio.atOffset(zonaPeru);
+        OffsetDateTime finOffset = fin.atOffset(zonaPeru);
+
+        return ResponseEntity.ok(ventaService.buscarVentasPorFecha(inicioOffset, finOffset));
     }
 
+
     @GetMapping("/cliente/nombre")
-    public ResponseEntity<List<Venta>> buscarPorNombre(@RequestParam String nombre) {
-        return ResponseEntity.ok(ventaService.buscarPorNombreCliente(nombre));
+    public ResponseEntity<List<VentaDTO>> buscarPorNombre(@RequestParam String nombre) {
+        List<VentaDTO> resultado = ventaService.buscarPorNombreCliente(nombre);
+        return ResponseEntity.ok(resultado);
     }
 }

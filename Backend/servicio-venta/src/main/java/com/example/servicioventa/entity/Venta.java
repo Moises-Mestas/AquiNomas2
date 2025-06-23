@@ -1,9 +1,12 @@
 package com.example.servicioventa.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "venta")
@@ -15,14 +18,19 @@ public class Venta {
     @Column(name = "pedido_id", nullable = false)
     private Integer pedidoId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promocion_id", nullable = true)
-    private Promocion promocion;
+    @ManyToMany
+    @JoinTable(
+            name = "venta_promocion",
+            joinColumns = @JoinColumn(name = "venta_id"),
+            inverseJoinColumns = @JoinColumn(name = "promocion_id")
+    )
+    private List<Promocion> promociones;
 
     private Integer cliente;
 
     @Column(name = "fecha_venta")
-    private LocalDateTime fechaVenta;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    private OffsetDateTime fechaVenta;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal total;
@@ -35,7 +43,6 @@ public class Venta {
         EFECTIVO, TARJETA, TRANSFERENCIA
     }
 
-    /// //////////////////////
     public Integer getId() {
         return id;
     }
@@ -52,12 +59,12 @@ public class Venta {
         this.pedidoId = pedidoId;
     }
 
-    public Promocion getPromocion() {
-        return promocion;
+    public List<Promocion> getPromociones() {
+        return promociones;
     }
 
-    public void setPromocion(Promocion promocion) {
-        this.promocion = promocion;
+    public void setPromociones(List<Promocion> promociones) {
+        this.promociones = promociones;
     }
 
     public Integer getCliente() {
@@ -68,11 +75,11 @@ public class Venta {
         this.cliente = cliente;
     }
 
-    public LocalDateTime getFechaVenta() {
+    public OffsetDateTime getFechaVenta() {
         return fechaVenta;
     }
 
-    public void setFechaVenta(LocalDateTime fechaVenta) {
+    public void setFechaVenta(OffsetDateTime fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
 
@@ -97,7 +104,7 @@ public class Venta {
         return "Venta{" +
                 "id=" + id +
                 ", pedidoId=" + pedidoId +
-                ", promocion=" + promocion +
+                ", promociones=" + promociones +
                 ", cliente=" + cliente +
                 ", fechaVenta=" + fechaVenta +
                 ", total=" + total +
@@ -107,4 +114,16 @@ public class Venta {
 
     public Venta() {
     }
+
+    @Transient
+    private Integer maximoPromocionesPermitidas;
+
+    public Integer getMaximoPromocionesPermitidas() {
+        return maximoPromocionesPermitidas;
+    }
+
+    public void setMaximoPromocionesPermitidas(Integer maximoPromocionesPermitidas) {
+        this.maximoPromocionesPermitidas = maximoPromocionesPermitidas;
+    }
+
 }

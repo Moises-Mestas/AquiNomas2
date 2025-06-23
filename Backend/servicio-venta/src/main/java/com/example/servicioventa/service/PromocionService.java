@@ -19,7 +19,7 @@ public interface PromocionService {
     PromocionDTO crear(PromocionDTO dto);
 
     // 🔁 Actualizar una promoción existente
-    Optional<Promocion> actualizar(Long id, PromocionDTO dto);
+    PromocionDTO actualizar(PromocionDTO dto, Long id);
 
     // 🔎 Obtener una promoción por ID
     Optional<Promocion> obtenerPorId(Long id);
@@ -44,4 +44,6 @@ public interface PromocionService {
 
     // 📊 Buscar por tipo de descuento
     List<Promocion> buscarPorTipo(String tipoDescuento);
+
+    PromocionDTO toDTO(Promocion promocion);
 }

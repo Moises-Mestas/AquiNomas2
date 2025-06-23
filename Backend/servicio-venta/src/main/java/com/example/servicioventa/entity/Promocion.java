@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,9 +41,10 @@ public class Promocion {
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
-    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<MenuPromocion> menu;
+    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<MenuPromocion> menu = new ArrayList<>();
 
     public enum TipoDescuento {
         MONTO, PORCENTAJE

@@ -15,7 +15,6 @@ public class MenuPromocion {
     @JsonBackReference
     private Promocion promocion;
 
-
     @Column(name = "menu_id")
     private Integer menuId; // ID del platillo o bebida del menú
 
