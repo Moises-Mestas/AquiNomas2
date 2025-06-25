@@ -10,7 +10,9 @@ import comprasProveedores
 from comprasProveedores import *
 from productos import *
 from proveedores import *
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 PORT = int(os.environ.get("PORT", random.randint(5001, 5999)))
 
 proveedores.registrar_en_eureka(PORT)

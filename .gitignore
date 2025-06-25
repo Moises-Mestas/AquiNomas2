@@ -1,50 +1,97 @@
-# ================================
+# ===================================
 # IDEs y editores
-# ================================
+# ===================================
 .idea/
 *.iml
 *.iws
 .vscode/
+*.swp
 
-# ================================
-# Entornos virtuales
-# ================================
+# ===================================
+# Entornos virtuales de Python
+# ===================================
 venv/
 env/
 ENV/
 .venv/
 .ENV/
 
-# ================================
+# ===================================
 # Archivos compilados de Python
-# ================================
+# ===================================
 *.pyc
 *.pyo
 *.pyd
 __pycache__/
 
-# ================================
-# Archivos de configuración de Flask
-# ================================
+# ===================================
+# Configuración y datos de Flask
+# ===================================
 instance/
 *.db
 *.sqlite
 
-# ================================
-# Logs y temporales
-# ================================
+# ===================================
+# Logs y archivos temporales
+# ===================================
 *.log
 *.tmp
 *.bak
+*.pid
 
-# ================================
+# ===================================
 # Archivos del sistema
-# ================================
+# ===================================
 .DS_Store
 Thumbs.db
 
-# ================================
-# Herramientas de construcción Java/Maven/Gradle (si usas)
-# ================================
+# ===================================
+# Node.js / Angular
+# ===================================
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env
+.env.*.local
+*.tgz
+*.tsbuildinfo
+package-lock.json
+
+# ===================================
+# Angular environment files (si manejas claves)
+# ===================================
+src/environments/environment*.ts
+
+# ===================================
+# Spring Boot / Maven / Gradle
+# ===================================
 target/
 build/
+*.jar
+*.war
+*.class
+*.project
+*.classpath
+*.settings/
+.springBeans
+
+# ===================================
+# Otros
+# ===================================
+*.bak
+*.old
+*.orig
+*.rej
+*.swo
+*.swn
+
+# ===================================
+# Archivos de configuración local
+# ===================================
+local.properties
