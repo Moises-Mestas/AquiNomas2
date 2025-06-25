@@ -10,7 +10,11 @@ import comprasProveedores
 from comprasProveedores import *
 from productos import *
 from proveedores import *
+from flask_cors import CORS
+
+
 app = Flask(__name__)
+CORS(app)
 PORT = int(os.environ.get("PORT", random.randint(5001, 5999)))
 
 proveedores.registrar_en_eureka(PORT)
@@ -43,6 +47,7 @@ def obtener_productos():
         return jsonify(productos_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # Ruta para obtener un producto por ID con Circuit Breaker
@@ -132,6 +137,10 @@ def ruta_obtener_productos_por_rango_precio():
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+
 
 # Ruta para crear un proveedor
 @app.route('/proveedores', methods=['POST'])
