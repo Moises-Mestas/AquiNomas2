@@ -2,12 +2,13 @@ package com.upeu.servicioreporte.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class VentaDto {
 
     private Integer id;
     private Integer pedidoId;
-    private LocalDateTime fechaVenta;
+    private OffsetDateTime fechaVenta;
     private BigDecimal total;
     private String metodoPago;
 
@@ -15,7 +16,7 @@ public class VentaDto {
     public VentaDto() {}
 
     // Constructor completo
-    public VentaDto(Integer id, Integer pedidoId, LocalDateTime fechaVenta, BigDecimal total, String metodoPago) {
+    public VentaDto(Integer id, Integer pedidoId, OffsetDateTime fechaVenta, BigDecimal total, String metodoPago) {
         this.id = id;
         this.pedidoId = pedidoId;
         this.fechaVenta = fechaVenta;
@@ -40,11 +41,11 @@ public class VentaDto {
         this.pedidoId = pedidoId;
     }
 
-    public LocalDateTime getFechaVenta() {
+    public OffsetDateTime getFechaVenta() {
         return fechaVenta;
     }
 
-    public void setFechaVenta(LocalDateTime fechaVenta) {
+    public void setFechaVenta(OffsetDateTime fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
 

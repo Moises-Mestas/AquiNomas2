@@ -19,4 +19,9 @@ public class PedidoDetalleClientFallback implements PedidoDetalleClient {
     public PedidoDto obtenerPedidoPorId(Integer id) {
         return null; // retorno seguro
     }
+
+    @Override
+    public List<PedidoDto> obtenerTodosPedidos() {
+        return Collections.emptyList(); // fallback agregado ✅
+    }
 }

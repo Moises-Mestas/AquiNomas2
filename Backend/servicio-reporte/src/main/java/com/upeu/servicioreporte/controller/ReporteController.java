@@ -5,6 +5,7 @@ import com.upeu.servicioreporte.entity.Reporte;
 import com.upeu.servicioreporte.feign.VentaClient;
 import com.upeu.servicioreporte.service.ReporteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,22 +29,14 @@ public class ReporteController {
         return reporteService.obtenerClientesMasFrecuentes();
     }
 
-    @GetMapping("/por-fecha")
-    public ResponseEntity<?> obtenerCantidadVentasPorPeriodo(
-            @RequestParam("inicio") String inicioStr,
-            @RequestParam("fin") String finStr) {
-        try {
-            LocalDateTime inicio = LocalDateTime.parse(inicioStr);
-            LocalDateTime fin = LocalDateTime.parse(finStr);
-
-            return ResponseEntity.ok(reporteService.obtenerCantidadVentasPorPeriodo(inicio, fin));
-        } catch (DateTimeParseException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Formato de fecha incorrecto. Usa yyyy-MM-ddTHH:mm:ss",
-                    "ejemplo", "2024-05-01T00:00:00"
-            ));
-        }
+    @GetMapping("/ventas-por-periodo")
+    public ResponseEntity<Map<String, Object>> obtenerCantidadVentasPorPeriodo(
+            @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin
+    ) {
+        return ResponseEntity.ok(reporteService.obtenerCantidadVentasPorPeriodo(inicio, fin));
     }
+
 
 
 

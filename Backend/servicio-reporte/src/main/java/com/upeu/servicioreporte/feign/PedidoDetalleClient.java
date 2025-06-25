@@ -15,6 +15,10 @@ public interface PedidoDetalleClient {
     @GetMapping("/detalle-pedidos")
     List<DetallePedidoDto> obtenerTodosDetallePedidos();
 
+    @GetMapping("/pedidos")
+    List<PedidoDto> obtenerTodosPedidos(); // 👈 Este método nuevo
+
     @GetMapping("/pedidos/{id}")
     PedidoDto obtenerPedidoPorId(@PathVariable("id") Integer id);
 }
+

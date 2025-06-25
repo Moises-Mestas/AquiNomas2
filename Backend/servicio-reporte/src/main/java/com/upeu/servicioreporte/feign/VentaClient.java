@@ -14,10 +14,11 @@ public interface VentaClient {
     @GetMapping("/ventas")
     List<VentaDto> obtenerTodasVentas();
 
-    @GetMapping("/ventas/por-fecha")
+    @GetMapping("/ventas/fecha")
     List<VentaDto> obtenerVentasPorFecha(
             @RequestParam("inicio") String inicio,
             @RequestParam("fin") String fin
     );
 }
+
 

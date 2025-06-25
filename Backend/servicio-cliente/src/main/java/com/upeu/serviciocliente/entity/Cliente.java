@@ -9,22 +9,15 @@ public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String nombre;
     private String apellido;
-
     @Column(unique = true)
     private String dni;
-
     private String telefono;
-
     @Column(unique = true)
     private String email;
-
     private String direccion;
-
     private LocalDateTime fechaRegistro = LocalDateTime.now();
-
     private String ruc;
 
     // Constructor vacío

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,40 +58,28 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
-        List<PedidoDto> pedidos = new ArrayList<>();
+        List<PedidoDto> pedidos = Optional.ofNullable(pedidoDetalleClient.obtenerTodosPedidos())
+                .orElse(Collections.emptyList());
 
-        pedidoDetalleClient.obtenerTodosDetallePedidos().forEach(detalle -> {
-            Integer pedidoId = detalle.getPedidoId();
+        // Filtrar solo pedidos con cliente válido
+        pedidos = pedidos.stream()
+                .filter(p -> p.getClienteId() != null && p.getCliente() != null)
+                .toList();
 
-            // Validación importante para evitar error 404
-            if (pedidoId != null) {
-                try {
-                    PedidoDto pedido = pedidoDetalleClient.obtenerPedidoPorId(pedidoId);
-                    if (pedido != null && pedido.getClienteId() != null) {
-                        pedidos.add(pedido);
-                    }
-                } catch (Exception e) {
-                    // Omitir si el pedido no se encuentra o da error
-                    System.out.println("No se encontró pedido con ID: " + pedidoId);
-                }
-            }
-        });
-
-        // Agrupar por clienteId y contar
+        // Agrupar por clienteId
         Map<Integer, Long> conteoPorCliente = pedidos.stream()
                 .collect(Collectors.groupingBy(PedidoDto::getClienteId, Collectors.counting()));
 
-        // Obtener los datos del cliente
+        // Obtener mapa de clientes
         Map<Integer, ClienteDto> clientesMap = pedidos.stream()
                 .map(PedidoDto::getCliente)
-                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         ClienteDto::getId,
                         c -> c,
                         (c1, c2) -> c1
                 ));
 
-        // Armar resultado ordenado
+        // Armar el resultado
         return conteoPorCliente.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .map(entry -> {
@@ -106,15 +96,21 @@ public class ReporteServiceImpl implements ReporteService {
 
 
 
+
     @Override
     public Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin) {
         Map<String, Object> resultado = new HashMap<>();
 
         try {
-            // ✅ Formatear fechas correctamente con segundos
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            String inicioStr = inicio.format(formatter);
-            String finStr = fin.format(formatter);
+            // ✅ Zona horaria Perú (-05:00)
+            ZoneOffset zonaPeru = ZoneOffset.of("-05:00");
+            OffsetDateTime inicioOffset = inicio.atOffset(zonaPeru);
+            OffsetDateTime finOffset = fin.atOffset(zonaPeru);
+
+            // ✅ Usar formato compatible con OffsetDateTime esperado
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+            String inicioStr = inicioOffset.format(formatter); // Ej: 2024-05-01T00:00:00-05:00
+            String finStr = finOffset.format(formatter);       // Ej: 2024-05-31T23:59:59-05:00
 
             // ✅ Llamar al Feign client con fechas formateadas correctamente
             List<VentaDto> ventas = Optional.ofNullable(
@@ -132,13 +128,14 @@ public class ReporteServiceImpl implements ReporteService {
             resultado.put("fechaFin", finStr);
 
         } catch (Exception e) {
-            System.out.println("Error al obtener ventas por periodo: " + e.getMessage());
+            System.out.println("❌ Error al obtener ventas por periodo: " + e.getMessage());
             e.printStackTrace();
             resultado.put("error", "No se pudo calcular las ventas en el periodo especificado.");
         }
 
         return resultado;
     }
+
 
 
 
