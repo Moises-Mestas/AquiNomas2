@@ -19,7 +19,12 @@ spring:
       discovery:
         locator:
           enabled: true
+
+
+
+          
       routes:
+        -
         #========servicio auth=======#
         - id: servicio-auth
           uri: lb://servicio-auth
