@@ -1,89 +1,104 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // ✅ Importa FormsModule
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ApiService } from './core/services/api.services';
 import { MenuService } from './core/services/menu.services';
-import {MenuPage} from './pages/menu.page/menu.page'; // ✅ Importar MenuService
+import { RecetaService } from './core/services/receta.services';
+import { MenuPage } from './pages/menu.page/menu.page';  // Solo importar cuando se use MenuPage
+import { RecetaPage } from './pages/receta.page/receta.page';  // Solo importar cuando se use RecetaPage
 
 @Component({
   selector: 'app-root',
-  standalone: true, // ✅ Standalone component
-  imports: [RouterOutlet, FormsModule, MenuPage], // ✅ Incluye MenuPage en los imports
+  standalone: true,
+  imports: [RouterOutlet, FormsModule, CommonModule],  // Solo importar los módulos comunes
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })
 export class App {
   protected title = 'Fronted';
-  idAEliminar: number = 0; // ✅ Variable enlazada al input
-  idAActualizar: number = 0; // ✅ ID para actualizar un menú
-  newMenu: any = { nombre: '', descripcion: '', precio: 0, tipo: '', imagen: '' }; // Datos para el nuevo menú
-  menus: any[] = []; // Lista de menús
+
+  // Declaración de las variables para menús
+  idAEliminar: number = 0;
+  idAActualizar: number = 0;
+  newMenu: any = { nombre: '', descripcion: '', precio: 0, tipo: '', imagen: '' };
+  menus: any[] = [];  // Esta es la propiedad para almacenar los menús
+
+  // Declaración de las variables para recetas
+  recetaIdAEliminar: number = 0;
+  recetaIdAActualizar: number = 0;
+  newReceta: any = { cantidad: 0, descripcion: '', producto_id: 0, unidadMedida: '', menu_id: 0, cantidadDisponible: 0 };
+  recetas: any[] = []; // Esta es la propiedad para almacenar las recetas
 
   constructor(
     private apiService: ApiService,
-    private menuService: MenuService // ✅ Inyectar MenuService
+    private menuService: MenuService,
+    private recetaService: RecetaService
   ) {}
 
+  // Cargar los menús y las recetas
   ngOnInit() {
-    // Obtener los menús al iniciar
-    this.menuService.getMenus().subscribe((response) => {
-      this.menus = response;
-      console.log(this.menus);
-    });
+    this.getMenus(); // Cargar menús
+    this.getRecetas(); // Cargar recetas
   }
 
-  eliminarPorId() {
-    console.log('Eliminando producto con ID:', this.idAEliminar);
-
-    if (!this.idAEliminar) return;
-
-    this.apiService.eliminarProducto(this.idAEliminar).subscribe(
-      (res) => console.log('Producto eliminado:', res),
-      (err) => console.error('Error al eliminar:', err)
+  // Método para obtener todos los menús
+  getMenus() {
+    this.menuService.getMenus().subscribe(
+      (response) => {
+        this.menus = response; // Asigna los menús obtenidos a la propiedad 'menus'
+        console.log(this.menus);
+      },
+      (err) => console.error('Error al obtener los menús:', err)
     );
   }
 
-  // Método para eliminar un menú
-  eliminarMenu() {
-    if (!this.idAEliminar) return;
-
-    this.menuService.deleteMenu(this.idAEliminar).subscribe(
-      (res) => {
-        console.log('Menú eliminado:', res);
-        this.menuService.getMenus().subscribe((menus) => {
-          this.menus = menus;
-        }); // Refrescar la lista de menús
+  // Método para obtener todas las recetas
+  getRecetas() {
+    this.recetaService.getRecetas().subscribe(
+      (response) => {
+        this.recetas = response; // Asigna las recetas obtenidas a la propiedad 'recetas'
+        console.log(this.recetas);
       },
-      (err) => console.error('Error al eliminar el menú:', err)
+      (err) => console.error('Error al obtener las recetas:', err)
     );
   }
 
-  // Método para crear un nuevo menú
-  crearMenu() {
-    this.menuService.createMenu(this.newMenu).subscribe(
+  // Crear una receta
+  crearReceta() {
+    this.recetaService.createReceta(this.newReceta).subscribe(
       (res) => {
-        console.log('Nuevo menú creado:', res);
-        this.menuService.getMenus().subscribe((menus) => {
-          this.menus = menus;
-        }); // Refrescar la lista de menús
-        this.newMenu = { nombre: '', descripcion: '', precio: 0, tipo: '', imagen: '' }; // Resetear formulario
+        console.log('Receta creada:', res);
+        this.getRecetas();  // Refresca la lista de recetas
+        this.newReceta = { cantidad: 0, descripcion: '', producto_id: 0, unidadMedida: '', menu_id: 0, cantidadDisponible: 0 };  // Limpia el formulario
       },
-      (err) => console.error('Error al crear el menú:', err)
+      (err) => console.error('Error al crear la receta:', err)
     );
   }
 
-  // Método para actualizar un menú
-  actualizarMenu() {
-    if (!this.idAActualizar) return;
+  // Eliminar una receta
+  eliminarReceta() {
+    if (!this.recetaIdAEliminar) return;
 
-    this.menuService.updateMenu(this.idAActualizar, this.newMenu).subscribe(
+    this.recetaService.deleteReceta(this.recetaIdAEliminar).subscribe(
       (res) => {
-        console.log('Menú actualizado:', res);
-        this.menuService.getMenus().subscribe((menus) => {
-          this.menus = menus;
-        }); // Refrescar la lista de menús
+        console.log('Receta eliminada:', res);
+        this.getRecetas();  // Refresca la lista
       },
-      (err) => console.error('Error al actualizar el menú:', err)
+      (err) => console.error('Error al eliminar receta:', err)
+    );
+  }
+
+  // Actualizar una receta
+  actualizarReceta() {
+    if (!this.recetaIdAActualizar) return;
+
+    this.recetaService.updateReceta(this.recetaIdAActualizar, this.newReceta).subscribe(
+      (res) => {
+        console.log('Receta actualizada:', res);
+        this.getRecetas();  // Refresca la lista
+      },
+      (err) => console.error('Error al actualizar receta:', err)
     );
   }
 }
