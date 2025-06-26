@@ -1,0 +1,32 @@
+.menu-container {
+  padding: 20px;
+}
+
+.form-container {
+  margin-bottom: 20px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+button {
+  padding: 10px 15px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.menus-list {
+  margin-top: 20px;
+}
+
+.menus-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.menus-list li {
+  margin: 10px 0;
+}

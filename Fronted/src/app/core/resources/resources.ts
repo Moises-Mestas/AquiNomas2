@@ -1,4 +1,6 @@
 export const resources = {
   productos: 'productos',
-  proveedores: 'provvedores',
+  proveedores: 'proveedores',
+  menus: 'menus',
+
 };
