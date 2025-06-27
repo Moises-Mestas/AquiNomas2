@@ -3,4 +3,7 @@ export const resources = {
   proveedores: 'proveedores',
   menus: 'menus',
   recetas: 'recetas',
+  pedidos: 'pedidos',
+  detalle_pedidos: 'detalle-pedidos',
+
 };

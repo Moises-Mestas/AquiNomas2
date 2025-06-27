@@ -6,7 +6,8 @@ import { ApiService } from './core/services/api.services';
 import { MenuService } from './core/services/menu.services';
 import { RecetaService } from './core/services/receta.services';
 import { MenuPage } from './pages/menu.page/menu.page';  // Solo importar cuando se use MenuPage
-import { RecetaPage } from './pages/receta.page/receta.page';  // Solo importar cuando se use RecetaPage
+import { RecetaPage } from './pages/receta.page/receta.page';
+import {PedidoServices} from './core/services/pedido.services';  // Solo importar cuando se use RecetaPage
 
 @Component({
   selector: 'app-root',
@@ -30,11 +31,20 @@ export class App {
   newReceta: any = { cantidad: 0, descripcion: '', producto_id: 0, unidadMedida: '', menu_id: 0, cantidadDisponible: 0 };
   recetas: any[] = []; // Esta es la propiedad para almacenar las recetas
 
+
+
+  pedidoIdAEliminar: number = 0;
+  pedidoIdAActualizar: number = 0;
+  newPedido: any = { cliente_id: 0, estado_pedido: '', fecha_pedido: '' }; // Información del pedido
+  pedidos: any[] = [];
+
   constructor(
     private apiService: ApiService,
     private menuService: MenuService,
-    private recetaService: RecetaService
-  ) {}
+    private recetaService: RecetaService,
+    private pedidoService: PedidoServices
+
+) {}
 
   // Cargar los menús y las recetas
   ngOnInit() {
@@ -101,4 +111,54 @@ export class App {
       (err) => console.error('Error al actualizar receta:', err)
     );
   }
+
+
+  getPedidos() {
+    this.pedidoService.getPedidos().subscribe(
+      (response) => {
+        this.pedidos = response;
+        console.log(this.pedidos); // Verificar que los pedidos se obtienen correctamente
+      },
+      (err) => console.error('Error al obtener los pedidos:', err)
+    );
+  }
+
+  // Crear un pedido (Nuevo)
+  crearPedido() {
+    this.pedidoService.createPedido(this.newPedido).subscribe(
+      (res) => {
+        console.log('Pedido creado:', res);
+        this.getPedidos(); // Refrescar la lista de pedidos
+        this.newPedido = { clienteId: 0, estadoPedido: '', fechaPedido: '' }; // Limpiar el formulario
+      },
+      (err) => console.error('Error al crear el pedido:', err)
+    );
+  }
+
+  // Eliminar un pedido (Nuevo)
+  eliminarPedido() {
+    if (!this.pedidoIdAEliminar) return;
+
+    this.pedidoService.deletePedido(this.pedidoIdAEliminar).subscribe(
+      (res) => {
+        console.log('Pedido eliminado:', res);
+        this.getPedidos(); // Refrescar la lista de pedidos
+      },
+      (err) => console.error('Error al eliminar el pedido:', err)
+    );
+  }
+
+  // Actualizar un pedido (Nuevo)
+  actualizarPedido() {
+    if (!this.pedidoIdAActualizar) return;
+
+    this.pedidoService.updatePedido(this.pedidoIdAActualizar, this.newPedido).subscribe(
+      (res) => {
+        console.log('Pedido actualizado:', res);
+        this.getPedidos(); // Refrescar la lista de pedidos
+      },
+      (err) => console.error('Error al actualizar el pedido:', err)
+    );
+  }
+
 }
