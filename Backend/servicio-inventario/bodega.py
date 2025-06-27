@@ -521,5 +521,3 @@ def obtener_historial_movimientos_por_producto(producto_id):
     finally:
         if conexion:
             conexion.close()            
-
-

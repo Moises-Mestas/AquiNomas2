@@ -7,15 +7,11 @@ import { resources } from '../resources/resources';
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  getProducto(): Observable<any[]> {
-    return this.http.get<any[]>(resources.catalogo.productos);
+  getProductos(): Observable<any[]> {
+    return this.http.get<any[]>(resources.productos); // Se agregará la baseUrl por el interceptor
   }
 
-  eliminarProducto(): Observable<any[]> {
-    return this.http.delete<any[]>(resources.catalogo.productos);
-  }
-
-  crearUsuario(data: any): Observable<any> {
-    return this.http.post('usuarios', data);
+  eliminarProducto(id: number): Observable<any> {
+    return this.http.delete(`${resources.productos}/${id}`);
   }
 }

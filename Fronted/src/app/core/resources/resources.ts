@@ -1,6 +1,9 @@
 export const resources = {
-  catalogo: {
-    productos: 'productos',
-    proveedores: 'proveedores',
-  },
+  productos: 'productos',
+  proveedores: 'proveedores',
+  menus: 'menus',
+  recetas: 'recetas',
+  pedidos: 'pedidos',
+  detalle_pedidos: 'detalle-pedidos',
+
 };

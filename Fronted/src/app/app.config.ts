@@ -1,15 +1,13 @@
-import {
-  ApplicationConfig,
-  provideBrowserGlobalErrorListeners,
-  provideZonelessChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { tokenInterceptor } from './core/interceptors/token-interceptor';
-import { urlInterceptor } from './core/interceptors/url-interceptor';
-import { catchInterceptor } from './core/interceptors/catch-interceptor';
+
+import {catchInterceptor} from './core/interceptors/catch-interceptor';
+import {urlInterceptor} from './core/interceptors/url-interceptor';
+import {tokenInterceptor} from './core/interceptors/token-interceptor';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +15,11 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([tokenInterceptor, urlInterceptor, catchInterceptor])
-    ),
-  ],
+      withInterceptors([
+        tokenInterceptor,
+        urlInterceptor,
+        catchInterceptor
+      ])
+    )
+  ]
 };

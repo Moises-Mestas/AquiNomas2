@@ -3,9 +3,13 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Fronted": {
+    "dad-front": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -15,6 +19,7 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "css",
             "assets": [
               {
                 "glob": "**/*",
@@ -22,13 +27,11 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "src/styles.css"
-            ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            ]
+
           },
           "configurations": {
             "production": {
@@ -58,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Fronted:build:production"
+              "buildTarget": "dad-front:build:production"
             },
             "development": {
-              "buildTarget": "Fronted:build:development"
+              "buildTarget": "dad-front:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -73,6 +76,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "css",
             "assets": [
               {
                 "glob": "**/*",
@@ -88,6 +92,6 @@
     }
   },
   "cli": {
-    "analytics": "a1a4a5b0-ea59-478a-ba22-128a698badb1"
+    "analytics": "d232bf8f-84f4-462d-8937-d5668e2814bb"
   }
 }
