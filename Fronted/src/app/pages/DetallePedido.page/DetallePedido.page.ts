@@ -1,95 +1,148 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DetallePedidoServices } from '../../core/services/DetallePedido.services';
+import { DetallePedidoService } from '../../core/services/detallePedido.services';  // Asegúrate de tener el servicio importado
 
 @Component({
   selector: 'app-detalle-pedido',
   standalone: true,
   templateUrl: './DetallePedido.page.html',
-  imports: [CommonModule, FormsModule],  // Asegúrate de importar CommonModule
-  styleUrls: ['./DetallePedido.css']
+  imports: [CommonModule, FormsModule],
+  styleUrls: ['./DetallePedido.page.css']
 })
 export class DetallePedidoPage {
   detallePedidos: any[] = [];
-  newDetallePedido: any = { cantidad: 0, menu_id: 0, pedido_id: 0 };
+  newDetallePedido: any = { cantidad: 0, menu_id: 0, pedido_id: 0 };  // Incluimos pedido_id
   idAActualizar: number = 0;
   editing: boolean = false;
 
-  constructor(private detallePedidoService: DetallePedidoServices) {}
+  constructor(private detallePedidoService: DetallePedidoService) {}
 
   ngOnInit() {
     this.getDetallePedidos();
   }
 
-  // Obtener todos los detalles del pedido
+  // Obtener todos los detalles de pedido
   getDetallePedidos() {
     this.detallePedidoService.getDetallePedidos().subscribe(
       (response) => {
         this.detallePedidos = response;
-        console.log(this.detallePedidos);  // Verifica los datos en la consola
+        console.log(this.detallePedidos); // Verifica los datos en la consola
       },
-      (err) => console.error('Error al obtener los detalles del pedido:', err)
+      (err) => console.error('Error al obtener los detalles de pedido:', err)
     );
   }
 
-  // Guardar o actualizar detalle de pedido
   saveDetallePedido() {
+    console.log('Datos a enviar:', this.newDetallePedido);
+
     if (this.idAActualizar) {
+      // Si existe un ID, significa que estamos editando
       this.updateDetallePedido();
     } else {
+      // Si no existe ID, estamos creando un nuevo detallePedido
       this.createDetallePedido();
     }
   }
 
-  // Crear detalle de pedido
+// Crear DetallePedido
   createDetallePedido() {
+    console.log("Datos a crear:", this.newDetallePedido); // Verificar datos
+
+    // Verificar que todos los campos estén presentes
     if (!this.newDetallePedido.menu_id || !this.newDetallePedido.pedido_id || !this.newDetallePedido.cantidad) {
+      console.error('Datos faltantes:', this.newDetallePedido);
       alert('Faltan campos requeridos.');
       return;
     }
 
-    this.detallePedidoService.createDetallePedido(this.newDetallePedido).subscribe(
+    // Estructura correcta para el backend
+    const detallePedidoData = {
+      pedidoId: this.newDetallePedido.pedido_id,
+      items: [
+        {
+          menu: { id: this.newDetallePedido.menu_id },
+          cantidad: this.newDetallePedido.cantidad
+        }
+      ]
+    };
+
+    // Enviar los datos en el formato correcto
+    this.detallePedidoService.createDetallePedido(detallePedidoData).subscribe(
       (res) => {
-        console.log('Detalle de pedido creado:', res);
-        this.getDetallePedidos();
-        this.clearForm();
+        console.log('DetallePedido creado:', res);
+        this.getDetallePedidos(); // Refrescar la lista de detalles de pedido
+        this.clearForm(); // Limpiar el formulario
       },
-      (err) => console.error('Error al crear detalle de pedido:', err)
+      (err) => {
+        console.error('Error al crear el detalle de pedido:', err);
+        alert('Hubo un error al crear el detalle de pedido');
+      }
     );
   }
 
-  // Actualizar detalle de pedido
+
+// Actualizar DetallePedido
   updateDetallePedido() {
-    if (!this.idAActualizar) return;
+    console.log("Datos a actualizar:", this.newDetallePedido);
+
+    if (!this.idAActualizar) {
+      console.error('No se especificó el ID del detalle de pedido');
+      return;
+    }
+
+    if (!this.newDetallePedido.menu_id || !this.newDetallePedido.pedido_id || !this.newDetallePedido.cantidad) {
+      console.error('Datos faltantes:', this.newDetallePedido);
+      alert('Faltan campos requeridos.');
+      return;
+    }
 
     this.detallePedidoService.updateDetallePedido(this.idAActualizar, this.newDetallePedido).subscribe(
       (res) => {
-        console.log('Detalle de pedido actualizado:', res);
-        this.getDetallePedidos();
-        this.clearForm();
+        console.log('DetallePedido actualizado:', res);
+        this.getDetallePedidos(); // Refresca la lista de detalles de pedido
+        this.clearForm(); // Limpia el formulario
       },
-      (err) => console.error('Error al actualizar detalle de pedido:', err)
+      (err) => {
+        console.error('Error al actualizar el detalle de pedido:', err);
+        alert('Hubo un error al actualizar el detalle de pedido');
+      }
     );
   }
+
 
   // Eliminar detalle de pedido
   deleteDetallePedido(id: number) {
     this.detallePedidoService.deleteDetallePedido(id).subscribe(
       (res) => {
         console.log('Detalle de pedido eliminado:', res);
-        this.getDetallePedidos();
+        this.getDetallePedidos();  // Refrescar la lista de detalles de pedido
       },
       (err) => console.error('Error al eliminar detalle de pedido:', err)
     );
   }
 
-  // Editar detalle de pedido
   editDetallePedido(detallePedido: any) {
+    if (!detallePedido) {
+      console.error('No se ha recibido el detallePedido');
+      return;
+    }
+
+    // Asignamos los valores al formulario, incluyendo el pedido_id
     this.idAActualizar = detallePedido.id;
-    this.newDetallePedido = { ...detallePedido };
+
+    this.newDetallePedido = {
+      id: detallePedido.id,
+      cantidad: detallePedido.cantidad,
+      menu_id: detallePedido.menu?.id, // Asegúrate de que 'menu' exista
+      pedido_id: detallePedido.pedido?.id // Asegúrate de que 'pedido' exista
+    };
+
+    console.log('Detalle a editar:', this.newDetallePedido);
     this.editing = true;
   }
+
+
 
   // Limpiar formulario
   clearForm() {

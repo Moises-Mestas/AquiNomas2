@@ -1,7 +1,7 @@
 <div class="container py-4">
   <h1 class="mb-4 text-primary">Gestión de Detalles de Pedido</h1>
 
-  <!-- Formulario para Crear/Editar Detalle Pedido -->
+  <!-- Formulario para Crear/Editar Detalle de Pedido -->
   <div class="card mb-4">
     <div class="card-header">
       <h5 class="mb-0">{{ idAActualizar ? 'Editar Detalle de Pedido' : 'Nuevo Detalle de Pedido' }}</h5>
@@ -10,12 +10,13 @@
       <form (ngSubmit)="saveDetallePedido()" class="row g-3">
         <div class="col-md-4">
           <label class="form-label">Cantidad</label>
-          <input class="form-control" type="number" [(ngModel)]="newDetallePedido.cantidad" name="cantidad" required>
+          <input class="form-control" type="number" [(ngModel)]="newDetallePedido.cantidad" name="cantidad" step="0.001" required>
         </div>
         <div class="col-md-4">
           <label class="form-label">Menu ID</label>
           <input class="form-control" type="number" [(ngModel)]="newDetallePedido.menu_id" name="menu_id" required>
         </div>
+        <!-- Ahora el campo pedido_id siempre estará disponible en el formulario -->
         <div class="col-md-4">
           <label class="form-label">Pedido ID</label>
           <input class="form-control" type="number" [(ngModel)]="newDetallePedido.pedido_id" name="pedido_id" required>
@@ -30,10 +31,10 @@
     </div>
   </div>
 
-  <!-- Lista de Detalles de Pedido -->
+  <!-- Lista de Detalles de Pedidos -->
   <div class="card">
     <div class="card-header bg-dark text-white">
-      Lista de Detalles de Pedido
+      Lista de Detalles de Pedidos
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -42,22 +43,22 @@
           <tr>
             <th>ID</th>
             <th>Cantidad</th>
-            <th>Menu ID</th>
-            <th>Pedido ID</th>
+            <th>Menu</th>
+            <th>Pedido</th>
             <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let detalle of detallePedidos">
-            <td>{{ detalle.id }}</td>
-            <td>{{ detalle.cantidad }}</td>
-            <td>{{ detalle.menu_id }}</td>
-            <td>{{ detalle.pedido_id }}</td>
+          <tr *ngFor="let detallePedido of detallePedidos">
+            <td>{{ detallePedido.id }}</td>
+            <td>{{ detallePedido.cantidad }}</td>
+            <td>{{ detallePedido.menu?.nombre }}</td>
+            <td>{{ detallePedido.pedido?.id }}</td>
             <td>
-              <button class="btn btn-warning btn-sm" (click)="editDetallePedido(detalle)">
+              <button class="btn btn-warning btn-sm" (click)="editDetallePedido(detallePedido)">
                 <i class="bi bi-pencil"></i> Editar
               </button>
-              <button class="btn btn-danger btn-sm" (click)="deleteDetallePedido(detalle.id)">
+              <button class="btn btn-danger btn-sm" (click)="deleteDetallePedido(detallePedido.id)">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>

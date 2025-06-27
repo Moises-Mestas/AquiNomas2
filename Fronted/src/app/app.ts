@@ -7,7 +7,8 @@ import { MenuService } from './core/services/menu.services';
 import { RecetaService } from './core/services/receta.services';
 import { MenuPage } from './pages/menu.page/menu.page';  // Solo importar cuando se use MenuPage
 import { RecetaPage } from './pages/receta.page/receta.page';
-import {PedidoServices} from './core/services/pedido.services';  // Solo importar cuando se use RecetaPage
+import {PedidoServices} from './core/services/pedido.services';
+import {DetallePedidoService} from './core/services/detallePedido.services';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,12 @@ export class App {
   newReceta: any = { cantidad: 0, descripcion: '', producto_id: 0, unidadMedida: '', menu_id: 0, cantidadDisponible: 0 };
   recetas: any[] = []; // Esta es la propiedad para almacenar las recetas
 
+  // Declaración de las variables para detalle_pedido
+  detallePedidoIdAEliminar: number = 0;
+  detallePedidoIdAActualizar: number = 0;
+  newDetallePedido: any = { cantidad: 0, menu_id: 0, pedido_id: 0 }; // Información del detalle pedido
+  detallePedidos: any[] = [];
+
 
 
   pedidoIdAEliminar: number = 0;
@@ -42,7 +49,8 @@ export class App {
     private apiService: ApiService,
     private menuService: MenuService,
     private recetaService: RecetaService,
-    private pedidoService: PedidoServices
+    private pedidoService: PedidoServices,
+    private detallePedidoService: DetallePedidoService // Servicio de detallePedido
 
 ) {}
 
@@ -50,6 +58,8 @@ export class App {
   ngOnInit() {
     this.getMenus(); // Cargar menús
     this.getRecetas(); // Cargar recetas
+    this.getPedidos(); // Cargar pedidos
+    this.getDetallePedidos(); // Cargar detallePedidos
   }
 
   // Método para obtener todos los menús
@@ -148,16 +158,65 @@ export class App {
     );
   }
 
-  // Actualizar un pedido (Nuevo)
-  actualizarPedido() {
-    if (!this.pedidoIdAActualizar) return;
 
-    this.pedidoService.updatePedido(this.pedidoIdAActualizar, this.newPedido).subscribe(
-      (res) => {
-        console.log('Pedido actualizado:', res);
-        this.getPedidos(); // Refrescar la lista de pedidos
+  // Método para obtener todos los detalles de pedido
+  getDetallePedidos() {
+    this.detallePedidoService.getDetallePedidos().subscribe(
+      (response) => {
+        this.detallePedidos = response;
+        console.log(this.detallePedidos); // Verifica si los detalles de pedido se cargan correctamente
       },
-      (err) => console.error('Error al actualizar el pedido:', err)
+      (err) => console.error('Error al obtener los detalles de pedido:', err)
+    );
+  }
+
+  // Método para editar un detalle de pedido
+  editDetallePedido(detallePedido: any) {
+    // Asignamos los valores del detallePedido seleccionado a newDetallePedido
+    this.detallePedidoIdAActualizar = detallePedido.id;
+    this.newDetallePedido = {
+      cantidad: detallePedido.cantidad,
+      menu_id: detallePedido.menu.id,  // Carga el id del menú
+      pedido_id: detallePedido.pedido.id // Carga el id del pedido
+    };
+    console.log('Datos a editar en el formulario:', this.newDetallePedido);  // Verifica los datos en consola
+  }
+
+  // Crear un detalle de pedido
+  crearDetallePedido() {
+    this.detallePedidoService.createDetallePedido(this.newDetallePedido).subscribe(
+      (res) => {
+        console.log('Detalle de pedido creado:', res);
+        this.getDetallePedidos(); // Refrescar la lista de detalles de pedido
+        this.newDetallePedido = { cantidad: 0, menu_id: 0, pedido_id: 0 }; // Limpiar el formulario
+      },
+      (err) => console.error('Error al crear el detalle de pedido:', err)
+    );
+  }
+
+  // Eliminar un detalle de pedido
+  eliminarDetallePedido() {
+    if (!this.detallePedidoIdAEliminar) return;
+
+    this.detallePedidoService.deleteDetallePedido(this.detallePedidoIdAEliminar).subscribe(
+      (res) => {
+        console.log('Detalle de pedido eliminado:', res);
+        this.getDetallePedidos(); // Refrescar la lista de detalles de pedido
+      },
+      (err) => console.error('Error al eliminar el detalle de pedido:', err)
+    );
+  }
+
+  // Actualizar un detalle de pedido
+  actualizarDetallePedido() {
+    if (!this.detallePedidoIdAActualizar) return;
+
+    this.detallePedidoService.updateDetallePedido(this.detallePedidoIdAActualizar, this.newDetallePedido).subscribe(
+      (res) => {
+        console.log('Detalle de pedido actualizado:', res);
+        this.getDetallePedidos(); // Refrescar la lista de detalles de pedido
+      },
+      (err) => console.error('Error al actualizar el detalle de pedido:', err)
     );
   }
 
