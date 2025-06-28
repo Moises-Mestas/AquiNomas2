@@ -25,14 +25,12 @@ public class Cliente {
     private String direccion;
 
     private LocalDateTime fechaRegistro = LocalDateTime.now();
-
+    private String ruc;
     // Constructor vacío
     public Cliente() {
     }
 
-    // Constructor con todos los campos
-    public Cliente(Integer id, String nombre, String apellido, String dni, String telefono,
-                   String email, String direccion, LocalDateTime fechaRegistro) {
+    public Cliente(Integer id, String nombre, String apellido, String dni, String telefono, String email, String direccion, LocalDateTime fechaRegistro, String ruc) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -41,6 +39,7 @@ public class Cliente {
         this.email = email;
         this.direccion = direccion;
         this.fechaRegistro = fechaRegistro;
+        this.ruc = ruc;
     }
 
     // Getters y Setters
@@ -108,7 +107,14 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
-    // toString
+    public String getRuc() {
+        return ruc;
+    }
+
+    public void setRuc(String ruc) {
+        this.ruc = ruc;
+    }
+
     @Override
     public String toString() {
         return "Cliente{" +
@@ -120,6 +126,7 @@ public class Cliente {
                 ", email='" + email + '\'' +
                 ", direccion='" + direccion + '\'' +
                 ", fechaRegistro=" + fechaRegistro +
+                ", ruc='" + ruc + '\'' +
                 '}';
     }
 }

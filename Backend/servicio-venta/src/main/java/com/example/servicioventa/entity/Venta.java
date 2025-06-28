@@ -1,30 +1,36 @@
 package com.example.servicioventa.entity;
 
-import com.example.servicioventa.dto.Pedido;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "venta")
 public class Venta {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "pedido_id", nullable = false)
-    private Long pedidoId; // FK sin relación
+    private Integer pedidoId;
 
-//    @ManyToOne
-//    @JsonIgnore
-//    @JoinColumn(name = "promocion_id", nullable = true)
-    private Long promocionId;
+    @ManyToMany
+    @JoinTable(
+            name = "venta_promocion",
+            joinColumns = @JoinColumn(name = "venta_id"),
+            inverseJoinColumns = @JoinColumn(name = "promocion_id")
+    )
+    private List<Promocion> promociones;
+
+    private Integer cliente;
 
     @Column(name = "fecha_venta")
-    private LocalDateTime fechaVenta;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    private OffsetDateTime fechaVenta;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal total;
@@ -37,35 +43,43 @@ public class Venta {
         EFECTIVO, TARJETA, TRANSFERENCIA
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getPedidoId() {
+    public Integer getPedidoId() {
         return pedidoId;
     }
 
-    public void setPedidoId(Long pedidoId) {
+    public void setPedidoId(Integer pedidoId) {
         this.pedidoId = pedidoId;
     }
 
-    public Long getPromocionId() {
-        return promocionId;
+    public List<Promocion> getPromociones() {
+        return promociones;
     }
 
-    public void setPromocionId(Long promocionId) {
-        this.promocionId = promocionId;
+    public void setPromociones(List<Promocion> promociones) {
+        this.promociones = promociones;
     }
 
-    public LocalDateTime getFechaVenta() {
+    public Integer getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Integer cliente) {
+        this.cliente = cliente;
+    }
+
+    public OffsetDateTime getFechaVenta() {
         return fechaVenta;
     }
 
-    public void setFechaVenta(LocalDateTime fechaVenta) {
+    public void setFechaVenta(OffsetDateTime fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
 
@@ -84,4 +98,32 @@ public class Venta {
     public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
     }
+
+    @Override
+    public String toString() {
+        return "Venta{" +
+                "id=" + id +
+                ", pedidoId=" + pedidoId +
+                ", promociones=" + promociones +
+                ", cliente=" + cliente +
+                ", fechaVenta=" + fechaVenta +
+                ", total=" + total +
+                ", metodoPago=" + metodoPago +
+                '}';
+    }
+
+    public Venta() {
+    }
+
+    @Transient
+    private Integer maximoPromocionesPermitidas;
+
+    public Integer getMaximoPromocionesPermitidas() {
+        return maximoPromocionesPermitidas;
+    }
+
+    public void setMaximoPromocionesPermitidas(Integer maximoPromocionesPermitidas) {
+        this.maximoPromocionesPermitidas = maximoPromocionesPermitidas;
+    }
+
 }
