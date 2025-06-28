@@ -6,6 +6,7 @@ import { DetallePedidoPage } from './pages/DetallePedido.page/DetallePedido.page
 import { ProductoPage } from './pages/producto.page/producto.page';
 import { ProveedorPage } from './pages/proveedores.page/proveedores.page';
 import { ComprasProveedoresPage } from './pages/comprasProveedores/compras-proveedores.page';
+import { BodegaPage } from './pages/bodega.page/bodega.page';
 
 export const routes: Route[] = [
   { path: 'menus', component: MenuPage }, // Ruta para el CRUD de Menú
@@ -15,4 +16,5 @@ export const routes: Route[] = [
   { path: 'productos', component: ProductoPage },
   { path: 'proveedores', component: ProveedorPage },
   { path: 'comprasProveedores', component: ComprasProveedoresPage },
+  { path: 'bodega', component: BodegaPage },
 ];

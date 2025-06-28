@@ -21,6 +21,15 @@ export const resources = {
   comprasPorFechaEspecifica: 'compras/fecha-especifica',
 
   bodega: 'bodega',
+  bodegaPorId: (id: number) => `bodega/${id}`,
+  bodegaPorTipo: (tipo: string) => `bodega/tipo-insumo/${tipo}`,
+  bodegaPorFecha: 'bodega/fecha-entrada',
+  bodegaPorRangoFecha: 'bodega/rango-fecha-entrada',
+  bodegaPorProducto: (id: number) => `bodega/producto/${id}`,
+  bodegaStockTotal: (id: number) => `bodega/stock-total/${id}`,
+  bodegaStockBajo: 'bodega/stock-bajo',
+  bodegaHistorial: (id: number) => `bodega/historial/${id}`,
+
   inventarioBarra: 'inventario-barra',
   inventarioCocina: 'inventario-cocina',
 };
