@@ -12,7 +12,7 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "http://localhost:4200"
+            allowedOrigins: "http://localhost:4200" , "http://127.0.0.1:4200"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
@@ -30,7 +30,7 @@ spring:
         - id: servicio-pedido2
           uri: lb://servicio-pedido2
           predicates:
-            - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
+            - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**, /upload/**
 
         #========servicio cliente=======#
         - id: servicio-cliente

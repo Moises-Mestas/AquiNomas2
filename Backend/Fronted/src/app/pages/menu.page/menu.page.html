@@ -1,0 +1,167 @@
+
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Subir Imagen</h1>
+
+  <!-- Formulario para subir imagen -->
+  <div class="mb-3">
+    <label for="image" class="form-label">Seleccionar Imagen</label>
+    <input
+      type="file"
+      class="form-control"
+      id="image"
+      (change)="onFileSelect($event)"
+      accept="image/*"
+    />
+  </div>
+
+  <!-- Muestra la imagen seleccionada -->
+  <div *ngIf="uploadedImageUrl">
+    <h3>Vista previa</h3>
+    <img [src]="uploadedImageUrl" alt="Vista previa de la imagen" style="width: 100%; height: auto;" />
+  </div>
+
+  <!-- Botón para subir la imagen -->
+  <button (click)="onUpload()" class="btn btn-success">
+    Subir Imagen
+  </button>
+</div>
+
+
+
+
+
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Gestión de Menús</h1>
+
+  <!-- Buscador y botón de Crear -->
+  <div class="d-flex mb-4 justify-content-between">
+    <input
+      type="text"
+      class="form-control w-50"
+      placeholder="Buscar menú por nombre"
+      [(ngModel)]="searchText"
+      (ngModelChange)="searchMenu()"
+    />
+    <button
+      class="btn btn-primary"
+      (click)="openCreateMenuModal()"
+    >
+      Crear Menú
+    </button>
+  </div>
+
+  <!-- Tarjetas de Menús -->
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col" *ngFor="let menu of filteredMenus">
+      <div class="card h-100">
+        <!-- Mostrar imagen -->
+        <img
+          class="card-img-top"
+          [src]="getImageUrl(menu.imagen)"
+          alt="Imagen de menú"
+          style="height: 200px; object-fit: cover;"
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ menu.nombre }}</h5>
+          <p class="card-text">{{ menu.descripcion }}</p>
+          <p class="card-text">Precio: {{ menu.precio | currency }}</p>
+        </div>
+        <div class="card-footer text-center">
+          <button
+            class="btn btn-warning btn-sm me-2"
+            (click)="editMenu(menu)"
+          >
+            Editar
+          </button>
+          <button
+            class="btn btn-danger btn-sm"
+            (click)="deleteMenu(menu.id)"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal de Crear/Editar Menú -->
+  <div
+    *ngIf="showModal"
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background-color: rgba(0, 0, 0, 0.5);"
+    aria-labelledby="menuModalLabel"
+    aria-hidden="false"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="menuModalLabel">
+            {{ idAActualizar ? 'Editar Menú' : 'Nuevo Menú' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeModal()"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveMenu()">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nombre"
+                [(ngModel)]="newMenu.nombre"
+                name="nombre"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción</label>
+              <input
+                type="text"
+                class="form-control"
+                id="descripcion"
+                [(ngModel)]="newMenu.descripcion"
+                name="descripcion"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="precio" class="form-label">Precio</label>
+              <input
+                type="number"
+                class="form-control"
+                id="precio"
+                [(ngModel)]="newMenu.precio"
+                name="precio"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="tipo" class="form-label">Tipo</label>
+              <input
+                type="text"
+                class="form-control"
+                id="tipo"
+                [(ngModel)]="newMenu.tipo"
+                name="tipo"
+              />
+            </div>
+
+
+
+            <button
+              type="submit"
+              class="btn btn-success"
+            >
+              {{ idAActualizar ? 'Actualizar' : 'Crear' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
