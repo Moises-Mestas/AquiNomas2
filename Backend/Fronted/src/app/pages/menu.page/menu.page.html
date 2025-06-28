@@ -1,35 +1,3 @@
-
-<div class="container py-4">
-  <h1 class="mb-4 text-primary">Subir Imagen</h1>
-
-  <!-- Formulario para subir imagen -->
-  <div class="mb-3">
-    <label for="image" class="form-label">Seleccionar Imagen</label>
-    <input
-      type="file"
-      class="form-control"
-      id="image"
-      (change)="onFileSelect($event)"
-      accept="image/*"
-    />
-  </div>
-
-  <!-- Muestra la imagen seleccionada -->
-  <div *ngIf="uploadedImageUrl">
-    <h3>Vista previa</h3>
-    <img [src]="uploadedImageUrl" alt="Vista previa de la imagen" style="width: 100%; height: auto;" />
-  </div>
-
-  <!-- Botón para subir la imagen -->
-  <button (click)="onUpload()" class="btn btn-success">
-    Subir Imagen
-  </button>
-</div>
-
-
-
-
-
 <div class="container py-4">
   <h1 class="mb-4 text-primary">Gestión de Menús</h1>
 
@@ -57,22 +25,43 @@
         <!-- Mostrar imagen -->
         <img
           class="card-img-top"
-          [src]="getImageUrl(menu.imagen)"
+          [src]="menu.imagen || getSavedImage(menu.id) || 'default-image.png'"
           alt="Imagen de menú"
           style="height: 200px; object-fit: cover;"
         />
+
         <div class="card-body">
           <h5 class="card-title">{{ menu.nombre }}</h5>
           <p class="card-text">{{ menu.descripcion }}</p>
           <p class="card-text">Precio: {{ menu.precio | currency }}</p>
         </div>
+
+        <!-- Espacio para subir imagen, editar y eliminar -->
         <div class="card-footer text-center">
+          <!-- Subir imagen -->
+          <input
+            type="file"
+            (change)="onFileSelected($event, menu)"
+            *ngIf="!menu.imagenSubida" 
+          />
+
+          <!-- Botones de editar y eliminar -->
           <button
             class="btn btn-warning btn-sm me-2"
             (click)="editMenu(menu)"
           >
             Editar
           </button>
+
+          <!-- Nuevo botón para cambiar la imagen -->
+          <button
+            *ngIf="menu.imagenSubida"
+            class="btn btn-info btn-sm me-2"
+            (click)="changeImage(menu)"
+          >
+            Editar Foto
+          </button>
+
           <button
             class="btn btn-danger btn-sm"
             (click)="deleteMenu(menu.id)"
@@ -83,7 +72,6 @@
       </div>
     </div>
   </div>
-
 
   <!-- Modal de Crear/Editar Menú -->
   <div
@@ -150,8 +138,6 @@
                 name="tipo"
               />
             </div>
-
-
 
             <button
               type="submit"

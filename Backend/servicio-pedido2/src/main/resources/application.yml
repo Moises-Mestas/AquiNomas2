@@ -19,9 +19,7 @@ spring:
   web:
     resources:
       static-locations:
-        - classpath:/static/
-        - file:Frontend/public/  # Ubicación de los archivos estáticos (Imágenes, etc.)
+        - file:./uploads/  # Cambié a "uploads/" para almacenar las imágenes subidas
 
-  # Ubicación de los archivos cargados
 media:
-  location: Frontend/public/  # Ruta donde se almacenarán los archivos subidos
+  location: uploads/  # Ruta donde se almacenarán los archivos subidos

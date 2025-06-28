@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuService } from '../../core/services/menu.services';
 import { CurrencyPipe } from '@angular/common';
-import {ImageService} from '../../core/services/image.service';
 
 @Component({
   selector: 'app-menu',
@@ -11,7 +10,6 @@ import {ImageService} from '../../core/services/image.service';
   templateUrl: './menu.page.html',
   imports: [CommonModule, FormsModule, CurrencyPipe],
   styleUrls: ['./menu.page.css']
-
 })
 export class MenuPage {
   menus: any[] = [];
@@ -22,14 +20,13 @@ export class MenuPage {
   searchText: string = '';
   showModal: boolean = false;
   selectedFile: File | null = null;
-  uploadedImageUrl: string | null = null; // URL de la imagen cargada
+  uploadStatus: { success: boolean, message: string } | null = null;
 
-  constructor(
-    private menuService: MenuService,
-    private imageService: ImageService
-  ) {}
+  constructor(private menuService: MenuService) {}
+
   ngOnInit() {
     this.getMenus();
+    this.loadStoredImages();  // Cargar imágenes guardadas en localStorage
   }
 
   getMenus() {
@@ -37,7 +34,7 @@ export class MenuPage {
       (response) => {
         this.menus = response;
         this.filteredMenus = response;
-        console.log(this.menus);
+        this.loadStoredImages(); // Recargar las imágenes desde localStorage
       },
       (err) => console.error('Error fetching menus:', err)
     );
@@ -69,25 +66,21 @@ export class MenuPage {
     formData.append('precio', this.newMenu.precio.toString());
     formData.append('tipo', this.newMenu.tipo);
 
+    // Asegúrate de que la imagen sea parte del FormData si se seleccionó un archivo
     if (this.selectedFile) {
-      formData.append('imagen', this.selectedFile, this.selectedFile.name); // Aquí solo enviamos el nombre del archivo
-    } else if (this.newMenu.imagen) {
-      // Si estamos editando y no seleccionamos una nueva imagen, enviamos la imagen actual
-      formData.append('imagen', this.newMenu.imagen);
+      formData.append('imagen', this.selectedFile, this.selectedFile.name);
     }
 
     if (this.idAActualizar) {
       this.updateMenu(formData);
     } else {
-      this.createMenu(formData);
+      this.createMenu(formData);  // Aquí se envía el FormData con la imagen
     }
   }
-
 
   createMenu(menuData: FormData) {
     this.menuService.createMenu(menuData).subscribe(
       (res) => {
-        console.log('Nuevo menú creado:', res);
         this.getMenus();
         this.clearForm();
         this.closeModal();
@@ -99,7 +92,6 @@ export class MenuPage {
   updateMenu(menuData: any) {
     this.menuService.updateMenu(this.idAActualizar, menuData).subscribe(
       (res) => {
-        console.log('Menú actualizado:', res);
         this.getMenus();
         this.clearForm();
         this.closeModal();
@@ -111,7 +103,6 @@ export class MenuPage {
   deleteMenu(id: number) {
     this.menuService.deleteMenu(id).subscribe(
       (res) => {
-        console.log('Menú eliminado:', res);
         this.getMenus();
       },
       (err) => console.error('Error deleting menu:', err)
@@ -124,37 +115,36 @@ export class MenuPage {
     this.showModal = true;
   }
 
-  onFileSelect(event: any) {
+  onFileSelected(event: any, menu: any) {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFile = file;
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.uploadedImageUrl = e.target.result; // Muestra la vista previa de la imagen seleccionada
+      reader.readAsDataURL(file);  // Leer la imagen como base64
+      reader.onload = () => {
+        menu.imagen = reader.result as string;  // Asignar la imagen al menú
+        menu.imagenSubida = true;  // Marcar que se ha subido una imagen
+        localStorage.setItem(`menu-image-${menu.id}`, menu.imagen);  // Guardar la imagen en localStorage
       };
-      reader.readAsDataURL(file);
     }
   }
 
-  onUpload() {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('image', this.selectedFile);
-
-      this.imageService.uploadImage(formData).subscribe(
-        (response) => {
-          console.log('Imagen subida exitosamente', response);
-          this.uploadedImageUrl = response.imageUrl; // URL de la imagen subida (suponiendo que el backend devuelva la URL)
-        },
-        (error) => {
-          console.error('Error subiendo la imagen', error);
-        }
-      );
-    } else {
-      console.error('No hay archivo seleccionado');
-    }
+  changeImage(menu: any) {
+    // Resetea la imagen para permitir al usuario subir una nueva
+    menu.imagenSubida = false;
+    menu.imagen = null;
+    localStorage.removeItem(`menu-image-${menu.id}`);  // Eliminar imagen de localStorage
   }
 
+  loadStoredImages() {
+    // Cargar todas las imágenes almacenadas en localStorage al cargar la página
+    this.menus.forEach(menu => {
+      const storedImage = localStorage.getItem(`menu-image-${menu.id}`);
+      if (storedImage) {
+        menu.imagen = storedImage;
+        menu.imagenSubida = true;
+      }
+    });
+  }
 
   clearForm() {
     this.newMenu = { nombre: '', descripcion: '', precio: 0, tipo: '', imagen: '' };
@@ -162,13 +152,7 @@ export class MenuPage {
     this.editing = false;
   }
 
-  getImageUrl(imagePath: string): string {
-    return `http://localhost:9000/public/${imagePath}`;  // URL correcta para acceder a las imágenes.
+  getSavedImage(menuId: number): string | null {
+    return localStorage.getItem(`menu-image-${menuId}`);  // Recuperar imagen desde localStorage
   }
-
-
-
 }
-
-
-
