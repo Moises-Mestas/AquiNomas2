@@ -10,17 +10,20 @@ import comprasProveedores
 from comprasProveedores import *
 from productos import *
 from proveedores import *
-from flask_cors import CORS
+
+
+# from flask_cors import CORS
+
+
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 PORT = int(os.environ.get("PORT", random.randint(5001, 5999)))
 
 proveedores.registrar_en_eureka(PORT)
 breaker = pybreaker.CircuitBreaker(fail_max=3, reset_timeout=10)
 @app.route('/health')
 def health():
-    """Ruta de salud para verificar si el servicio está activo."""
-    return "OK", 200
+    return jsonify({"status": "UP"}), 200
 
 # Ruta para crear un producto
 @app.route('/productos', methods=['POST'])
@@ -45,6 +48,7 @@ def obtener_productos():
         return jsonify(productos_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # Ruta para obtener un producto por ID con Circuit Breaker
@@ -134,6 +138,10 @@ def ruta_obtener_productos_por_rango_precio():
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+
 
 # Ruta para crear un proveedor
 @app.route('/proveedores', methods=['POST'])
@@ -338,4 +346,4 @@ def ruta_obtener_compras_por_fecha():
 
 
 if __name__ == "__main__":
-    app.run(port=PORT, debug=False)
+    app.run(host="0.0.0.0", port=PORT, debug=False)

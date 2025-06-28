@@ -46,3 +46,10 @@ resilience4j.circuitbreaker:
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
 
+    productoCircuitBreaker:
+      registerHealthIndicator: true
+      slidingWindowSize: 100
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000ms
+      ringBufferSizeInClosedState: 100
+      ringBufferSizeInHalfOpenState: 10

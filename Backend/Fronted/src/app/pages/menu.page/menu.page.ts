@@ -35,15 +35,30 @@ export class MenuPage {
     if (this.minPrice || this.maxPrice) {
       this.menuService.filterMenusByPriceRange(this.minPrice, this.maxPrice).subscribe(
         (response) => {
+          // Cargar las imágenes para los menús filtrados
           this.filteredMenus = response;
+          this.loadStoredImagesForFilteredMenus();
         },
         (err) => console.error('Error filtering menus by price range:', err)
       );
     } else {
       // Si no se ha ingresado un rango, mostrar todos los menús
       this.filteredMenus = this.menus;
+      this.loadStoredImagesForFilteredMenus(); // Cargar las imágenes cuando no se filtra
     }
   }
+
+  loadStoredImagesForFilteredMenus() {
+    // Cargar las imágenes de los menús filtrados desde el localStorage
+    this.filteredMenus.forEach(menu => {
+      const storedImage = localStorage.getItem(`menu-image-${menu.id}`);
+      if (storedImage) {
+        menu.imagen = storedImage;
+        menu.imagenSubida = true;
+      }
+    });
+  }
+
   getMenus() {
     this.menuService.getMenus().subscribe(
       (response) => {

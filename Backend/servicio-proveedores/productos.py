@@ -14,10 +14,10 @@ def registrar_en_eureka(puerto):
     if not eureka_registered:
         ip = "127.0.0.1"  
 
-        import py_eureka_client.eureka_client as eureka_client
+
         eureka_client.init(
             eureka_server="http://localhost:8090/eureka",
-            app_name="SERVICIO-PROVEEDOR",
+            app_name="servicio-proveedor",
             instance_id=f"servicio-proveedor-{puerto}",
             health_check_url=f"http://{ip}:{puerto}/health",
             home_page_url=f"http://{ip}:{puerto}",
