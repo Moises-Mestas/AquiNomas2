@@ -137,6 +137,7 @@ export class ProductoPage {
     );
   }
 
+  // Filtros
   filtrarPorNombre() {
     if (!this.filtroNombre && !this.filtroTipo) {
       this.getProductos();
