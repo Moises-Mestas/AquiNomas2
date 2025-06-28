@@ -1,0 +1,124 @@
+<div class="card">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <span>Lista de Productos</span>
+    <button class="btn btn-success btn-sm" (click)="abrirModalProducto(false)">
+      Nuevo Producto
+    </button>
+  </div>
+  <div class="card-body">
+    <!-- Filtros -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Buscar por nombre" [(ngModel)]="filtroNombre"
+          (input)="filtrarPorNombre()" />
+      </div>
+      <div class="col-md-4">
+        <select class="form-control" [(ngModel)]="filtroTipo" (change)="filtrarPorTipo()">
+          <option value="">Todos los tipos</option>
+          <option value="bebida">Bebida</option>
+          <option value="comida">Comida</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar Filtros</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Tipo Insumo</th>
+            <th>Duración Insumo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let producto of productos">
+            <td>{{ producto.id }}</td>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.descripcion }}</td>
+            <td>{{ producto.precio }}</td>
+            <td>{{ producto.tipo_insumo }}</td>
+            <td>{{ producto.duracion_insumo }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm me-2" (click)="abrirModalProducto(true, producto)">
+                Editar
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="abrirModalEliminar(producto.id)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar/Editar Producto -->
+<div class="modal fade" id="modalProducto" tabindex="-1" aria-labelledby="modalProductoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" (ngSubmit)="saveProducto()">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalProductoLabel">
+          {{ editing ? 'Editar Producto' : 'Agregar Producto' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalProducto')" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label>Nombre</label>
+          <input type="text" class="form-control" [(ngModel)]="newProducto.nombre" name="nombre" required />
+        </div>
+        <div class="mb-2">
+          <label>Descripción</label>
+          <input type="text" class="form-control" [(ngModel)]="newProducto.descripcion" name="descripcion" required />
+        </div>
+        <div class="mb-2">
+          <label>Precio</label>
+          <input type="number" class="form-control" [(ngModel)]="newProducto.precio" name="precio" required />
+        </div>
+        <div class="mb-2">
+          <label>Tipo Insumo</label>
+          <select class="form-control" [(ngModel)]="newProducto.tipo_insumo" name="tipo_insumo" required>
+            <option value="" disabled>Selecciona un tipo</option>
+            <option value="bebida">Bebida</option>
+            <option value="comida">Comida</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label>Duración Insumo</label>
+          <input type="text" class="form-control" [(ngModel)]="newProducto.duracion_insumo" name="duracion_insumo"
+            required />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal('modalProducto')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">{{ editing ? 'Actualizar' : 'Agregar' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Eliminar Producto -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalEliminarLabel">¿Estás seguro?</h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalEliminar')" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Seguro que deseas eliminar este producto?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal('modalEliminar')">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminar()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>

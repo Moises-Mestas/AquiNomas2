@@ -306,4 +306,4 @@ def ruta_alerta_stock_minimo_cocina():
 
 
 if __name__ == "__main__":
-    app.run(port=PORT, debug=False)
+    app.run(host="0.0.0.0", port=PORT, debug=False)
