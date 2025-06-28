@@ -22,13 +22,28 @@ export class MenuPage {
   selectedFile: File | null = null;
   uploadStatus: { success: boolean, message: string } | null = null;
 
+  minPrice: number = 0; // Precio mínimo
+  maxPrice: number = 0; // Precio máximo
+
   constructor(private menuService: MenuService) {}
 
   ngOnInit() {
     this.getMenus();
     this.loadStoredImages();  // Cargar imágenes guardadas en localStorage
   }
-
+  filterByPriceRange() {
+    if (this.minPrice || this.maxPrice) {
+      this.menuService.filterMenusByPriceRange(this.minPrice, this.maxPrice).subscribe(
+        (response) => {
+          this.filteredMenus = response;
+        },
+        (err) => console.error('Error filtering menus by price range:', err)
+      );
+    } else {
+      // Si no se ha ingresado un rango, mostrar todos los menús
+      this.filteredMenus = this.menus;
+    }
+  }
   getMenus() {
     this.menuService.getMenus().subscribe(
       (response) => {

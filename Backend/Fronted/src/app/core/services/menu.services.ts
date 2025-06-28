@@ -23,5 +23,9 @@ export class MenuService {
     return this.http.delete(`${resources.menus}/${id}`);
   }
 
+  filterMenusByPriceRange(minPrice: number, maxPrice: number): Observable<any[]> {
+    return this.http.get<any[]>(`${resources.menus}/filterByPriceRange?minPrecio=${minPrice}&maxPrecio=${maxPrice}`);
+  }
+
 
 }

@@ -10,6 +10,25 @@
       [(ngModel)]="searchText"
       (ngModelChange)="searchMenu()"
     />
+
+
+    <!-- Campos de rango de precio -->
+    <div class="d-flex">
+      <input
+        type="number"
+        class="form-control me-2"
+        placeholder="Precio mínimo"
+        [(ngModel)]="minPrice"
+        (ngModelChange)="filterByPriceRange()"
+      />
+      <input
+        type="number"
+        class="form-control me-2"
+        placeholder="Precio máximo"
+        [(ngModel)]="maxPrice"
+        (ngModelChange)="filterByPriceRange()"
+      />
+    </div>
     <button
       class="btn btn-primary"
       (click)="openCreateMenuModal()"
