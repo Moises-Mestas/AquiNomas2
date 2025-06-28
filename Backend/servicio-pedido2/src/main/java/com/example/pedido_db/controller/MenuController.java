@@ -26,30 +26,36 @@ public class MenuController {
                                       @RequestParam("descripcion") String descripcion,
                                       @RequestParam("precio") BigDecimal precio,
                                       @RequestParam("tipo") String tipo,
-                                      @RequestParam("imagen") MultipartFile imagen) throws IOException {
+                                      @RequestParam(value = "imagen", required = false) MultipartFile imagen) throws IOException {
 
-        // Verificar si la imagen está vacía
-        if (imagen.isEmpty()) {
-            return ResponseEntity.badRequest().body(null);  // Error si no se sube imagen
+        // Validación de campos obligatorios
+        if (nombre.isEmpty() || descripcion.isEmpty() || precio == null || tipo.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);  // Error si algún campo obligatorio está vacío
         }
 
-        // Obtener el directorio completo y asegurarse de que exista
-        String directoryPath = "Backend/Fronted/public/"; // Ruta de la carpeta pública en Frontend
-        Path path = Paths.get(directoryPath + imagen.getOriginalFilename());
+        // Verificar si la imagen está vacía (si es opcional)
+        String imagenNombre = null;
+        if (imagen != null && !imagen.isEmpty()) {
+            // Guardar la imagen solo si fue enviada
+            String directoryPath = "Backend/Fronted/public/"; // Ruta de la carpeta pública en Frontend
+            Path path = Paths.get(directoryPath + imagen.getOriginalFilename());
 
-        // Crear el directorio si no existe
-        Files.createDirectories(path.getParent());  // Crear directorios si no existen
+            // Crear el directorio si no existe
+            Files.createDirectories(path.getParent());  // Crear directorios si no existen
 
-        // Guardar la imagen en el directorio
-        Files.write(path, imagen.getBytes());  // Guardar la imagen en el directorio
+            // Guardar la imagen en el directorio
+            Files.write(path, imagen.getBytes());  // Guardar la imagen en el directorio
 
-        // Crear el objeto Menu con el nombre del archivo (sin la ruta completa)
+            imagenNombre = imagen.getOriginalFilename();  // Solo guardamos el nombre del archivo
+        }
+
+        // Crear el objeto Menu con el nombre de la imagen (si se proporcionó)
         Menu menu = new Menu();
         menu.setNombre(nombre);
         menu.setDescripcion(descripcion);
         menu.setPrecio(precio);
         menu.setTipo(tipo);
-        menu.setImagen(imagen.getOriginalFilename());  // Guardar solo el nombre del archivo
+        menu.setImagen(imagenNombre);  // Si no se envió imagen, se quedará como null
 
         // Guardar el menú en la base de datos
         Menu savedMenu = menuService.guardar(menu);
@@ -97,15 +103,20 @@ public class MenuController {
 
         Menu menu = menuService.listarPorId(id).orElseThrow(() -> new RuntimeException("Menú no encontrado con id: " + id));
 
+        // Validación de campos obligatorios
+        if (nombre.isEmpty() || descripcion.isEmpty() || precio == null || tipo.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);  // Error si algún campo obligatorio está vacío
+        }
+
         // Verificar si se sube una nueva imagen
         if (imagen != null && !imagen.isEmpty()) {
             // Si hay una nueva imagen, guardarla
-            String directoryPath = "Fronted/public/";
+            String directoryPath = "Backend/Fronted/public/";  // Ruta de la carpeta pública
             Path path = Paths.get(directoryPath + imagen.getOriginalFilename());
             Files.createDirectories(path.getParent());  // Crear el directorio si no existe
             Files.write(path, imagen.getBytes());  // Guardar la imagen en la ruta
 
-            menu.setImagen("/public/" + imagen.getOriginalFilename());  // Actualizar la ruta de la imagen
+            menu.setImagen(imagen.getOriginalFilename());  // Actualizar la ruta de la imagen
         }
 
         // Actualizar los demás campos del menú
@@ -118,6 +129,7 @@ public class MenuController {
         Menu updatedMenu = menuService.actualizar(menu);
         return ResponseEntity.ok(updatedMenu);  // Devolver el menú actualizado
     }
+
 
 
     @DeleteMapping("/{id}")
