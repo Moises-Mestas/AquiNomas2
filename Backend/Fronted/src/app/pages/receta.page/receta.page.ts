@@ -27,8 +27,6 @@ export class RecetaPage {
     this.recetaService.getRecetas().subscribe(
       (response) => {
         this.recetas = response;
-        this.recetas.sort((a, b) => b.id - a.id);
-
         console.log(this.recetas); // Verifica los datos en la consola
       },
       (err) => console.error('Error al obtener las recetas:', err)

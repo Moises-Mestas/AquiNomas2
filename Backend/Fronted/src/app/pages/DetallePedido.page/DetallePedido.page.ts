@@ -27,8 +27,6 @@ export class DetallePedidoPage {
     this.detallePedidoService.getDetallePedidos().subscribe(
       (response) => {
         this.detallePedidos = response;
-        this.detallePedidos.sort((a, b) => b.id - a.id);
-
         console.log(this.detallePedidos); // Verifica los datos en la consola
       },
       (err) => console.error('Error al obtener los detalles de pedido:', err)
@@ -40,17 +38,14 @@ export class DetallePedidoPage {
 
     if (this.idAActualizar) {
       // Si existe un ID, significa que estamos editando
-      console.log("Actualizando detalle:", this.newDetallePedido);
       this.updateDetallePedido();
     } else {
       // Si no existe ID, estamos creando un nuevo detallePedido
-      console.log("Creando detalle:", this.newDetallePedido);
       this.createDetallePedido();
     }
   }
 
-
-  // Crear DetallePedido
+// Crear DetallePedido
   createDetallePedido() {
     console.log("Datos a crear:", this.newDetallePedido); // Verificar datos
 
@@ -63,7 +58,7 @@ export class DetallePedidoPage {
 
     // Estructura correcta para el backend
     const detallePedidoData = {
-      pedidoId: this.newDetallePedido.pedido_id, // Asegúrate de usar el campo pedidoId
+      pedidoId: this.newDetallePedido.pedido_id,
       items: [
         {
           menu: { id: this.newDetallePedido.menu_id },
@@ -86,7 +81,8 @@ export class DetallePedidoPage {
     );
   }
 
-  // Actualizar DetallePedido
+
+// Actualizar DetallePedido
   updateDetallePedido() {
     console.log("Datos a actualizar:", this.newDetallePedido);
 
@@ -113,6 +109,7 @@ export class DetallePedidoPage {
       }
     );
   }
+
 
   // Eliminar detalle de pedido
   deleteDetallePedido(id: number) {
@@ -144,6 +141,7 @@ export class DetallePedidoPage {
     console.log('Detalle a editar:', this.newDetallePedido);
     this.editing = true;
   }
+
 
 
   // Limpiar formulario

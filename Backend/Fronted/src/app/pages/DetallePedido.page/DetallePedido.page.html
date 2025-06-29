@@ -44,7 +44,7 @@
             <th>ID</th>
             <th>Cantidad</th>
             <th>Menu</th>
-            <th>Pedido ID</th> <!-- Nueva columna para mostrar pedido_id -->
+            <th>Pedido</th>
             <th>Acciones</th>
           </tr>
           </thead>
@@ -53,7 +53,7 @@
             <td>{{ detallePedido.id }}</td>
             <td>{{ detallePedido.cantidad }}</td>
             <td>{{ detallePedido.menu?.nombre }}</td>
-            <td>{{ detallePedido.pedido_id }}</td>
+            <td>{{ detallePedido.pedido?.id }}</td>
             <td>
               <button class="btn btn-warning btn-sm" (click)="editDetallePedido(detallePedido)">
                 <i class="bi bi-pencil"></i> Editar
