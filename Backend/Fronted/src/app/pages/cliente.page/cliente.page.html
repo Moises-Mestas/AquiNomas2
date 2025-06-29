@@ -22,15 +22,24 @@
         </div>
         <div class="col-md-4">
           <label class="form-label">Teléfono</label>
-          <input class="form-control" type="text" [(ngModel)]="newCliente.telefono" name="telefono" required>
+          <input class="form-control" type="text" [(ngModel)]="newCliente.telefono" name="telefono">
         </div>
         <div class="col-md-4">
           <label class="form-label">Email</label>
-          <input class="form-control" type="email" [(ngModel)]="newCliente.email" name="email" required>
+          <input class="form-control" type="email" [(ngModel)]="newCliente.email" name="email">
         </div>
         <div class="col-md-4">
           <label class="form-label">Dirección</label>
-          <input class="form-control" type="text" [(ngModel)]="newCliente.direccion" name="direccion" required>
+          <input class="form-control" type="text" [(ngModel)]="newCliente.direccion" name="direccion">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">RUC</label>
+          <input class="form-control" type="text" [(ngModel)]="newCliente.ruc" name="ruc">
+        </div>
+        <!-- Fecha de Registro (Solo visualización, ya que es manejado por el backend) -->
+        <div class="col-md-4">
+          <label class="form-label">Fecha de Registro</label>
+          <input class="form-control" type="text" [(ngModel)]="newCliente.fechaRegistro" name="fechaRegistro" disabled>
         </div>
         <div class="col-12 mt-3">
           <button type="submit" class="btn btn-success">
@@ -59,11 +68,13 @@
             <th>Teléfono</th>
             <th>Email</th>
             <th>Dirección</th>
+            <th>RUC</th>
+            <th>Fecha de Registro</th>
             <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let cliente of clientes">
+          <tr *ngFor="let cliente of displayedClientes">
             <td>{{ cliente.id }}</td>
             <td>{{ cliente.nombre }}</td>
             <td>{{ cliente.apellido }}</td>
@@ -71,6 +82,8 @@
             <td>{{ cliente.telefono }}</td>
             <td>{{ cliente.email }}</td>
             <td>{{ cliente.direccion }}</td>
+            <td>{{ cliente.ruc }}</td>
+            <td>{{ cliente.fechaRegistro | date }}</td>
             <td>
               <button class="btn btn-warning btn-sm" (click)="editCliente(cliente)">
                 <i class="bi bi-pencil"></i> Editar
@@ -85,4 +98,15 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Paginación -->
+<div class="pagination">
+  <button *ngIf="currentPage > 1" (click)="changePage(currentPage - 1)">
+    <i class="bi bi-arrow-left"></i> Anterior
+  </button>
+  <span>Página {{ currentPage }} de {{ totalPages }}</span>
+  <button *ngIf="currentPage < totalPages" (click)="changePage(currentPage + 1)">
+    Siguiente <i class="bi bi-arrow-right"></i>
+  </button>
 </div>

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+
 public class Cliente {
 
     @Id
@@ -13,18 +14,13 @@ public class Cliente {
 
     private String nombre;
     private String apellido;
-
-    @Column(unique = true)
     private String dni;
-
     private String telefono;
-
-    @Column(unique = true)
     private String email;
-
     private String direccion;
-
     private LocalDateTime fechaRegistro = LocalDateTime.now();
+    private String ruc;
+
 
     // Constructor vacío
     public Cliente() {
@@ -32,7 +28,7 @@ public class Cliente {
 
     // Constructor con todos los campos
     public Cliente(Integer id, String nombre, String apellido, String dni, String telefono,
-                   String email, String direccion, LocalDateTime fechaRegistro) {
+                   String email, String direccion, LocalDateTime fechaRegistro, String ruc) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -108,6 +104,13 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
+    public String getRuc() {
+        return ruc;
+    }
+
+    public void setRuc(String ruc) {
+        this.ruc = ruc;
+    }
     // toString
     @Override
     public String toString() {
@@ -119,7 +122,8 @@ public class Cliente {
                 ", telefono='" + telefono + '\'' +
                 ", email='" + email + '\'' +
                 ", direccion='" + direccion + '\'' +
-                ", fechaRegistro=" + fechaRegistro +
+                ", fechaRegistro=" + fechaRegistro + '\'' +
+                ", ruc='" + ruc +
                 '}';
     }
 }

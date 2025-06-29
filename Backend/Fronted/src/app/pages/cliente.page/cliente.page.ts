@@ -2,21 +2,26 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClienteService } from '../../core/services/cliente.services';
-import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-cliente',
   standalone: true,
   templateUrl: './cliente.page.html',
   imports: [CommonModule, FormsModule],
-
   styleUrls: ['./cliente.page.css']
 })
 export class ClientePage {
   clientes: any[] = []; // Lista de clientes
-  newCliente: any = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '' }; // Cliente nuevo
+  newCliente: any = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' }; // Cliente nuevo
   idAActualizar: number = 0; // ID del cliente a actualizar
   editing: boolean = false; // Control de edición
+
+  // Paginación
+  displayedClientes: any[] = []; // Clientes mostrados en la página actual
+  currentPage: number = 1;
+  clientesPerPage: number = 10; // Limitar a 10 clientes por página
+  totalPages: number = 1;
+
   constructor(private clienteService: ClienteService) {}
 
   ngOnInit() {
@@ -27,11 +32,33 @@ export class ClientePage {
   getClientes() {
     this.clienteService.getClientes().subscribe(
       (response) => {
-        this.clientes = response; // Guarda los clientes obtenidos
-        console.log(this.clientes); // Verifica los datos en la consola
+        // Ordenar los clientes por ID de más reciente a más antiguo (descendente)
+        this.clientes = response.sort((a: any, b: any) => b.id - a.id);
+
+        // Calcular el número total de páginas
+        this.totalPages = Math.ceil(this.clientes.length / this.clientesPerPage);
+
+        // Cargar los clientes de la página actual
+        this.loadPage(this.currentPage);
       },
       (err) => console.error('Error al obtener clientes:', err)
     );
+  }
+
+  // Cambiar la página actual
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) {
+      return; // No cambiar si la página es inválida
+    }
+    this.currentPage = page;
+    this.loadPage(page);
+  }
+
+  // Cargar los clientes de la página seleccionada
+  loadPage(page: number) {
+    const startIndex = (page - 1) * this.clientesPerPage;
+    const endIndex = page * this.clientesPerPage;
+    this.displayedClientes = this.clientes.slice(startIndex, endIndex); // Mostrar solo los clientes de la página actual
   }
 
   // Guardar cliente: Detecta si es nuevo o si es una actualización
@@ -48,14 +75,13 @@ export class ClientePage {
   }
 
   // Crear un nuevo cliente
-  // Crear un nuevo cliente
   createCliente() {
     console.log("Datos a crear:", this.newCliente); // Verificar datos
 
-    // Verificar que todos los campos estén presentes
-    if (!this.newCliente.nombre || !this.newCliente.apellido || !this.newCliente.dni) {
+    // Verificar que los campos obligatorios estén presentes
+    if (!this.newCliente.nombre || !this.newCliente.apellido) {
       console.error('Datos faltantes:', this.newCliente);
-      alert('Faltan campos requeridos.');
+      alert('El nombre y apellido son campos obligatorios.');
       return;
     }
 
@@ -74,7 +100,7 @@ export class ClientePage {
     );
   }
 
-// Actualizar un cliente
+  // Actualizar un cliente
   updateCliente() {
     console.log("Datos a actualizar:", this.newCliente);  // Verificar datos de nuevo cliente
     console.log("ID a actualizar:", this.idAActualizar);  // Verificar el ID
@@ -85,10 +111,10 @@ export class ClientePage {
       return;
     }
 
-    // Verificar que los campos requeridos estén presentes
-    if (!this.newCliente.nombre || !this.newCliente.apellido || !this.newCliente.dni) {
+    // Verificar que los campos obligatorios estén presentes
+    if (!this.newCliente.nombre || !this.newCliente.apellido) {
       console.error('Datos faltantes:', this.newCliente);
-      alert('Faltan campos requeridos.');
+      alert('El nombre y apellido son campos obligatorios.');
       return;
     }
 
@@ -109,8 +135,6 @@ export class ClientePage {
       }
     );
   }
-
-
 
   // Eliminar un cliente
   deleteCliente(id: number) {
@@ -144,17 +168,18 @@ export class ClientePage {
       dni: cliente.dni,
       telefono: cliente.telefono,
       email: cliente.email,
-      direccion: cliente.direccion
+      direccion: cliente.direccion,
+      ruc: cliente.ruc,
+      fechaRegistro: cliente.fechaRegistro
     };
 
     console.log('Cliente a editar:', this.newCliente);
     this.editing = true;
   }
 
-
   // Limpiar el formulario después de una operación
   clearForm() {
-    this.newCliente = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '' };
+    this.newCliente = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' };
     this.idAActualizar = 0; // Reiniciamos el ID
     this.editing = false; // Desactivamos el modo de edición
   }

@@ -5,8 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from './core/services/api.services';
 import { MenuService } from './core/services/menu.services';
 import { RecetaService } from './core/services/receta.services';
-import { MenuPage } from './pages/menu.page/menu.page';  // Solo importar cuando se use MenuPage
-import { RecetaPage } from './pages/receta.page/receta.page';
+import { ClienteService } from './core/services/cliente.services';
 import {PedidoServices} from './core/services/pedido.services';
 import {DetallePedidoService} from './core/services/detallePedido.services';
 
@@ -19,6 +18,13 @@ import {DetallePedidoService} from './core/services/detallePedido.services';
 })
 export class App {
   protected title = 'Fronted';
+
+// Declaración de las variables para Clientes
+  idAEliminarCliente: number = 0;
+  idAActualizarCliente: number = 0;
+  newCliente: any = { nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' };  // Datos de cliente
+  clientes: any[] = [];  // Lista de clientes
+  editing: boolean = false; // Control de edición
 
   // Declaración de las variables para menús
   idAEliminar: number = 0;
@@ -50,9 +56,10 @@ export class App {
     private menuService: MenuService,
     private recetaService: RecetaService,
     private pedidoService: PedidoServices,
-    private detallePedidoService: DetallePedidoService // Servicio de detallePedido
+    private detallePedidoService: DetallePedidoService, // Servicio de detallePedido
+    private clienteService: ClienteService
 
-) {}
+  ) {}
 
   // Cargar los menús y las recetas
   ngOnInit() {
@@ -60,8 +67,59 @@ export class App {
     this.getRecetas(); // Cargar recetas
     this.getPedidos(); // Cargar pedidos
     this.getDetallePedidos(); // Cargar detallePedidos
+    this.getClientes();  // Llamamos al método para obtener los clientes
+
+  }
+  clearForm() {
+    this.newCliente = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' };
+    this.idAActualizar = 0; // Reiniciamos el ID
+    this.editing = false; // Desactivamos el modo de edición
+  }
+  getClientes() {
+    this.clienteService.getClientes().subscribe(
+      (response) => {
+        this.clientes = response;  // Guardamos los clientes obtenidos
+        console.log(this.clientes); // Verificamos los datos en consola
+      },
+      (err) => console.error('Error al obtener los clientes:', err)
+    );
   }
 
+  createCliente() {
+    this.clienteService.createCliente(this.newCliente).subscribe(
+      (res) => {
+        console.log('Cliente creado:', res);
+        this.getClientes(); // Refresca la lista de clientes
+        this.newCliente = { nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' };  // Limpia el formulario
+      },
+      (err) => console.error('Error al crear el cliente:', err)
+    );
+  }
+
+// Actualizar un cliente
+  updateCliente() {
+    this.clienteService.updateCliente(this.idAActualizarCliente, this.newCliente).subscribe(
+      (res) => {
+        console.log('Cliente actualizado:', res);
+        this.getClientes(); // Refresca la lista de clientes
+        this.clearForm(); // Limpiar el formulario
+      },
+      (err) => console.error('Error al actualizar el cliente:', err)
+    );
+  }
+
+// Eliminar un cliente
+  deleteCliente(id: number) {
+    if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+      this.clienteService.deleteCliente(id).subscribe(
+        (res) => {
+          console.log('Cliente eliminado:', res);
+          this.getClientes(); // Refresca la lista de clientes
+        },
+        (err) => console.error('Error al eliminar cliente:', err)
+      );
+    }
+  }
   // Método para obtener todos los menús
   getMenus() {
     this.menuService.getMenus().subscribe(
