@@ -10,8 +10,7 @@ import java.util.List;
 
 @FeignClient(name = "servicio-inventario", fallback = InventarioClientFallback.class)
 public interface InventarioClient {
-
-    @GetMapping("/bodegas")
+    @GetMapping("/bodega")
     List<BodegaDto> obtenerTodasLasBodegas();
 
     @GetMapping("/inventarios-cocina")
@@ -20,3 +19,4 @@ public interface InventarioClient {
     @GetMapping("/inventarios-barra")
     List<InventarioBarraDto> obtenerInventariosBarra();
 }
+

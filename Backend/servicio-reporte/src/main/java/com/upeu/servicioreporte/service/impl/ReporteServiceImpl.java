@@ -129,7 +129,7 @@ public class ReporteServiceImpl implements ReporteService {
 
         return resultado;
     }
-    
+
 
     @Override
     public Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos() {
@@ -138,6 +138,12 @@ public class ReporteServiceImpl implements ReporteService {
         // Agrupar por menuId y contar cuántas veces aparece cada uno
         Map<Integer, Long> pedidosPorMenu = detallePedidos.stream()
                 .collect(Collectors.groupingBy(DetallePedidoDto::getMenuId, Collectors.counting()));
+
+        // Map de menuId → MenuDto (para recuperar nombres)
+        Map<Integer, MenuDto> menus = detallePedidos.stream()
+                .map(DetallePedidoDto::getMenu)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(MenuDto::getId, m -> m, (m1, m2) -> m1));
 
         // Ordenar por cantidad ascendente
         List<Map.Entry<Integer, Long>> ordenados = pedidosPorMenu.entrySet().stream()
@@ -150,7 +156,8 @@ public class ReporteServiceImpl implements ReporteService {
                 .limit(5)
                 .map(e -> {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("menuId", e.getKey());  // ID del producto (menu)
+                    map.put("menuId", e.getKey());
+                    map.put("nombre", menus.containsKey(e.getKey()) ? menus.get(e.getKey()).getNombre() : "N/A");
                     map.put("cantidad", e.getValue());
                     return map;
                 })
@@ -162,6 +169,7 @@ public class ReporteServiceImpl implements ReporteService {
                 .map(e -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("menuId", e.getKey());
+                    map.put("nombre", menus.containsKey(e.getKey()) ? menus.get(e.getKey()).getNombre() : "N/A");
                     map.put("cantidad", e.getValue());
                     return map;
                 })
@@ -176,20 +184,42 @@ public class ReporteServiceImpl implements ReporteService {
     }
 
 
+    private MenuDto obtenerMenuPorId(Integer menuId) {
+        List<DetallePedidoDto> detalles = pedidoDetalleClient.obtenerTodosDetallePedidos();
+        return detalles.stream()
+                .map(DetallePedidoDto::getMenu)
+                .filter(m -> m != null && Objects.equals(m.getId(), menuId))
+                .findFirst()
+                .orElse(null);
+    }
+
 
     @Override
     public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {
         List<BodegaDto> bodegas = inventarioClient.obtenerTodasLasBodegas();
-        Double cantidadTotal = bodegas.stream()
-                .filter(b -> b.getProductoId().equals(insumoId.toString()))
+
+        // Filtrar solo los que coinciden con el producto_id
+        List<BodegaDto> filtrados = bodegas.stream()
+                .filter(b -> b.getProductoId() != null && b.getProductoId().equals(String.valueOf(insumoId)))
+                .toList();
+
+        // Calcular cantidad total
+        double cantidadTotal = filtrados.stream()
                 .mapToDouble(b -> b.getCantidad().doubleValue())
                 .sum();
 
+        // Obtener el nombre del producto si hay alguno
+        String nombreProducto = filtrados.isEmpty() ? "No encontrado" : filtrados.get(0).getNombreProducto();
+
         return Map.of(
                 "insumoId", insumoId,
+                "nombreProducto", nombreProducto,
                 "cantidadTotal", cantidadTotal
         );
     }
+
+
+
 
     @Override
     public Map<String, Long> obtenerComprobantesMasUsados() {

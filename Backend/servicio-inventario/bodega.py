@@ -148,14 +148,15 @@ def obtener_producto_por_id_desde_servicio(producto_id):
 
 def obtener_todos_bodega():
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
-                FROM bodega
-            """)
-            registros = cursor.fetchall()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, compra_proveedor_id, producto_id, cantidad, unidad_medida, tipo_insumo, duracion_insumo, fecha_entrada, fecha_movimiento
+            FROM bodega
+        """)
+        registros = cursor.fetchall()
 
         for registro in registros:
             producto = obtener_producto_por_id_desde_servicio(registro["producto_id"])
@@ -175,6 +176,8 @@ def obtener_todos_bodega():
         print(f"Error al obtener los datos de bodega: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
 

@@ -1,9 +1,6 @@
-
 import mysql.connector
 import requests
 import py_eureka_client.eureka_client as eureka_client
-import requests
-import xml.etree.ElementTree as ET
 from mysql.connector import Error
 
 eureka_registered = False
@@ -14,7 +11,6 @@ def registrar_en_eureka(puerto):
     if not eureka_registered:
         ip = "127.0.0.1"  
 
-        import py_eureka_client.eureka_client as eureka_client
         eureka_client.init(
             eureka_server="http://localhost:8090/eureka",
             app_name="SERVICIO-PROVEEDOR",
@@ -26,6 +22,7 @@ def registrar_en_eureka(puerto):
         )
         eureka_registered = True
         print(f"Instancia registrada en Eureka correctamente: http://{ip}:{puerto}")
+
 
 def cargar_configuracion(app_name, profile="default", config_server_url="http://localhost:7070"):
     url = f"{config_server_url}/{app_name}/{profile}"
@@ -44,6 +41,7 @@ def cargar_configuracion(app_name, profile="default", config_server_url="http://
     else:
         print("Error al obtener la configuración del servidor:", response.status_code)
         return {}
+
 def obtener_conexion():
     """Obtiene una conexión a la base de datos."""
     config = cargar_configuracion("servicio-proveedor")
@@ -70,8 +68,6 @@ def obtener_conexion():
         database=database
     )
 
-
-
 def crear_producto(nombre, descripcion, precio, tipo_insumo, duracion_insumo):
     """Crea un nuevo producto en la base de datos."""
     if not nombre or not isinstance(precio, (int, float)) or precio < 0:
@@ -81,35 +77,41 @@ def crear_producto(nombre, descripcion, precio, tipo_insumo, duracion_insumo):
         raise ValueError("Los campos tipo_insumo y duracion_insumo son obligatorios.")
     
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO producto (nombre, descripcion, precio, tipo_insumo, duracion_insumo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (nombre, descripcion, precio, tipo_insumo, duracion_insumo))
-            conexion.commit()
-            print("Producto creado exitosamente.")
+        cursor = conexion.cursor()
+        cursor.execute("""
+            INSERT INTO producto (nombre, descripcion, precio, tipo_insumo, duracion_insumo)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (nombre, descripcion, precio, tipo_insumo, duracion_insumo))
+        conexion.commit()
+        print("Producto creado exitosamente.")
     except Error as e:
         print(f"Error al crear el producto: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
 
 def obtener_productos():
     """Obtiene todos los productos de la base de datos."""
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("SELECT * FROM producto")
-            productos = cursor.fetchall()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM producto")
+        productos = cursor.fetchall()
         return productos
     except Error as e:
         print(f"Error al obtener los productos: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
 
@@ -119,19 +121,22 @@ def obtener_producto_por_id(producto_id):
         raise ValueError("ID de producto inválido.")
     
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
-                FROM producto WHERE id = %s
-            """, (producto_id,))
-            producto = cursor.fetchone()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+            FROM producto WHERE id = %s
+        """, (producto_id,))
+        producto = cursor.fetchone()
         return producto
     except Error as e:
         print(f"Error al obtener el producto: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
 
@@ -144,40 +149,43 @@ def editar_producto(producto_id, nombre=None, descripcion=None, precio=None, tip
         raise ValueError("Debe proporcionar al menos un campo para actualizar.")
     
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor() as cursor:
-            campos = []
-            valores = []
-            
-            if nombre is not None:
-                campos.append("nombre = %s")
-                valores.append(nombre)
-            if descripcion is not None:
-                campos.append("descripcion = %s")
-                valores.append(descripcion)
-            if precio is not None:
-                if not isinstance(precio, (int, float)) or precio < 0:
-                    raise ValueError("El precio debe ser un número positivo.")
-                campos.append("precio = %s")
-                valores.append(precio)
-            if tipo_insumo is not None:
-                campos.append("tipo_insumo = %s")
-                valores.append(tipo_insumo)
-            if duracion_insumo is not None:
-                campos.append("duracion_insumo = %s")
-                valores.append(duracion_insumo)
-            
-            valores.append(producto_id)
-            consulta = f"UPDATE producto SET {', '.join(campos)} WHERE id = %s"
-            
-            cursor.execute(consulta, tuple(valores))
-            conexion.commit()
-            print("Producto actualizado exitosamente.")
+        cursor = conexion.cursor()
+        campos = []
+        valores = []
+        
+        if nombre is not None:
+            campos.append("nombre = %s")
+            valores.append(nombre)
+        if descripcion is not None:
+            campos.append("descripcion = %s")
+            valores.append(descripcion)
+        if precio is not None:
+            if not isinstance(precio, (int, float)) or precio < 0:
+                raise ValueError("El precio debe ser un número positivo.")
+            campos.append("precio = %s")
+            valores.append(precio)
+        if tipo_insumo is not None:
+            campos.append("tipo_insumo = %s")
+            valores.append(tipo_insumo)
+        if duracion_insumo is not None:
+            campos.append("duracion_insumo = %s")
+            valores.append(duracion_insumo)
+        
+        valores.append(producto_id)
+        consulta = f"UPDATE producto SET {', '.join(campos)} WHERE id = %s"
+        
+        cursor.execute(consulta, tuple(valores))
+        conexion.commit()
+        print("Producto actualizado exitosamente.")
     except Error as e:
         print(f"Error al editar el producto: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
 
@@ -187,20 +195,21 @@ def eliminar_producto_por_id(producto_id):
         raise ValueError("ID de producto inválido.")
     
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor() as cursor:
-            cursor.execute("DELETE FROM producto WHERE id = %s", (producto_id,))
-            conexion.commit()
-            print("Producto eliminado exitosamente.")
+        cursor = conexion.cursor()
+        cursor.execute("DELETE FROM producto WHERE id = %s", (producto_id,))
+        conexion.commit()
+        print("Producto eliminado exitosamente.")
     except Error as e:
         print(f"Error al eliminar el producto: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
-
-
 
 def obtener_producto_por_nombre(nombre_producto):
     """Obtiene un producto por su nombre."""
@@ -208,22 +217,24 @@ def obtener_producto_por_nombre(nombre_producto):
         raise ValueError("El nombre del producto es inválido.")
     
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
-                FROM producto WHERE LOWER(nombre) = LOWER(%s)
-            """, (nombre_producto,))
-            producto = cursor.fetchall()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+            FROM producto WHERE LOWER(nombre) = LOWER(%s)
+        """, (nombre_producto,))
+        producto = cursor.fetchall()
         return producto
     except Error as e:
         print(f"Error al obtener el producto por nombre: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
-
 
 def obtener_productos_por_tipo_insumo(tipo_insumo):
     """Obtiene productos por su tipo de insumo."""
@@ -231,24 +242,25 @@ def obtener_productos_por_tipo_insumo(tipo_insumo):
         raise ValueError("El tipo de insumo es inválido.")
     
     conexion = None
+    cursor = None
     try:
         print(f"Buscando productos con tipo_insumo: {tipo_insumo}")
         conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
-                FROM producto WHERE LOWER(tipo_insumo) = LOWER(%s)
-            """, (tipo_insumo,))
-            productos = cursor.fetchall()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+            FROM producto WHERE LOWER(tipo_insumo) = LOWER(%s)
+        """, (tipo_insumo,))
+        productos = cursor.fetchall()
         return productos
     except Error as e:
         print(f"Error al obtener los productos por tipo de insumo: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
-
-
 
 def obtener_productos_por_rango_precio(precio_min, precio_max):
     """Obtiene productos dentro de un rango de precios."""
@@ -258,18 +270,21 @@ def obtener_productos_por_rango_precio(precio_min, precio_max):
         raise ValueError("El rango de precios es inválido.")
     
     conexion = None
+    cursor = None
     try:
         conexion = obtener_conexion()
-        with conexion.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
-                FROM producto WHERE precio BETWEEN %s AND %s
-            """, (precio_min, precio_max))
-            productos = cursor.fetchall()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, nombre, descripcion, precio, tipo_insumo, duracion_insumo 
+            FROM producto WHERE precio BETWEEN %s AND %s
+        """, (precio_min, precio_max))
+        productos = cursor.fetchall()
         return productos
     except Error as e:
         print(f"Error al obtener los productos por rango de precio: {e}")
         raise
     finally:
+        if cursor:
+            cursor.close()
         if conexion:
             conexion.close()
