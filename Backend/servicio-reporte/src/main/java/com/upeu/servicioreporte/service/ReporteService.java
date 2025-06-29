@@ -17,7 +17,7 @@ public interface ReporteService {
 
     void deleteById(Integer id);
 
-    List<Map<String, Object>> obtenerClientesMasFrecuentes();
+    List<Map<String, Object>> obtenerProductosMasRentables();
 
     Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin);
 

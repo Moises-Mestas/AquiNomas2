@@ -12,16 +12,16 @@ public class PedidoDetalleClientFallback implements PedidoDetalleClient {
 
     @Override
     public List<DetallePedidoDto> obtenerTodosDetallePedidos() {
-        return Collections.emptyList(); // nunca null
+        return Collections.emptyList();
     }
 
     @Override
     public PedidoDto obtenerPedidoPorId(Integer id) {
-        return null; // retorno seguro
+        return null;
     }
 
     @Override
-    public List<PedidoDto> obtenerTodosPedidos() {
-        return Collections.emptyList(); // fallback agregado ✅
+    public List<PedidoDto> obtenerTodosPedidos() { // ← tipo actualizado
+        return Collections.emptyList();
     }
 }

@@ -24,9 +24,9 @@ public class ReporteController {
         this.reporteService = reporteService;
     }
 
-    @GetMapping("/clientes-mas-frecuentes")
-    public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
-        return reporteService.obtenerClientesMasFrecuentes();
+    @GetMapping("/productos-mas-rentables")
+    public ResponseEntity<List<Map<String, Object>>> obtenerProductosMasRentables() {
+        return ResponseEntity.ok(reporteService.obtenerProductosMasRentables());
     }
 
     @GetMapping("/ventas-por-periodo")

@@ -57,45 +57,38 @@ public class ReporteServiceImpl implements ReporteService {
     }
 
     @Override
-    public List<Map<String, Object>> obtenerClientesMasFrecuentes() {
-        List<PedidoDto> pedidos = Optional.ofNullable(pedidoDetalleClient.obtenerTodosPedidos())
+    public List<Map<String, Object>> obtenerProductosMasRentables() {
+        List<DetallePedidoDto> detalles = Optional.ofNullable(pedidoDetalleClient.obtenerTodosDetallePedidos())
                 .orElse(Collections.emptyList());
 
-        // Filtrar solo pedidos con cliente válido
-        pedidos = pedidos.stream()
-                .filter(p -> p.getClienteId() != null && p.getCliente() != null)
-                .toList();
+        // Map<MenuId, TotalIngresos>
+        Map<Integer, BigDecimal> ingresosPorProducto = new HashMap<>();
+        Map<Integer, MenuDto> menus = new HashMap<>();
 
-        // Agrupar por clienteId
-        Map<Integer, Long> conteoPorCliente = pedidos.stream()
-                .collect(Collectors.groupingBy(PedidoDto::getClienteId, Collectors.counting()));
+        for (DetallePedidoDto detalle : detalles) {
+            MenuDto menu = detalle.getMenu();
+            if (menu != null && menu.getId() != null && menu.getPrecio() != null && detalle.getCantidad() != null) {
+                Integer menuId = menu.getId();
+                BigDecimal subtotal = menu.getPrecio().multiply(BigDecimal.valueOf(detalle.getCantidad()));
 
-        // Obtener mapa de clientes
-        Map<Integer, ClienteDto> clientesMap = pedidos.stream()
-                .map(PedidoDto::getCliente)
-                .collect(Collectors.toMap(
-                        ClienteDto::getId,
-                        c -> c,
-                        (c1, c2) -> c1
-                ));
+                ingresosPorProducto.merge(menuId, subtotal, BigDecimal::add);
+                menus.putIfAbsent(menuId, menu); // Guardar solo una vez
+            }
+        }
 
-        // Armar el resultado
-        return conteoPorCliente.entrySet().stream()
-                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+        return ingresosPorProducto.entrySet().stream()
+                .sorted(Map.Entry.<Integer, BigDecimal>comparingByValue().reversed())
                 .map(entry -> {
                     Map<String, Object> datos = new HashMap<>();
-                    ClienteDto cliente = clientesMap.get(entry.getKey());
-                    datos.put("clienteId", entry.getKey());
-                    datos.put("nombre", cliente != null ? cliente.getNombre() : "Desconocido");
-                    datos.put("apellido", cliente != null ? cliente.getApellido() : "");
-                    datos.put("cantidadPedidos", entry.getValue());
+                    MenuDto menu = menus.get(entry.getKey());
+                    datos.put("menuId", menu.getId());
+                    datos.put("nombre", menu.getNombre());
+                    datos.put("precioUnitario", menu.getPrecio());
+                    datos.put("totalGenerado", entry.getValue());
                     return datos;
                 })
                 .collect(Collectors.toList());
     }
-
-
-
 
     @Override
     public Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin) {
