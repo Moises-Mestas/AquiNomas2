@@ -1,6 +1,7 @@
 package com.example.pedido_db.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,7 +28,10 @@ public class DetallePedido {
     @Column(name = "cantidad")
     private int cantidad;
 
-
+    @JsonProperty("pedido_id")
+    public Integer getPedidoId() {
+        return (pedido != null) ? pedido.getId() : null; // Retorna el pedido_id si el pedido no es nulo
+    }
 
     public DetallePedido() {
 

@@ -34,32 +34,35 @@ public class DetallePedidoServiceImpl implements DetallePedidoService {
     private InventarioCocinaFeign inventarioCocinaFeign;
 
 
+    // Método para listar todos los detalles de pedido
     public List<DetallePedido> listar() {
-        // Traemos todos los pedidos desde la base de datos
+        // Traemos todos los detalles desde la base de datos
         List<DetallePedido> detallePedidos = detallePedidoRepository.findAll();
 
         // Cargar los detalles para cada pedido
         for (DetallePedido detallePedido : detallePedidos) {
             // No es necesario buscar por ID de detallePedido, ya está cargado en el objeto Pedido
-            Pedido Pedido = detallePedido.getPedido();
+            Pedido pedido = detallePedido.getPedido();
 
             // Verificamos si el detallePedido tiene clienteId y lo asignamos
-            if (Pedido.getClienteId() != null) {
+            if (pedido.getClienteId() != null) {
                 try {
-                    Cliente cliente = clienteFeign.listById(Pedido.getClienteId()).getBody();
+                    Cliente cliente = clienteFeign.listById(pedido.getClienteId()).getBody();
                     if (cliente != null) {
-                        Pedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
+                        pedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
                     } else {
-                        throw new RuntimeException("Cliente no encontrado con ID: " + Pedido.getClienteId());
+                        throw new RuntimeException("Cliente no encontrado con ID: " + pedido.getClienteId());
                     }
                 } catch (Exception e) {
-                    // Manejo de excepciones de llamada al clienteFeign
-                    throw new RuntimeException("Error al cargar cliente con ID: " + Pedido.getClienteId(), e);
+                    throw new RuntimeException("Error al cargar cliente con ID: " + pedido.getClienteId(), e);
                 }
             }
 
             // Asignamos el detallePedido al pedido
-            detallePedido.setPedido(Pedido);
+            detallePedido.setPedido(pedido);
+
+            // Aseguramos de que el id del pedido esté disponible
+            detallePedido.getPedido().setId(pedido.getId());
         }
 
         return detallePedidos; // Devolvemos la lista de pedidos con sus detalles y clientes cargados
@@ -71,34 +74,35 @@ public class DetallePedidoServiceImpl implements DetallePedidoService {
         // Obtener el detalle de pedido por ID desde el repositorio
         Optional<DetallePedido> detallePedidoOptional = detallePedidoRepository.findById(id);
 
-        // Verificamos si el detallePedido existe
         if (detallePedidoOptional.isPresent()) {
             DetallePedido detallePedido = detallePedidoOptional.get();
 
             // Cargar los detalles del pedido
-            Pedido Pedido = detallePedido.getPedido();
+            Pedido pedido = detallePedido.getPedido();
 
             // Verificamos si el detallePedido tiene clienteId y lo asignamos
-            if (Pedido.getClienteId() != null) {
+            if (pedido.getClienteId() != null) {
                 try {
-                    Cliente cliente = clienteFeign.listById(Pedido.getClienteId()).getBody();
+                    Cliente cliente = clienteFeign.listById(pedido.getClienteId()).getBody();
                     if (cliente != null) {
-                        Pedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
+                        pedido.setCliente(cliente); // Asignamos el cliente al detalle del pedido
                     } else {
-                        throw new RuntimeException("Cliente no encontrado con ID: " + Pedido.getClienteId());
+                        throw new RuntimeException("Cliente no encontrado con ID: " + pedido.getClienteId());
                     }
                 } catch (Exception e) {
                     // Manejo de excepciones de llamada al clienteFeign
-                    throw new RuntimeException("Error al cargar cliente con ID: " + Pedido.getClienteId(), e);
+                    throw new RuntimeException("Error al cargar cliente con ID: " + pedido.getClienteId(), e);
                 }
             }
 
+            // Aseguramos de que el id del pedido esté disponible
+            detallePedido.getPedido().setId(pedido.getId());
+
             // Asignamos el detallePedido al pedido
-            detallePedido.setPedido(Pedido);
+            detallePedido.setPedido(pedido);
         }
 
-        // Devolver el detalle de pedido si existe, o un Optional vacío si no se encontró
-        return detallePedidoOptional;
+        return detallePedidoOptional; // Devolvemos el detalle de pedido si existe, o un Optional vacío si no se encontró
     }
 
 

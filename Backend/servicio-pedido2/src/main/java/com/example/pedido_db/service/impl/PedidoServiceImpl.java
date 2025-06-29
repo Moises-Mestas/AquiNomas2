@@ -57,7 +57,7 @@ public class PedidoServiceImpl implements PedidoService {
             if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
                 // Aquí deberías cargar los detalles de Pedido si no están cargados
                 // Puedes hacerlo de forma explícita si usas un repositorio para `DetallePedido`
-                List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedido.getId());
+                List<DetallePedido> detalles = detallePedidoRepository.findByPedido_Id(pedido.getId());
                 pedido.setDetalles(detalles);  // Asignamos los detalles al pedido
             }
         }
@@ -96,7 +96,7 @@ public class PedidoServiceImpl implements PedidoService {
             if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
                 // Aquí deberías cargar los detalles de Pedido si no están cargados
                 // Puedes hacerlo de forma explícita si usas un repositorio para `DetallePedido`
-                List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedido.getId());
+                List<DetallePedido> detalles = detallePedidoRepository.findByPedido_Id(pedido.getId());
                 pedido.setDetalles(detalles);  // Asignamos los detalles al pedido
             }
         }
@@ -138,7 +138,7 @@ public class PedidoServiceImpl implements PedidoService {
             if (pedidoFound.getDetalles() == null || pedidoFound.getDetalles().isEmpty()) {
                 // Aquí deberías cargar los detalles de Pedido si no están cargados
                 // Puedes hacerlo de forma explícita si usas un repositorio para `DetallePedido`
-                List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedidoFound.getId());
+                List<DetallePedido> detalles = detallePedidoRepository.findByPedido_Id(pedidoFound.getId());
                 pedidoFound.setDetalles(detalles);  // Asignamos los detalles al pedido
             }
 

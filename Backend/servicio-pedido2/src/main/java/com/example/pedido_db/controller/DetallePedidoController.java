@@ -28,24 +28,32 @@ public class DetallePedidoController {
         this.pedidoRepository = pedidoRepository;
     }
 
-    // Listar todos los detalles de pedido
     @GetMapping
     public ResponseEntity<List<DetallePedido>> list() {
         List<DetallePedido> detalles = detallePedidoService.listar();
+
         if (detalles.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(detalles);
+        return ResponseEntity.ok(detalles);  // La serialización de "pedido_id" la maneja la entidad
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DetallePedido> listById(@PathVariable Integer id) {
+        Optional<DetallePedido> detallePedido = detallePedidoService.listarPorId(id);
+
+        if (detallePedido.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(detallePedido.get());  // La serialización de "pedido_id" la maneja la entidad
     }
 
 
 
 
 
-    public static class DetallePedidoLoteRequest {
-        public Integer pedidoId;
-        public List<DetallePedido> items;
-    }
 
     // Guardar un nuevo detalle de pedido
     @PostMapping
@@ -75,9 +83,6 @@ public class DetallePedidoController {
         }
     }
 
-
-
-
     // Actualizar un detalle de pedido existente
     @PutMapping("/{id}")
     public ResponseEntity<DetallePedido> update(@PathVariable Integer id, @RequestBody DetallePedido detallePedido) {
@@ -86,19 +91,15 @@ public class DetallePedidoController {
         return ResponseEntity.ok(detalleActualizado);
     }
 
-    // Obtener detalle de pedido por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<DetallePedido> listById(@PathVariable Integer id) {
-        Optional<DetallePedido> detallePedido = detallePedidoService.listarPorId(id);
-        if (detallePedido.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(detallePedido.get());
-    }
-
     // Eliminar un detalle de pedido por ID
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         detallePedidoService.eliminar(id);
+    }
+
+    // Esta clase es para la petición de un lote de detalle de pedido
+    public static class DetallePedidoLoteRequest {
+        public Integer pedidoId;
+        public List<DetallePedido> items;
     }
 }
