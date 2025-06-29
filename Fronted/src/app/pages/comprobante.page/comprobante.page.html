@@ -1,0 +1,92 @@
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Gestión de Comprobantes</h1>
+
+  <!-- Navegación -->
+  <div class="mb-3 d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-primary" (click)="vista = 'listar'">📋 Listar</button>
+    <button class="btn btn-outline-success" (click)="vista = 'crear'">➕ Generar Comprobante</button>
+  </div>
+
+  <!-- Filtros -->
+  <div *ngIf="vista === 'listar'" class="card mb-3">
+    <div class="card-header">Filtros</div>
+    <div class="card-body row g-2">
+      <div class="col-md-4">
+        <select class="form-select" [(ngModel)]="filtroTipo">
+          <option value="">Todos</option>
+          <option value="BOLETA">Boleta</option>
+          <option value="FACTURA">Factura</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input class="form-control" type="datetime-local" [(ngModel)]="filtroFechaInicio" />
+      </div>
+      <div class="col-md-3">
+        <input class="form-control" type="datetime-local" [(ngModel)]="filtroFechaFin" />
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-dark w-100" (click)="filtrar()">🔍 Filtrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Comprobantes -->
+  <div *ngIf="vista === 'listar'" class="card">
+    <div class="card-header bg-dark text-white">Comprobantes Emitidos</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0 align-middle">
+          <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Tipo</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let c of comprobantes">
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombreCliente }}</td>
+            <td>{{ c.tipo }}</td>
+            <td>{{ c.total | currency: 'PEN' }}</td>
+            <td>{{ c.fechaEmision | date:'short' }}</td>
+            <td>
+              <div class="d-flex">
+                <button class="btn btn-info btn-sm me-1" (click)="descargarPDF(c.id)">📥</button>
+                <button class="btn btn-danger btn-sm" (click)="eliminarComprobante(c.id)">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario Crear Comprobante -->
+  <div *ngIf="vista === 'crear'" class="card mt-4">
+    <div class="card-header">Generar Comprobante</div>
+    <div class="card-body">
+      <form (ngSubmit)="generar()" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">ID de Venta</label>
+          <input class="form-control" type="number" [(ngModel)]="comprobanteForm.ventaId" name="ventaId" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Tipo de Comprobante</label>
+          <select class="form-select" [(ngModel)]="comprobanteForm.tipo" name="tipo">
+            <option value="BOLETA">Boleta</option>
+            <option value="FACTURA">Factura</option>
+          </select>
+        </div>
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-success me-2">Generar</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

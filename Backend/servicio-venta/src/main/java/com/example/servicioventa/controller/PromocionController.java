@@ -22,17 +22,17 @@ public class PromocionController {
     private PromocionService promocionService;
 
     @PostMapping
-    public ResponseEntity<PromocionDTO> crear(@RequestBody PromocionDTO dto) {
+    public ResponseEntity<PromocionDTO> crearPromocion(@RequestBody PromocionDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(promocionService.crear(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PromocionDTO> actualizar(@PathVariable Long id, @RequestBody PromocionDTO dto) {
+    public ResponseEntity<PromocionDTO> actualizarPromocion(@PathVariable Long id, @RequestBody PromocionDTO dto) {
         return ResponseEntity.ok(promocionService.actualizar(dto, id));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PromocionDTO> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<PromocionDTO> obtenerPorIdPromocion(@PathVariable Long id) {
         return promocionService.obtenerPorId(id)
                 .map(promocionService::toDTO) // convierte a DTO enriquecido
                 .map(ResponseEntity::ok)
@@ -40,7 +40,7 @@ public class PromocionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PromocionDTO>> listarTodas() {
+    public ResponseEntity<List<PromocionDTO>> listarTodasPromociones() {
         List<PromocionDTO> lista = promocionService.listarTodas().stream()
                 .map(promocionService::toDTO)
                 .toList();
@@ -48,13 +48,13 @@ public class PromocionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarPromocion(@PathVariable Long id) {
         promocionService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<PromocionDTO>> buscarPorNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<PromocionDTO>> buscarPorNombrePromocion(@RequestParam String nombre) {
         List<PromocionDTO> resultado = promocionService.buscarPorNombre(nombre).stream()
                 .map(promocionService::toDTO)
                 .toList();
@@ -62,7 +62,7 @@ public class PromocionController {
     }
 
     @GetMapping("/activas")
-    public ResponseEntity<List<PromocionDTO>> activas(@RequestParam(required = false) LocalDate fecha) {
+    public ResponseEntity<List<PromocionDTO>> Promocionesactivas(@RequestParam(required = false) LocalDate fecha) {
         LocalDate dia = (fecha != null) ? fecha : LocalDate.now();
         List<PromocionDTO> activas = promocionService.promocionesActivas(dia).stream()
                 .map(promocionService::toDTO)
@@ -71,13 +71,13 @@ public class PromocionController {
     }
 
     @GetMapping("/{id}/activa")
-    public ResponseEntity<Boolean> estaActiva(@PathVariable Long id, @RequestParam(required = false) LocalDate fecha) {
+    public ResponseEntity<Boolean> PromocionestaActiva(@PathVariable Long id, @RequestParam(required = false) LocalDate fecha) {
         LocalDate dia = (fecha != null) ? fecha : LocalDate.now();
         return ResponseEntity.ok(promocionService.estaActiva(id, dia));
     }
 
     @GetMapping("/con-cantidad-minima")
-    public ResponseEntity<List<PromocionDTO>> conMinimo() {
+    public ResponseEntity<List<PromocionDTO>> PromocionconMinimo() {
         List<PromocionDTO> lista = promocionService.conCantidadMinimaRequerida().stream()
                 .map(promocionService::toDTO)
                 .toList();
@@ -85,7 +85,7 @@ public class PromocionController {
     }
 
     @GetMapping("/por-tipo")
-    public ResponseEntity<List<PromocionDTO>> porTipo(@RequestParam String tipo) {
+    public ResponseEntity<List<PromocionDTO>> porTipoPromociones(@RequestParam String tipo) {
         List<PromocionDTO> lista = promocionService.buscarPorTipo(tipo).stream()
                 .map(promocionService::toDTO)
                 .toList();

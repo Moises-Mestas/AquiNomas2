@@ -113,11 +113,10 @@ public class VentaController {
     }
 
     @GetMapping("/pedidos/no-vendidos")
-    public ResponseEntity<List<PedidoDTO>> pedidosSinVentaPorCliente(@RequestParam Integer clienteId) {
-        List<PedidoDTO> filtrados = ventaService.listarPedidosNoVendidosPorCliente(clienteId);
+    public ResponseEntity<List<PedidoDTO>> pedidosSinVentaPorCliente(@RequestParam String nombre) {
+        List<PedidoDTO> filtrados = ventaService.listarPedidosNoVendidosPorCliente(nombre);
         return filtrados.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(filtrados);
     }
-
 }

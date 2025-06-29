@@ -37,7 +37,7 @@ public interface VentaService {
 
     List<VentaDTO> buscarVentasPorFecha(OffsetDateTime inicio, OffsetDateTime fin);
 
-    List<PedidoDTO> listarPedidosNoVendidosPorCliente(Integer clienteId);
+    List<PedidoDTO> listarPedidosNoVendidosPorCliente(String nombreCliente);
 
     PedidoDTO obtenerPedidoPorId(Integer pedidoId);
 

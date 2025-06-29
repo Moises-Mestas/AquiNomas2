@@ -140,7 +140,7 @@ public class ComprobanteController {
     }
 
     @GetMapping("/filtrar")
-    public ResponseEntity<List<ComprobantePago>> filtrar(
+    public ResponseEntity<List<ComprobantePago>> filtrarComprobante(
             @RequestParam(required = false) String tipo,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin
@@ -150,7 +150,7 @@ public class ComprobanteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable Long id) {
+    public ResponseEntity<String> eliminarComprobante(@PathVariable Long id) {
         comprobanteService.eliminarPorId(id);
         return ResponseEntity.ok("✅ Comprobante eliminado correctamente.");
     }

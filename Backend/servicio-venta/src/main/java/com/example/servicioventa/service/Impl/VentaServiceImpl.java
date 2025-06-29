@@ -264,20 +264,22 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
-    public List<PedidoDTO> listarPedidosNoVendidosPorCliente(Integer clienteId) {
-        // 1️⃣ Todos los pedidos (o podrías filtrarlos desde Feign directamente si tenés ese endpoint)
+    public List<PedidoDTO> listarPedidosNoVendidosPorCliente(String nombreCliente) {
         List<PedidoDTO> todosLosPedidos = pedidoClient.obtenerTodosLosPedidos();
 
-        // 2️⃣ Lista de pedidoId ya usados en ventas
         Set<Integer> pedidosUsados = ventaRepository.findAll().stream()
                 .map(Venta::getPedidoId)
                 .collect(Collectors.toSet());
 
-        // 3️⃣ Filtrá aquellos pedidos del cliente que no están en ventas
         return todosLosPedidos.stream()
-                .filter(p -> p.getCliente() != null && Objects.equals(p.getCliente().getId(), clienteId))
+                .filter(p -> {
+                    var cliente = p.getCliente();
+                    return cliente != null &&
+                            cliente.getNombre() != null &&
+                            cliente.getNombre().equalsIgnoreCase(nombreCliente);
+                })
                 .filter(p -> !pedidosUsados.contains(p.getId()))
-                .peek(this::normalizarPreciosPedido) // opcional: enriquecer precios si se va a mostrar
+                .peek(this::normalizarPreciosPedido)
                 .toList();
     }
 

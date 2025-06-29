@@ -3,4 +3,9 @@ export const resources = {
   proveedores: 'proveedores',
   menus: 'menus',
 
+  ventas: 'ventas',
+  promociones: 'promociones',
+  comprobantes: 'comprobantes',
+  clientes: 'clientes',
+
 };
