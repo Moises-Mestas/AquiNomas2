@@ -52,8 +52,33 @@ public class ReporteServiceImpl implements ReporteService {
     }
 
     @Override
-    public void deleteById(Integer id) {
-        reporteRepository.deleteById(id);
+    public Reporte actualizarReporte(Long id, Reporte reporteActualizado) {
+        Reporte existente = reporteRepository.findById(id.intValue()) // Convertimos Long a Integer
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
+        // Actualizamos todos los campos excepto ID y fechaCreacion
+        existente.setAdministradorId(reporteActualizado.getAdministradorId());
+        existente.setVentaId(reporteActualizado.getVentaId());
+        existente.setBodegaId(reporteActualizado.getBodegaId());
+        existente.setClienteId(reporteActualizado.getClienteId());
+        existente.setInventarioCocinaId(reporteActualizado.getInventarioCocinaId());
+        existente.setInventarioBarraId(reporteActualizado.getInventarioBarraId());
+        existente.setDetallePedidoId(reporteActualizado.getDetallePedidoId());
+        existente.setDescripcion(reporteActualizado.getDescripcion());
+        existente.setDetalles(reporteActualizado.getDetalles());
+        existente.setTipo(reporteActualizado.getTipo());
+
+        // No actualizamos la fecha de creación ni el ID
+
+        return reporteRepository.save(existente);
+    }
+
+    @Override
+    public void eliminarReporte(Long id) {
+        if (!reporteRepository.existsById(id.intValue())) {
+            throw new RuntimeException("Reporte no encontrado para eliminar");
+        }
+        reporteRepository.deleteById(id.intValue());
     }
 
 
@@ -194,32 +219,6 @@ public class ReporteServiceImpl implements ReporteService {
     }
 
 
-    @Override
-    public Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId) {
-        List<BodegaDto> bodegas = inventarioClient.obtenerTodasLasBodegas();
-
-        // Filtrar solo los que coinciden con el producto_id
-        List<BodegaDto> filtrados = bodegas.stream()
-                .filter(b -> b.getProductoId() != null && b.getProductoId().equals(String.valueOf(insumoId)))
-                .toList();
-
-        // Calcular cantidad total
-        double cantidadTotal = filtrados.stream()
-                .mapToDouble(b -> b.getCantidad().doubleValue())
-                .sum();
-
-        // Obtener el nombre del producto si hay alguno
-        String nombreProducto = filtrados.isEmpty() ? "No encontrado" : filtrados.get(0).getNombreProducto();
-
-        return Map.of(
-                "insumoId", insumoId,
-                "nombreProducto", nombreProducto,
-                "cantidadTotal", cantidadTotal
-        );
-    }
-
-
-
 
     @Override
     public Map<String, Long> obtenerComprobantesMasUsados() {
@@ -242,4 +241,42 @@ public class ReporteServiceImpl implements ReporteService {
     public List<Reporte> listarReportes() {
         return reporteRepository.findAll();
     }
+
+    @Override
+    public List<ReporteGeneralDto> listarReportesFormateados() {
+        List<Reporte> reportes = reporteRepository.findAll();
+
+        return reportes.stream().map(reporte -> {
+            ReporteGeneralDto dto = new ReporteGeneralDto();
+            dto.setId(reporte.getId());
+            dto.setTipo(reporte.getTipo().name());
+            dto.setDescripcion(reporte.getDescripcion());
+            dto.setDetalles(reporte.getDetalles());
+            dto.setFechaCreacion(reporte.getFechaCreacion().toString());
+
+            String cliente = "No Asignado";
+            String admin = "No Asignado";
+
+            try {
+                if (reporte.getClienteId() != null) {
+                    cliente = clienteAdministradorClient.obtenerClientePorId(reporte.getClienteId()).getNombre();
+                }
+            } catch (Exception ignored) {}
+
+            try {
+                if (reporte.getAdministradorId() != null) {
+                    admin = clienteAdministradorClient.obtenerAdministradorPorId(reporte.getAdministradorId()).getNombre();
+                }
+            } catch (Exception ignored) {}
+
+            dto.setCliente(cliente);
+            dto.setAdministrador(admin);
+
+            return dto;
+        }).toList();
+    }
+
+
 }
+
+

@@ -13,10 +13,10 @@ public interface InventarioClient {
     @GetMapping("/bodega")
     List<BodegaDto> obtenerTodasLasBodegas();
 
-    @GetMapping("/inventarios-cocina")
+    @GetMapping("/inventario-cocina")
     List<InventarioCocinaDto> obtenerInventariosCocina();
 
-    @GetMapping("/inventarios-barra")
+    @GetMapping("/inventario-barra")
     List<InventarioBarraDto> obtenerInventariosBarra();
 }
 

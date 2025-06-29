@@ -15,19 +15,21 @@ public interface ReporteService {
 
     Reporte save(Reporte reporte);
 
-    void deleteById(Integer id);
-
     List<Map<String, Object>> obtenerProductosMasRentables();
 
     Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin);
 
     Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos();
 
-    Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId);
-
     Map<String, Long> obtenerComprobantesMasUsados();
 
     Reporte guardarReporte(Reporte reporte);
 
+    List<ReporteGeneralDto> listarReportesFormateados();
+
     List<Reporte> listarReportes();
+
+    Reporte actualizarReporte(Long id, Reporte reporteActualizado);
+
+    void eliminarReporte(Long id);
 }

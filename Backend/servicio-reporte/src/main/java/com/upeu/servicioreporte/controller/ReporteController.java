@@ -1,16 +1,14 @@
 package com.upeu.servicioreporte.controller;
 
+import com.upeu.servicioreporte.dto.ReporteGeneralDto;
 import com.upeu.servicioreporte.entity.Reporte;
 import com.upeu.servicioreporte.service.ReporteService;
-import com.upeu.servicioreporte.util.PdfExportUtil;
-import com.upeu.servicioreporte.util.PlatosBebidasMasMenosPedidosPdf;
-import com.upeu.servicioreporte.util.VentasPorPeriodoPdfGenerator;
+import com.upeu.servicioreporte.util.*;
 import org.springframework.core.io.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -103,19 +102,43 @@ public class ReporteController {
         }
     }
 
+
     @GetMapping("/platos-bebidas")
     public Map<String, List<Map<String, Object>>> platosBebidasMasMenosPedidos() {
         // Obtiene los platos y bebidas más y menos pedidos
         return reporteService.obtenerPlatosBebidasMasMenosPedidos();
     }
 
-    @GetMapping("/insumo-costo/{insumoId}")
-    public Map<String, Object> costoPorInsumo(@PathVariable Integer insumoId) {
-        // Obtiene el costo por insumo según el ID
-        return reporteService.obtenerCostoCantidadPorInsumo(insumoId);
+    @GetMapping("/pdf/comprobantes-mas-usados")
+    public ResponseEntity<Resource> exportarComprobantesMasUsadosPDF() {
+        try {
+            Map<String, Long> datosOriginales = reporteService.obtenerComprobantesMasUsados();
+
+            // Transformar a List<Map<String, Object>> usando HashMap para evitar errores de tipos
+            List<Map<String, Object>> datosFormateados = datosOriginales.entrySet().stream()
+                    .map(entry -> {
+                        Map<String, Object> map = new java.util.HashMap<>();
+                        map.put("comprobante", entry.getKey());
+                        map.put("cantidad", entry.getValue());
+                        return map;
+                    })
+                    .toList();
+
+            File pdf = ComprobantesMasUsadosPdf.exportar(datosFormateados);
+
+            InputStreamResource resource = new InputStreamResource(new java.io.FileInputStream(pdf));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + pdf.getName())
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(pdf.length())
+                    .body(resource);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
     }
 
-    @GetMapping("/comprobantes")
+    @GetMapping("/comprobantes-mas-usados")
     public Map<String, Long> comprobantesMasUsados() {
         // Obtiene los comprobantes más usados
         return reporteService.obtenerComprobantesMasUsados();
@@ -127,10 +150,40 @@ public class ReporteController {
         return reporteService.guardarReporte(reporte);
     }
 
+    @GetMapping("/pdf/reportes")
+    public ResponseEntity<Resource> exportarListaReportesPDF() {
+        try {
+            List<ReporteGeneralDto> reportes = reporteService.listarReportesFormateados();
+            File pdf = ListaReportesPdf.exportar(reportes);
+
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(pdf));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + pdf.getName())
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(pdf.length())
+                    .body(resource);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+
     @GetMapping
     public List<Reporte> listarReportes() {
         // Listar todos los reportes
         return reporteService.listarReportes();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Reporte> actualizarReporte(@PathVariable Long id, @RequestBody Reporte reporte) {
+        return ResponseEntity.ok(reporteService.actualizarReporte(id, reporte));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarReporte(@PathVariable Long id) {
+        reporteService.eliminarReporte(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
