@@ -19,37 +19,58 @@ export class DetallePedidoPage {
   idAActualizar: number = 0;
   editing: boolean = false;
 
+  // Paginación
+  displayedDetallePedidos: any[] = []; // Detalles de pedidos mostrados en la página actual
+  currentPage: number = 1;
+  detallePedidosPerPage: number = 10; // Limitar a 10 detalles por página
+  totalPages: number = 1;
+
   constructor(private detallePedidoService: DetallePedidoService) {}
 
   ngOnInit() {
     this.getDetallePedidos();
-    console.log('DetallePedidos en el OnInit:', this.detallePedidos);
   }
-// Agregar un nuevo item
 
-
-// Obtener todos los detalles de pedido
+  // Obtener todos los detalles de pedido
   getDetallePedidos() {
     this.detallePedidoService.getDetallePedidos().subscribe(
       (response) => {
-        this.detallePedidos = response;
-        console.log(this.detallePedidos); // Verifica que los datos estén bien asignados
+        // Ordenar los detalles por ID de más reciente a más antiguo (descendente)
+        this.detallePedidos = response.sort((a: any, b: any) => b.id - a.id);
+
+        // Calcular el número total de páginas
+        this.totalPages = Math.ceil(this.detallePedidos.length / this.detallePedidosPerPage);
+
+        // Cargar los detalles de pedido de la página actual
+        this.loadPage(this.currentPage);
       },
       (err) => console.error('Error al obtener los detalles de pedido:', err)
     );
   }
 
+  // Cambiar la página actual
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) {
+      return; // No cambiar si la página es inválida
+    }
+    this.currentPage = page;
+    this.loadPage(page);
+  }
 
+  // Cargar los detalles de pedido de la página seleccionada
+  loadPage(page: number) {
+    const startIndex = (page - 1) * this.detallePedidosPerPage;
+    const endIndex = page * this.detallePedidosPerPage;
+    this.displayedDetallePedidos = this.detallePedidos.slice(startIndex, endIndex); // Mostrar solo los detalles de pedido de la página actual
+  }
 
   // Crear o actualizar detalle de pedido
   saveDetallePedido() {
     console.log('Datos a enviar:', this.newDetallePedido);
 
     if (this.idAActualizar) {
-      // Si existe un ID, significa que estamos editando
       this.updateDetallePedido();
     } else {
-      // Si no existe ID, estamos creando un nuevo detallePedido
       this.createDetallePedido();
     }
   }

@@ -27,8 +27,6 @@
           <button type="button" class="btn btn-danger btn-sm" (click)="removeItem(i)">Eliminar Item</button>
         </div>
 
-
-
         <!-- Botón para agregar más items -->
         <button type="button" class="btn btn-primary" (click)="addItem()">Agregar Item</button>
 
@@ -59,7 +57,7 @@
           </tr>
           </thead>
           <tbody *ngIf="detallePedidos.length > 0">
-          <tr *ngFor="let detallePedido of detallePedidos">
+          <tr *ngFor="let detallePedido of displayedDetallePedidos">
             <td>{{ detallePedido.id }}</td>
             <td>{{ detallePedido.menu?.nombre }}</td>
             <td>{{ detallePedido.cantidad }}</td>
@@ -82,5 +80,16 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination">
+    <button *ngIf="currentPage > 1" (click)="changePage(currentPage - 1)">
+      <i class="bi bi-arrow-left"></i> Anterior
+    </button>
+    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <button *ngIf="currentPage < totalPages" (click)="changePage(currentPage + 1)">
+      Siguiente <i class="bi bi-arrow-right"></i>
+    </button>
   </div>
 </div>

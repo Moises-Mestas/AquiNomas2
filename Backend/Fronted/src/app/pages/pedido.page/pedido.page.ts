@@ -44,13 +44,19 @@ export class PedidoPage {
     );
   }
   // Obtener todos los pedidos
+  // Obtener todos los pedidos
   getPedidos() {
     if (this.estadoFiltro) {
       // Si hay un filtro por estado, pasamos el estado
       this.pedidoService.getPedidosPorEstado(this.estadoFiltro).subscribe(
         (response) => {
-          this.pedidos = response;
+          // Ordenar los pedidos por ID de manera descendente
+          this.pedidos = response.sort((a: any, b: any) => b.id - a.id);
+
+          // Calcular el número total de páginas
           this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
+
+          // Cargar los pedidos de la página actual
           this.loadPage(this.currentPage);
         },
         (err) => console.error('Error al obtener los pedidos:', err)
@@ -59,14 +65,20 @@ export class PedidoPage {
       // Si no hay filtro, traemos todos los pedidos
       this.pedidoService.getPedidos().subscribe(
         (response) => {
-          this.pedidos = response;
+          // Ordenar los pedidos por ID de manera descendente
+          this.pedidos = response.sort((a: any, b: any) => b.id - a.id);
+
+          // Calcular el número total de páginas
           this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
+
+          // Cargar los pedidos de la página actual
           this.loadPage(this.currentPage);
         },
         (err) => console.error('Error al obtener los pedidos:', err)
       );
     }
   }
+
 
   // Filtrar pedidos por estado
   filterPedidos() {
