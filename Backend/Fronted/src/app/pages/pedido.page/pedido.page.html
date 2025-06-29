@@ -1,7 +1,17 @@
 <div class="container py-4">
   <h1 class="mb-4 text-primary">Gestión de Pedidos</h1>
 
-  <!-- Formulario para Crear/Editar Pedido -->
+  <!-- Filtro por Estado -->
+  <div class="d-flex mb-4">
+    <label for="estado" class="form-label me-2">Filtrar por Estado</label>
+    <select id="estado" class="form-control" [(ngModel)]="estadoFiltro" (change)="filterPedidos()">
+      <option value="">TODOS</option>
+      <option value="PENDIENTE">PENDIENTE</option>
+      <option value="INICIADO">INICIADO</option>
+      <option value="COMPLETADO">COMPLETADO</option>
+      <option value="CANCELADO">CANCELADO</option>
+    </select>
+  </div>
   <!-- Formulario para Crear/Editar Pedido -->
   <div class="card mb-4">
     <div class="card-header">

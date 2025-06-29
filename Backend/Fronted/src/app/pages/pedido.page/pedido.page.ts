@@ -17,6 +17,7 @@ export class PedidoPage {
   idAActualizar: number = 0;
   editing: boolean = false;
   clientes: any[] = [];  // Lista de clientes
+  estadoFiltro: string = '';  // Variable para almacenar el filtro de estado
 
   // Paginación
   displayedPedidos: any[] = []; // Pedidos mostrados en la página actual
@@ -44,15 +45,34 @@ export class PedidoPage {
   }
   // Obtener todos los pedidos
   getPedidos() {
-    this.pedidoService.getPedidos().subscribe(
-      (response) => {
-        this.pedidos = response;
-        this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage); // Calcular el número total de páginas
-        this.loadPage(this.currentPage); // Cargar los pedidos de la página actual
-      },
-      (err) => console.error('Error al obtener los pedidos:', err)
-    );
+    if (this.estadoFiltro) {
+      // Si hay un filtro por estado, pasamos el estado
+      this.pedidoService.getPedidosPorEstado(this.estadoFiltro).subscribe(
+        (response) => {
+          this.pedidos = response;
+          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
+          this.loadPage(this.currentPage);
+        },
+        (err) => console.error('Error al obtener los pedidos:', err)
+      );
+    } else {
+      // Si no hay filtro, traemos todos los pedidos
+      this.pedidoService.getPedidos().subscribe(
+        (response) => {
+          this.pedidos = response;
+          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
+          this.loadPage(this.currentPage);
+        },
+        (err) => console.error('Error al obtener los pedidos:', err)
+      );
+    }
   }
+
+  // Filtrar pedidos por estado
+  filterPedidos() {
+    this.getPedidos();  // Vuelve a llamar a getPedidos con el estado seleccionado
+  }
+
 
 
   // Cambiar la página actual

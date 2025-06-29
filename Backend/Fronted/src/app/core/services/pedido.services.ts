@@ -13,7 +13,10 @@ export class PedidoServices {
   getPedidos(): Observable<any[]> {
     return this.http.get<any[]>(resources.pedidos);
   }
-
+  // Obtener pedidos por estado
+  getPedidosPorEstado(estado: string): Observable<any[]> {
+    return this.http.get<any[]>(`${resources.pedidos}/filter?estadoPedido=${estado}`);
+  }
   // Crear un nuevo pedido
   createPedido(pedido: any): Observable<any> {
     return this.http.post<any>(resources.pedidos, pedido);
