@@ -36,8 +36,10 @@ public class ClienteController {
         return clienteService.saveCliente(cliente);
     }
 
-    @PutMapping
-    public Cliente updateCliente(@RequestBody Cliente cliente) {
+    @PutMapping("/{id}")
+    public Cliente updateCliente(@PathVariable Integer id, @RequestBody Cliente cliente) {
+        // Lógica para actualizar cliente
+        cliente.setId(id);  // Asegurarse de que el ID sea el correcto
         return clienteService.updateCliente(cliente);
     }
 

@@ -28,7 +28,7 @@ public interface ClienteFeign {
         cliente.setNombre("Cliente no disponible");
         cliente.setApellido("Apellido no disponible");
         cliente.setDni("DNI no encontrado");
-        cliente.setRuc("RUC no encontrado");
+        //cliente.setRuc("RUC no encontrado");
         cliente.setTelefono("Teléfono no disponible");
         cliente.setEmail("Email no disponible");
         cliente.setDireccion("Dirección no disponible");

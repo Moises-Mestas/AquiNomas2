@@ -17,7 +17,7 @@ public class Cliente {
     private String nombre;
     private String apellido;
     private String dni;
-    private String ruc;
+    //private String ruc;
     private String telefono;
     private String email;
     private String direccion;
@@ -37,7 +37,7 @@ public class Cliente {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
-        this.ruc = ruc;
+        //this.ruc = ruc;
         this.telefono = telefono;
         this.email = email;
         this.direccion = direccion;
@@ -77,13 +77,13 @@ public class Cliente {
         this.dni = dni;
     }
 
-    public String getRuc() {
-        return ruc;
-    }
+    //public String getRuc() {
+    //    return ruc;
+    //}
 
-    public void setRuc(String ruc) {
-        this.ruc = ruc;
-    }
+    //public void setRuc(String ruc) {
+    //   this.ruc = ruc;
+    //}
 
     public String getTelefono() {
         return telefono;
@@ -127,7 +127,7 @@ public class Cliente {
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", dni='" + dni + '\'' +
-                ", ruc='" + ruc + '\'' +
+                //", ruc='" + ruc + '\'' +
                 ", telefono='" + telefono + '\'' +
                 ", email='" + email + '\'' +
                 ", direccion='" + direccion + '\'' +

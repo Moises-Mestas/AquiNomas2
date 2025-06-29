@@ -5,5 +5,5 @@ export const resources = {
   recetas: 'recetas',
   pedidos: 'pedidos',
   detalle_pedidos: 'detalle-pedidos',
-
-};
+  clientes: 'clientes'
+}
