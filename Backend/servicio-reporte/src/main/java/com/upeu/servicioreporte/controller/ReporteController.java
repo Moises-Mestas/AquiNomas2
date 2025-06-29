@@ -24,12 +24,6 @@ public class ReporteController {
         this.reporteService = reporteService;
     }
 
-    @GetMapping("/clientes-mayores-compras")
-    public ResponseEntity<List<Map<String, Object>>> obtenerClientesConMayoresMontos() {
-        return ResponseEntity.ok(reporteService.obtenerClientesConMayoresMontos());
-    }
-
-
     @GetMapping("/productos-mas-rentables")
     public ResponseEntity<List<Map<String, Object>>> obtenerProductosMasRentables() {
         return ResponseEntity.ok(reporteService.obtenerProductosMasRentables());

@@ -56,49 +56,6 @@ public class ReporteServiceImpl implements ReporteService {
         reporteRepository.deleteById(id);
     }
 
-    @Override
-    public List<Map<String, Object>> obtenerClientesConMayoresMontos() {
-        List<PedidoDto> pedidos = Optional.ofNullable(pedidoDetalleClient.obtenerTodosPedidos())
-                .orElse(Collections.emptyList());
-
-        // Filtrar pedidos válidos
-        pedidos = pedidos.stream()
-                .filter(p -> p.getCliente() != null && p.getDetalles() != null)
-                .toList();
-
-        // Agrupar montos por cliente
-        Map<Integer, BigDecimal> montoTotalPorCliente = new HashMap<>();
-        Map<Integer, ClienteDto> clientesMap = new HashMap<>();
-
-        for (PedidoDto pedido : pedidos) {
-            BigDecimal subtotal = pedido.getDetalles().stream()
-                    .map(d -> d.getMenu() != null && d.getMenu().getPrecio() != null
-                            ? d.getMenu().getPrecio().multiply(BigDecimal.valueOf(d.getCantidad()))
-                            : BigDecimal.ZERO)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            Integer clienteId = pedido.getClienteId();
-            if (clienteId != null) {
-                montoTotalPorCliente.merge(clienteId, subtotal, BigDecimal::add);
-                clientesMap.putIfAbsent(clienteId, pedido.getCliente());
-            }
-        }
-
-        // Armar resultado ordenado
-        return montoTotalPorCliente.entrySet().stream()
-                .sorted(Map.Entry.<Integer, BigDecimal>comparingByValue().reversed())
-                .map(entry -> {
-                    Map<String, Object> datos = new HashMap<>();
-                    ClienteDto cliente = clientesMap.get(entry.getKey());
-                    datos.put("clienteId", entry.getKey());
-                    datos.put("nombre", cliente != null ? cliente.getNombre() : "Desconocido");
-                    datos.put("apellido", cliente != null ? cliente.getApellido() : "");
-                    datos.put("montoTotalComprado", entry.getValue());
-                    return datos;
-                })
-                .toList();
-    }
-
 
     @Override
     public List<Map<String, Object>> obtenerProductosMasRentables() {
