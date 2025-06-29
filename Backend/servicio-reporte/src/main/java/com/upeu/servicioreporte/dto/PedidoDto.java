@@ -1,13 +1,14 @@
 package com.upeu.servicioreporte.dto;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class PedidoDto {
     private Integer id;
     private Integer clienteId;
     private ClienteDto cliente;
-    private LocalDateTime fechaPedido;
+    private OffsetDateTime fechaPedido;
     private String estadoPedido;
     private List<DetallePedidoDto> detalles;
 
@@ -36,11 +37,11 @@ public class PedidoDto {
         this.cliente = cliente;
     }
 
-    public LocalDateTime getFechaPedido() {
+    public OffsetDateTime  getFechaPedido() {
         return fechaPedido;
     }
 
-    public void setFechaPedido(LocalDateTime fechaPedido) {
+    public void setFechaPedido(OffsetDateTime  fechaPedido) {
         this.fechaPedido = fechaPedido;
     }
 
