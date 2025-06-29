@@ -21,8 +21,6 @@ public interface ReporteService {
 
     Map<String, Object> obtenerCantidadVentasPorPeriodo(LocalDateTime inicio, LocalDateTime fin);
 
-    List<Map<String, Object>> obtenerInventariosMasUsados();
-
     Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos();
 
     Map<String, Object> obtenerCostoCantidadPorInsumo(Integer insumoId);

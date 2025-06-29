@@ -1,18 +1,16 @@
 package com.upeu.servicioreporte.controller;
 
-import com.upeu.servicioreporte.dto.VentaDto;
 import com.upeu.servicioreporte.entity.Reporte;
-import com.upeu.servicioreporte.feign.VentaClient;
 import com.upeu.servicioreporte.service.ReporteService;
 import com.upeu.servicioreporte.util.PdfExportUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upeu.servicioreporte.util.VentasPorPeriodoPdfGenerator;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +34,31 @@ public class ReporteController {
                 .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
                 .body(pdfStream.readAllBytes());
     }
-    
+
     @GetMapping("/productos-mas-rentables")
     public ResponseEntity<List<Map<String, Object>>> obtenerProductosMasRentables() {
         return ResponseEntity.ok(reporteService.obtenerProductosMasRentables());
     }
+
+    @GetMapping("/pdf/ventas-por-periodo")
+    public void exportarVentasPorPeriodoPdf(
+            @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin,
+            HttpServletResponse response
+    ) {
+        try {
+            Map<String, Object> datos = reporteService.obtenerCantidadVentasPorPeriodo(inicio, fin);
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=ventas-por-periodo.pdf");
+
+            VentasPorPeriodoPdfGenerator.generarPdf(datos, response.getOutputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/ventas-por-periodo")
     public ResponseEntity<Map<String, Object>> obtenerCantidadVentasPorPeriodo(
@@ -57,11 +75,6 @@ public class ReporteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/inventarios-mas-usados")
-    public List<Map<String, Object>> inventariosMasUsados() {
-        // Devuelve los inventarios más usados
-        return reporteService.obtenerInventariosMasUsados();
-    }
 
     @GetMapping("/platos-bebidas")
     public Map<String, List<Map<String, Object>>> platosBebidasMasMenosPedidos() {

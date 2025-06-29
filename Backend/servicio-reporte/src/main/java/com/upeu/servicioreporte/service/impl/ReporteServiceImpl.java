@@ -129,73 +129,7 @@ public class ReporteServiceImpl implements ReporteService {
 
         return resultado;
     }
-
-
-
-
-
-    @Override
-    public List<Map<String, Object>> obtenerInventariosMasUsados() {
-        // Manejo de posibles listas nulas
-        List<InventarioCocinaDto> inventariosCocina = Optional.ofNullable(inventarioClient.obtenerInventariosCocina())
-                .orElse(Collections.emptyList());
-        List<InventarioBarraDto> inventariosBarra = Optional.ofNullable(inventarioClient.obtenerInventariosBarra())
-                .orElse(Collections.emptyList());
-        List<BodegaDto> bodegas = Optional.ofNullable(inventarioClient.obtenerTodasLasBodegas())
-                .orElse(Collections.emptyList());
-
-        Map<Integer, Double> usoPorProducto = new HashMap<>();
-
-        try {
-            // Procesar inventarios de cocina
-            for (InventarioCocinaDto cocina : inventariosCocina) {
-                Integer id = cocina.getId();
-                BigDecimal cantidad = cocina.getCantidadDisponible();
-                if (id != null && cantidad != null) {
-                    usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
-                }
-            }
-
-            // Procesar inventarios de barra
-            for (InventarioBarraDto barra : inventariosBarra) {
-                Integer id = barra.getId();
-                BigDecimal cantidad = barra.getCantidadDisponible();
-                if (id != null && cantidad != null) {
-                    usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
-                }
-            }
-
-            // Procesar bodegas
-            for (BodegaDto bodega : bodegas) {
-                Integer id = bodega.getId();
-                BigDecimal cantidad = bodega.getCantidad();
-                if (id != null && cantidad != null) {
-                    usoPorProducto.put(id, usoPorProducto.getOrDefault(id, 0.0) + cantidad.doubleValue());
-                }
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error al procesar inventarios: " + e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-
-        System.out.println("Productos con cantidades acumuladas: " + usoPorProducto.size());
-
-        // Ordenar los productos más usados
-        return usoPorProducto.entrySet().stream()
-                .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
-                .map(entry -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("productoId", entry.getKey());
-                    map.put("cantidadUsada", entry.getValue());
-                    return map;
-                })
-                .collect(Collectors.toList());
-    }
-
-
-
+    
 
     @Override
     public Map<String, List<Map<String, Object>>> obtenerPlatosBebidasMasMenosPedidos() {
