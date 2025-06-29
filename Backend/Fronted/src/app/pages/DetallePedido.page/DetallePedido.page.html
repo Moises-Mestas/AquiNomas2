@@ -9,18 +9,29 @@
     <div class="card-body">
       <form (ngSubmit)="saveDetallePedido()" class="row g-3">
         <div class="col-md-4">
-          <label class="form-label">Cantidad</label>
-          <input class="form-control" type="number" [(ngModel)]="newDetallePedido.cantidad" name="cantidad" step="0.001" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Menu ID</label>
-          <input class="form-control" type="number" [(ngModel)]="newDetallePedido.menu_id" name="menu_id" required>
-        </div>
-        <!-- Ahora el campo pedido_id siempre estará disponible en el formulario -->
-        <div class="col-md-4">
           <label class="form-label">Pedido ID</label>
           <input class="form-control" type="number" [(ngModel)]="newDetallePedido.pedido_id" name="pedido_id" required>
         </div>
+
+        <!-- Items: Menú y Cantidad -->
+        <h5>Items</h5>
+        <div *ngFor="let item of newDetallePedido.items; let i = index" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Menu ID</label>
+            <input class="form-control" type="number" [(ngModel)]="item.menu_id" name="menu_id{{i}}" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Cantidad</label>
+            <input class="form-control" type="number" [(ngModel)]="item.cantidad" name="cantidad{{i}}" step="0.001" required>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm" (click)="removeItem(i)">Eliminar Item</button>
+        </div>
+
+
+
+        <!-- Botón para agregar más items -->
+        <button type="button" class="btn btn-primary" (click)="addItem()">Agregar Item</button>
+
         <div class="col-12 mt-3">
           <button type="submit" class="btn btn-success">
             {{ idAActualizar ? 'Actualizar' : 'Crear' }}
@@ -42,18 +53,16 @@
           <thead class="table-light">
           <tr>
             <th>ID</th>
-            <th>Cantidad</th>
             <th>Menu</th>
-            <th>Pedido</th>
+            <th>Cantidad</th>
             <th>Acciones</th>
           </tr>
           </thead>
-          <tbody>
+          <tbody *ngIf="detallePedidos.length > 0">
           <tr *ngFor="let detallePedido of detallePedidos">
             <td>{{ detallePedido.id }}</td>
-            <td>{{ detallePedido.cantidad }}</td>
             <td>{{ detallePedido.menu?.nombre }}</td>
-            <td>{{ detallePedido.pedido?.id }}</td>
+            <td>{{ detallePedido.cantidad }}</td>
             <td>
               <button class="btn btn-warning btn-sm" (click)="editDetallePedido(detallePedido)">
                 <i class="bi bi-pencil"></i> Editar
@@ -64,6 +73,12 @@
             </td>
           </tr>
           </tbody>
+          <tbody *ngIf="detallePedidos.length === 0">
+          <tr>
+            <td colspan="5" class="text-center">No hay detalles de pedidos disponibles</td>
+          </tr>
+          </tbody>
+
         </table>
       </div>
     </div>

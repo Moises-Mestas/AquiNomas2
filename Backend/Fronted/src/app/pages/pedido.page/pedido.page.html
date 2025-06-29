@@ -2,6 +2,7 @@
   <h1 class="mb-4 text-primary">Gestión de Pedidos</h1>
 
   <!-- Formulario para Crear/Editar Pedido -->
+  <!-- Formulario para Crear/Editar Pedido -->
   <div class="card mb-4">
     <div class="card-header">
       <h5 class="mb-0">{{ idAActualizar ? 'Editar Pedido' : 'Nuevo Pedido' }}</h5>
@@ -9,8 +10,10 @@
     <div class="card-body">
       <form (ngSubmit)="savePedido()" class="row g-3">
         <div class="col-md-4">
-          <label class="form-label">Cliente ID</label>
-          <input class="form-control" type="number" [(ngModel)]="newPedido.clienteId" name="cliente_id" required>
+          <label class="form-label">Cliente</label>
+          <select class="form-control" [(ngModel)]="newPedido.clienteId" name="cliente_id" required>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nombre }}</option>
+          </select>
         </div>
         <div class="col-md-4">
           <label class="form-label">Estado del Pedido</label>
@@ -51,7 +54,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let pedido of pedidos">
+          <tr *ngFor="let pedido of displayedPedidos">
             <td>{{ pedido.id }}</td>
             <td>{{ pedido.cliente?.nombre }}</td>
             <td>{{ pedido.estadoPedido }}</td>
@@ -60,7 +63,6 @@
               <button class="btn btn-warning btn-sm" (click)="editPedido(pedido)">
                 <i class="bi bi-pencil"></i> Editar
               </button>
-
               <button class="btn btn-danger btn-sm" (click)="deletePedido(pedido.id)">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
@@ -70,5 +72,16 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination">
+    <button *ngIf="currentPage > 1" (click)="changePage(currentPage - 1)">
+      <i class="bi bi-arrow-left"></i> Anterior
+    </button>
+    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <button *ngIf="currentPage < totalPages" (click)="changePage(currentPage + 1)">
+      Siguiente <i class="bi bi-arrow-right"></i>
+    </button>
   </div>
 </div>

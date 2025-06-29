@@ -1,18 +1,21 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DetallePedidoService } from '../../core/services/detallePedido.services';  // Asegúrate de tener el servicio importado
+import { DetallePedidoService } from '../../core/services/detallePedido.services';
 
 @Component({
   selector: 'app-detalle-pedido',
   standalone: true,
-  templateUrl: './DetallePedido.page.html',
+  templateUrl: './detallePedido.page.html',
   imports: [CommonModule, FormsModule],
-  styleUrls: ['./DetallePedido.page.css']
+  styleUrls: ['./detallePedido.page.css']
 })
 export class DetallePedidoPage {
   detallePedidos: any[] = [];
-  newDetallePedido: any = { cantidad: 0, menu_id: 0, pedido_id: 0 };  // Incluimos pedido_id
+  newDetallePedido: { pedido_id: number, items: Array<{ menu_id: number, cantidad: number }> } = {
+    pedido_id: 0,
+    items: [{ menu_id: 0, cantidad: 0 }]
+  };
   idAActualizar: number = 0;
   editing: boolean = false;
 
@@ -20,19 +23,25 @@ export class DetallePedidoPage {
 
   ngOnInit() {
     this.getDetallePedidos();
+    console.log('DetallePedidos en el OnInit:', this.detallePedidos);
   }
+// Agregar un nuevo item
 
-  // Obtener todos los detalles de pedido
+
+// Obtener todos los detalles de pedido
   getDetallePedidos() {
     this.detallePedidoService.getDetallePedidos().subscribe(
       (response) => {
         this.detallePedidos = response;
-        console.log(this.detallePedidos); // Verifica los datos en la consola
+        console.log(this.detallePedidos); // Verifica que los datos estén bien asignados
       },
       (err) => console.error('Error al obtener los detalles de pedido:', err)
     );
   }
 
+
+
+  // Crear o actualizar detalle de pedido
   saveDetallePedido() {
     console.log('Datos a enviar:', this.newDetallePedido);
 
@@ -45,34 +54,21 @@ export class DetallePedidoPage {
     }
   }
 
-// Crear DetallePedido
+  // Crear nuevo detallePedido
   createDetallePedido() {
-    console.log("Datos a crear:", this.newDetallePedido); // Verificar datos
-
-    // Verificar que todos los campos estén presentes
-    if (!this.newDetallePedido.menu_id || !this.newDetallePedido.pedido_id || !this.newDetallePedido.cantidad) {
-      console.error('Datos faltantes:', this.newDetallePedido);
-      alert('Faltan campos requeridos.');
-      return;
-    }
-
-    // Estructura correcta para el backend
     const detallePedidoData = {
       pedidoId: this.newDetallePedido.pedido_id,
-      items: [
-        {
-          menu: { id: this.newDetallePedido.menu_id },
-          cantidad: this.newDetallePedido.cantidad
-        }
-      ]
+      items: this.newDetallePedido.items.map((item: any) => ({
+        menu: { id: item.menu_id },
+        cantidad: item.cantidad
+      }))
     };
 
-    // Enviar los datos en el formato correcto
     this.detallePedidoService.createDetallePedido(detallePedidoData).subscribe(
       (res) => {
         console.log('DetallePedido creado:', res);
-        this.getDetallePedidos(); // Refrescar la lista de detalles de pedido
-        this.clearForm(); // Limpiar el formulario
+        this.getDetallePedidos();
+        this.clearForm();
       },
       (err) => {
         console.error('Error al crear el detalle de pedido:', err);
@@ -81,27 +77,21 @@ export class DetallePedidoPage {
     );
   }
 
-
-// Actualizar DetallePedido
+  // Actualizar detallePedido
   updateDetallePedido() {
-    console.log("Datos a actualizar:", this.newDetallePedido);
+    const detallePedidoData = {
+      pedidoId: this.newDetallePedido.pedido_id,
+      items: this.newDetallePedido.items.map((item: any) => ({
+        menu: { id: item.menu_id },
+        cantidad: item.cantidad
+      }))
+    };
 
-    if (!this.idAActualizar) {
-      console.error('No se especificó el ID del detalle de pedido');
-      return;
-    }
-
-    if (!this.newDetallePedido.menu_id || !this.newDetallePedido.pedido_id || !this.newDetallePedido.cantidad) {
-      console.error('Datos faltantes:', this.newDetallePedido);
-      alert('Faltan campos requeridos.');
-      return;
-    }
-
-    this.detallePedidoService.updateDetallePedido(this.idAActualizar, this.newDetallePedido).subscribe(
+    this.detallePedidoService.updateDetallePedido(this.idAActualizar, detallePedidoData).subscribe(
       (res) => {
         console.log('DetallePedido actualizado:', res);
-        this.getDetallePedidos(); // Refresca la lista de detalles de pedido
-        this.clearForm(); // Limpia el formulario
+        this.getDetallePedidos();
+        this.clearForm();
       },
       (err) => {
         console.error('Error al actualizar el detalle de pedido:', err);
@@ -110,43 +100,43 @@ export class DetallePedidoPage {
     );
   }
 
-
   // Eliminar detalle de pedido
   deleteDetallePedido(id: number) {
     this.detallePedidoService.deleteDetallePedido(id).subscribe(
       (res) => {
         console.log('Detalle de pedido eliminado:', res);
-        this.getDetallePedidos();  // Refrescar la lista de detalles de pedido
+        this.getDetallePedidos();
       },
       (err) => console.error('Error al eliminar detalle de pedido:', err)
     );
   }
 
+  // Editar detalle de pedido
   editDetallePedido(detallePedido: any) {
-    if (!detallePedido) {
-      console.error('No se ha recibido el detallePedido');
-      return;
-    }
-
-    // Asignamos los valores al formulario, incluyendo el pedido_id
     this.idAActualizar = detallePedido.id;
-
     this.newDetallePedido = {
-      id: detallePedido.id,
-      cantidad: detallePedido.cantidad,
-      menu_id: detallePedido.menu?.id, // Asegúrate de que 'menu' exista
-      pedido_id: detallePedido.pedido?.id // Asegúrate de que 'pedido' exista
+      pedido_id: detallePedido.pedido.id,
+      items: detallePedido.items.map((item: any) => ({
+        menu_id: item.menu.id,
+        cantidad: item.cantidad
+      }))
     };
-
-    console.log('Detalle a editar:', this.newDetallePedido);
     this.editing = true;
   }
 
+  // Agregar un nuevo item
+  addItem() {
+    this.newDetallePedido.items.push({ menu_id: 0, cantidad: 0 });
+  }
 
+  // Eliminar un item
+  removeItem(index: number) {
+    this.newDetallePedido.items.splice(index, 1);
+  }
 
   // Limpiar formulario
   clearForm() {
-    this.newDetallePedido = { cantidad: 0, menu_id: 0, pedido_id: 0 };
+    this.newDetallePedido = { pedido_id: 0, items: [{ menu_id: 0, cantidad: 0 }] };
     this.idAActualizar = 0;
     this.editing = false;
   }

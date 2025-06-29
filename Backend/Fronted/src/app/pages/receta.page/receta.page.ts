@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RecetaService } from '../../core/services/receta.services';
+import { MenuService } from '../../core/services/menu.services';
 
 @Component({
   selector: 'app-receta',
@@ -9,30 +10,57 @@ import { RecetaService } from '../../core/services/receta.services';
   templateUrl: './receta.page.html',
   imports: [CommonModule, FormsModule],  // Agregar CommonModule para evitar errores en Angular
   styleUrls: ['./receta.page.css']
+
 })
 export class RecetaPage {
   recetas: any[] = [];
   newReceta: any = { cantidad: 0, descripcion: '', producto_id: 0, unidadMedida: '', menu_id: 0, cantidadDisponible: 0 };
   idAActualizar: number = 0;
   editing: boolean = false;
+  menus: any[] = [];  // Lista de menús disponibles
+  displayedRecetas: any[] = [];
+  currentPage: number = 1;
+  recetasPerPage: number = 10;
+  totalPages: number = 1;
 
-  constructor(private recetaService: RecetaService) {}
+  constructor(private recetaService: RecetaService, private menuService: MenuService) {}
 
   ngOnInit() {
     this.getRecetas();
-  }
+    this.getMenus();    // Llamar a la función para cargar los menús
 
+  }
+  getMenus() {
+    this.menuService.getMenus().subscribe((response) => {
+      this.menus = response;  // Guardamos los menús en el arreglo 'menus'
+    });
+  }
   // Obtener todas las recetas
   getRecetas() {
     this.recetaService.getRecetas().subscribe(
       (response) => {
-        this.recetas = response;
-        console.log(this.recetas); // Verifica los datos en la consola
+        this.recetas = response; // Recibimos todas las recetas
+        this.totalPages = Math.ceil(this.recetas.length / this.recetasPerPage); // Calculamos el número total de páginas
+        this.loadPage(this.currentPage); // Cargamos las recetas para la página actual
       },
       (err) => console.error('Error al obtener las recetas:', err)
     );
   }
+  // Cambiar la página actual
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) {
+      return; // No cambiar si la página es inválida
+    }
+    this.currentPage = page;
+    this.loadPage(page);
+  }
 
+  // Cargar las recetas de la página seleccionada
+  loadPage(page: number) {
+    const startIndex = (page - 1) * this.recetasPerPage;
+    const endIndex = page * this.recetasPerPage;
+    this.displayedRecetas = this.recetas.slice(startIndex, endIndex); // Solo mostramos las recetas para la página actual
+  }
   // Guardar receta (ya sea para crear o actualizar)
   saveReceta() {
     console.log('Datos a enviar:', this.newReceta);  // Verificar los datos antes de enviar
