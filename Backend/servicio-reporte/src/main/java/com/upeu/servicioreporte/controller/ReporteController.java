@@ -4,11 +4,13 @@ import com.upeu.servicioreporte.dto.VentaDto;
 import com.upeu.servicioreporte.entity.Reporte;
 import com.upeu.servicioreporte.feign.VentaClient;
 import com.upeu.servicioreporte.service.ReporteService;
+import com.upeu.servicioreporte.util.PdfExportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -24,6 +26,17 @@ public class ReporteController {
         this.reporteService = reporteService;
     }
 
+    @GetMapping("/productos-mas-rentables/pdf")
+    public ResponseEntity<byte[]> exportarProductosMasRentablesPdf() {
+        List<Map<String, Object>> productos = reporteService.obtenerProductosMasRentables();
+        ByteArrayInputStream pdfStream = PdfExportUtil.exportarProductosMasRentables(productos);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=productos_mas_rentables.pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfStream.readAllBytes());
+    }
+    
     @GetMapping("/productos-mas-rentables")
     public ResponseEntity<List<Map<String, Object>>> obtenerProductosMasRentables() {
         return ResponseEntity.ok(reporteService.obtenerProductosMasRentables());
@@ -37,8 +50,12 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.obtenerCantidadVentasPorPeriodo(inicio, fin));
     }
 
-
-
+    @GetMapping("/{id}")
+    public ResponseEntity<Reporte> obtenerReportePorId(@PathVariable Integer id) {
+        return reporteService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @GetMapping("/inventarios-mas-usados")
     public List<Map<String, Object>> inventariosMasUsados() {
