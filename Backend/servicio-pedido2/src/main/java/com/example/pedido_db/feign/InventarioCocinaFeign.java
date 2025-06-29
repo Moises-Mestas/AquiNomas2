@@ -29,10 +29,10 @@ public interface InventarioCocinaFeign {
     );
 
 
-    // FallBack
     default ResponseEntity<List<InventarioCocina>> fallbackInventarioCocinaList(Throwable throwable) {
-        System.err.println("❌ ENTRÓ AL FALLBACK del InventarioCocinaFeign: " + throwable.getMessage());
-        throw new RuntimeException("Error crítico al contactar con servicio de inventario", throwable);
+        System.err.println("❌ Error al contactar con servicio de inventario: " + throwable.getMessage());
+        // Devuelve una lista vacía en caso de error
+        return ResponseEntity.ok(Collections.emptyList());
     }
 
 

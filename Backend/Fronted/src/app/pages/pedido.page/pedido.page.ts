@@ -27,6 +27,8 @@ export class PedidoPage {
     this.pedidoService.getPedidos().subscribe(
       (response) => {
         this.pedidos = response;
+        this.pedidos.sort((a, b) => b.id - a.id);
+
         console.log(this.pedidos);
       },
       (err) => console.error('Error al obtener los pedidos:', err)

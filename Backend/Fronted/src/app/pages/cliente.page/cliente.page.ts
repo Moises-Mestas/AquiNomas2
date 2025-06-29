@@ -28,6 +28,10 @@ export class ClientePage {
     this.clienteService.getClientes().subscribe(
       (response) => {
         this.clientes = response; // Guarda los clientes obtenidos
+
+        // Ordenar los clientes de forma descendente por ID (más reciente primero)
+        this.clientes.sort((a, b) => b.id - a.id);
+
         console.log(this.clientes); // Verifica los datos en la consola
       },
       (err) => console.error('Error al obtener clientes:', err)

@@ -27,6 +27,8 @@ export class DetallePedidoPage {
     this.detallePedidoService.getDetallePedidos().subscribe(
       (response) => {
         this.detallePedidos = response;
+        this.detallePedidos.sort((a, b) => b.id - a.id);
+
         console.log(this.detallePedidos); // Verifica los datos en la consola
       },
       (err) => console.error('Error al obtener los detalles de pedido:', err)
