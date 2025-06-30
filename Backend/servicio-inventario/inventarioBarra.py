@@ -14,7 +14,7 @@ def registrar_en_eureka(puerto):
         import py_eureka_client.eureka_client as eureka_client
         eureka_client.init(
             eureka_server="http://localhost:8090/eureka",
-            app_name="SERVICIO-INVENTARIO",
+            app_name="servicio-inventario",
             instance_id=f"servicio-inventario-{puerto}",
             health_check_url=f"http://{ip}:{puerto}/health",
             home_page_url=f"http://{ip}:{puerto}",

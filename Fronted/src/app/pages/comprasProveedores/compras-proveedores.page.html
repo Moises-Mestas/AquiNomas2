@@ -1,0 +1,110 @@
+<div class="card">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <span>Compras de Proveedores</span>
+    <button class="btn btn-success btn-sm" (click)="abrirModalCompra()">
+      Nueva Compra
+    </button>
+  </div>
+  <div class="card-body">
+    <!-- Filtros -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Filtrar por fecha exacta</label>
+        <div class="input-group">
+          <input type="date" class="form-control" [(ngModel)]="filtroFecha" />
+          <button class="btn btn-outline-secondary" type="button" (click)="filtrarPorFecha()">
+            <i class="bi bi-search"></i> <!-- Si usas Bootstrap Icons -->
+            <!-- O usa un emoji: -->
+            <!-- 🔍 -->
+          </button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Filtrar por rango de fechas</label>
+        <div class="input-group mb-2">
+          <input type="date" class="form-control" placeholder="Fecha inicio" [(ngModel)]="filtroFechaInicio" />
+          <input type="date" class="form-control" placeholder="Fecha fin" [(ngModel)]="filtroFechaFin" />
+          <button class="btn btn-outline-secondary" type="button" (click)="filtrarPorRangoFecha()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button class="btn btn-secondary w-100" (click)="limpiarFiltros()">Limpiar Filtros</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Proveedor</th>
+            <th>Email Proveedor</th>
+            <th>Producto</th>
+            <th>Precio Producto</th>
+            <th>Cantidad</th>
+            <th>Unidad Medida</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let compra of compras">
+            <td>{{ compra.id }}</td>
+            <td>{{ compra.proveedor_nombre }}</td>
+            <td>{{ compra.proveedor_email }}</td>
+            <td>{{ compra.producto_nombre }}</td>
+            <td>{{ compra.producto_precio }}</td>
+            <td>{{ compra.cantidad }}</td>
+            <td>{{ compra.unidad_medida }}</td>
+            <td>{{ compra.total | currency: 's/ ' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- Modal Agregar Compra -->
+<div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" (ngSubmit)="saveCompra()">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalCompraLabel">
+          Agregar Compra
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalCompra')" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label>Proveedor</label>
+          <select class="form-control" [(ngModel)]="newCompra.proveedor_id" name="proveedor_id" required>
+            <option [ngValue]="null" disabled>Selecciona un proveedor</option>
+            <option *ngFor="let prov of proveedores" [ngValue]="prov.id">
+              {{ prov.nombre }} ({{ prov.email }})
+            </option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label>Producto</label>
+          <select class="form-control" [(ngModel)]="newCompra.producto_id" name="producto_id" required>
+            <option [ngValue]="null" disabled>Selecciona un producto</option>
+            <option *ngFor="let prod of productos" [ngValue]="prod.id">
+              {{ prod.nombre }} (S/ {{ prod.precio }})
+            </option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label>Cantidad</label>
+          <input type="number" class="form-control" [(ngModel)]="newCompra.cantidad" name="cantidad" required />
+        </div>
+        <div class="mb-2">
+          <label>Unidad Medida</label>
+          <input type="text" class="form-control" [(ngModel)]="newCompra.unidad_medida" name="unidad_medida" required />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal('modalCompra')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Agregar</button>
+      </div>
+    </form>
+  </div>
+</div>

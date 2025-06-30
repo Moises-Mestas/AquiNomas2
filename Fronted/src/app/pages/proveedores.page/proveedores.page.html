@@ -1,0 +1,129 @@
+<div class="card">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <span>Lista de Proveedores</span>
+    <button class="btn btn-success btn-sm" (click)="abrirModalProveedor(false)">
+      Nuevo Proveedor
+    </button>
+  </div>
+  <div class="card-body">
+    <!-- Filtros -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Buscar por nombre" [(ngModel)]="filtroNombre"
+          (input)="filtrarPorNombre()" />
+      </div>
+      <div class="col-md-4">
+        <select class="form-control" [(ngModel)]="filtroEstado" (change)="filtrarPorEstado()">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar Filtros</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Email</th>
+            <th>RUC</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let proveedor of proveedores">
+            <td>{{ proveedor.id }}</td>
+            <td>{{ proveedor.nombre }}</td>
+            <td>{{ proveedor.telefono }}</td>
+            <td>{{ proveedor.direccion }}</td>
+            <td>{{ proveedor.email }}</td>
+            <td>{{ proveedor.ruc }}</td>
+            <td>{{ proveedor.estado }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm me-2" (click)="abrirModalProveedor(true, proveedor)">
+                Editar
+              </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar/Editar Proveedor -->
+<div class="modal fade" id="modalProveedor" tabindex="-1" aria-labelledby="modalProveedorLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" (ngSubmit)="saveProveedor()">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalProveedorLabel">
+          {{ editing ? 'Editar Proveedor' : 'Agregar Proveedor' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalProveedor')" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label>Nombre</label>
+          <input type="text" class="form-control" [(ngModel)]="newProveedor.nombre" name="nombre" required />
+        </div>
+        <div class="mb-2">
+          <label>Teléfono</label>
+          <input type="text" class="form-control" [(ngModel)]="newProveedor.telefono" name="telefono" required />
+        </div>
+        <div class="mb-2">
+          <label>Dirección</label>
+          <input type="text" class="form-control" [(ngModel)]="newProveedor.direccion" name="direccion" required />
+        </div>
+        <div class="mb-2">
+          <label>Email</label>
+          <input type="email" class="form-control" [(ngModel)]="newProveedor.email" name="email" required />
+        </div>
+        <div class="mb-2">
+          <label>RUC</label>
+          <input type="text" class="form-control" [(ngModel)]="newProveedor.ruc" name="ruc" required />
+        </div>
+        <div class="mb-2">
+          <label>Estado</label>
+          <select class="form-control" [(ngModel)]="newProveedor.estado" name="estado" required>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal('modalProveedor')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">{{ editing ? 'Actualizar' : 'Agregar' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Eliminar Proveedor -->
+<div class="modal fade" id="modalEliminarProveedor" tabindex="-1" aria-labelledby="modalEliminarProveedorLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalEliminarProveedorLabel">¿Estás seguro?</h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalEliminarProveedor')"
+          aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Seguro que deseas eliminar este proveedor?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          (click)="cerrarModal('modalEliminarProveedor')">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminar()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>

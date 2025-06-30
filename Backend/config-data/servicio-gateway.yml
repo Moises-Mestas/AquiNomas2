@@ -11,10 +11,10 @@ spring:
     gateway:
       globalcors:
         corsConfigurations:
-          '[/**]':
+          "[/**]":
             allowedOrigins:
-            - "http://localhost:4200"
-            - "http://127.0.0.1:4200"
+              - "http://localhost:4200"
+              - "http://127.0.0.1:4200"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
@@ -26,44 +26,54 @@ spring:
         - id: servicio-auth
           uri: lb://servicio-auth
           predicates:
-            - Path=/auth/
+            - Path=/auth/**
 
         #========servicio pedido=======#
         - id: servicio-pedido2
           uri: lb://servicio-pedido2
           predicates:
             - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**, /upload/**
-
+          filters:
+            - AuthFilter
         #========servicio cliente=======#
         - id: servicio-cliente
           uri: lb://servicio-cliente
           predicates:
             - Path=/clientes/**, /administradores/**
-
+          filters:
+            - AuthFilter
         #========servicio proveedor=======#
         - id: servicio-proveedor
           uri: lb://servicio-proveedor
           predicates:
-            - Path=/productos/**, /proveedores/**, /compras-proveedores
+            - Path=/productos/**, /proveedores/**, /compras-proveedores/**, /compras/fecha-especifica/**, /compras/fecha/**
+
+          filters:
+            - AuthFilter
 
         #========servicio inventario=======#
         - id: servicio-inventario
           uri: lb://servicio-inventario
           predicates:
             - Path=/bodega/**, /inventario-cocina/**, /inventario-barra/**
+          filters:
+            - AuthFilter
 
         #========servicio venta=======#
         - id: servicio-venta
           uri: lb://servicio-venta
           predicates:
             - Path=/ventas/**, /promociones/**, /comprobantes/**
+          filters:
+            - AuthFilter
 
         #========servicio reportes=======#
         - id: servicio-reportes
           uri: lb://servicio-reportes
           predicates:
             - Path=/reportes/**
-
+          filters:
+            - AuthFilter
 
             #filters:
             #- AuthFilter
