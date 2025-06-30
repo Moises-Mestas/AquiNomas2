@@ -59,8 +59,8 @@ spring:
             - Path=/ventas/**, /promociones/**, /comprobantes/**
 
         #========servicio reportes=======#
-        - id: servicio-reportes
-          uri: lb://servicio-reportes
+        - id: servicio-reporte
+          uri: lb://servicio-reporte
           predicates:
             - Path=/reportes/**
 

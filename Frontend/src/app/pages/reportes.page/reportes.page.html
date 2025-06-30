@@ -1,0 +1,15 @@
+<h3>Reporte: Productos Más Rentables</h3>
+<table class="table table-bordered">
+  <thead>
+  <tr>
+    <th>Producto</th>
+    <th>Ganancia</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let prod of productosRentables">
+    <td>{{ prod.nombre }}</td>
+    <td>{{ prod.ganancia }}</td>
+  </tr>
+  </tbody>
+</table>
