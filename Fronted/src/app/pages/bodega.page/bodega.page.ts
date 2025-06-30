@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BodegaServices } from '../../core/services/bodega.services';
-import { AuthService } from '../../core/services/auth.services';
+import { ProductoServices } from '../../core/services/producto.services';
 
 @Component({
   selector: 'app-bodega',
@@ -13,6 +13,7 @@ import { AuthService } from '../../core/services/auth.services';
 })
 export class BodegaPage {
   bodegas: any[] = [];
+  productos: any[] = [];
   bodegasOriginal: any[] = [];
   newBodega: any = {
     producto_id: null,
@@ -34,15 +35,12 @@ export class BodegaPage {
 
   constructor(
     private bodegaService: BodegaServices,
-    private authService: AuthService
+    private productoService: ProductoServices
   ) {}
-
-  logout() {
-    this.authService.logout();
-  }
 
   ngOnInit() {
     this.getBodegas();
+    this.getProductos();
   }
 
   getBodegas() {
@@ -53,6 +51,23 @@ export class BodegaPage {
       },
       (err) => console.error('Error al obtener bodegas:', err)
     );
+  }
+
+  getProductos() {
+    this.productoService.getProductos().subscribe(
+      (res) => {
+        this.productos = res;
+        console.log('Productos cargados:', this.productos);
+      },
+      (err) => console.error('Error al obtener productos:', err)
+    );
+  }
+
+  getNombreProducto(producto_id: number): string {
+    const producto = this.productos.find(
+      (p) => Number(p.id) === Number(producto_id)
+    );
+    return producto ? producto.nombre : 'Desconocido';
   }
 
   clearForm() {
