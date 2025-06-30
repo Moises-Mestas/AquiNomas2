@@ -1,0 +1,26 @@
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Realizar Pedido</h1>
+
+  <!-- Botones para navegar entre las vistas -->
+  <div class="btn-group mb-4" role="group" aria-label="Navegar entre vistas">
+    <button class="btn btn-primary" (click)="showView('cliente')">Cliente</button>
+    <button class="btn btn-primary" (click)="showView('pedido')">Pedido</button>
+    <button class="btn btn-primary" (click)="showView('detallePedido')">Detalle de Pedido</button>
+  </div>
+
+  <!-- Vista de Cliente -->
+  <div *ngIf="currentView === 'cliente'">
+    <app-cliente></app-cliente> <!-- Incluye el componente Cliente -->
+  </div>
+
+  <!-- Vista de Pedido -->
+  <div *ngIf="currentView === 'pedido'">
+    <app-pedido></app-pedido> <!-- Incluye el componente Pedido -->
+  </div>
+
+  <!-- Vista de Detalle de Pedido -->
+  <div *ngIf="currentView === 'detallePedido'">
+    <app-detalle-pedido></app-detalle-pedido> <!-- Incluye el componente Detalle de Pedido -->
+  </div>
+
+</div>

@@ -31,4 +31,6 @@ export class PedidoServices {
   deletePedido(id: number): Observable<any> {
     return this.http.delete(`${resources.pedidos}/${id}`);
   }
+
+
 }

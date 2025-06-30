@@ -1,0 +1,66 @@
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Pedidos Completos</h1>
+
+  <!-- Filtro por Estado (opcional) -->
+  <div class="d-flex mb-4">
+    <label for="estado" class="form-label me-2">Filtrar por Estado</label>
+    <select id="estado" class="form-control" [(ngModel)]="estadoFiltro" (change)="filterPedidos()">
+      <option value="">TODOS</option>
+      <option value="PENDIENTE">PENDIENTE</option>
+      <option value="INICIADO">INICIADO</option>
+      <option value="COMPLETADO">COMPLETADO</option>
+      <option value="CANCELADO">CANCELADO</option>
+    </select>
+  </div>
+
+  <!-- Tarjetas de Pedido -->
+  <div class="row">
+    <div *ngFor="let pedido of displayedPedidos" class="col-md-3 mb-4">
+      <div class="card" (click)="openModal(pedido)">
+        <div class="card-body">
+          <h5 class="card-title">ID Pedido: {{ pedido.id }}</h5>
+          <p class="card-text">
+            <strong>Cliente:</strong> {{ pedido.cliente?.nombre }} {{ pedido.cliente?.apellido }}<br>
+            <strong>Fecha:</strong> {{ pedido.fechaPedido | date }}<br>
+            <strong>Estado:</strong> {{ pedido.estadoPedido }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal con detalles del Pedido -->
+  <div *ngIf="selectedPedido" class="modal show" tabindex="-1" style="display: block;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalles del Pedido - ID {{ selectedPedido.id }}</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <h5>Cliente</h5>
+          <p>
+            <strong>Nombre:</strong> {{ selectedPedido.cliente?.nombre }}<br>
+            <strong>Apellido:</strong> {{ selectedPedido.cliente?.apellido }}<br>
+            <strong>DNI:</strong> {{ selectedPedido.cliente?.dni }}<br>
+            <strong>Email:</strong> {{ selectedPedido.cliente?.email }}<br>
+            <strong>Dirección:</strong> {{ selectedPedido.cliente?.direccion }}
+          </p>
+
+          <h5>Menús Seleccionados</h5>
+          <ul>
+            <li *ngFor="let detalle of selectedPedido.detalles">
+              <strong>{{ detalle.menu.nombre }}</strong><br>
+              Descripción: {{ detalle.menu.descripcion }}<br>
+              Precio: {{ detalle.menu.precio | currency }}<br>
+              Cantidad: {{ detalle.cantidad }}<br>
+            </li>
+          </ul>
+
+          <p><strong>Fecha del Pedido:</strong> {{ selectedPedido.fechaPedido | date }}</p>
+          <p><strong>Estado del Pedido:</strong> {{ selectedPedido.estadoPedido }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
