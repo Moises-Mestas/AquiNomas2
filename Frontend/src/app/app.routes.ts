@@ -1,8 +1,15 @@
 import { Routes } from '@angular/router';
-import { ReportesPage } from './pages/reportes.page/reportes.page';
-import { ClientePage } from './pages/cliente.page/cliente.page';
+import { ReportesComponent } from './pages/reportes/reportes.component';
+import { PlatosBebidasComponent } from './pages/platos-bebidas.component';
 
 export const routes: Routes = [
-  { path: 'reportes', component: ReportesPage },
-  { path: 'clientes', component: ClientePage }
+  { path: '', redirectTo: 'reportes', pathMatch: 'full' },
+  { path: 'reportes', component: ReportesComponent },
+  {
+  path: 'platos-bebidas',
+  loadComponent: () =>
+    import('./pages/platos-bebidas.component').then((m) => m.PlatosBebidasComponent),
+}
+
+
 ];

@@ -1,0 +1,18 @@
+<h2>📈 Productos más rentables</h2>
+<table *ngIf="productosRentables.length">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Precio</th>
+      <th>Total Generado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let prod of productosRentables">
+      <td>{{ prod.nombre }}</td>
+      <td>{{ prod.precioUnitario }}</td>
+      <td>{{ prod.totalGenerado }}</td>
+    </tr>
+  </tbody>
+</table>
+<p *ngIf="!productosRentables.length">Cargando datos o no hay resultados.</p>

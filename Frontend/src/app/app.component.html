@@ -1,0 +1,39 @@
+<div class="d-flex flex-column vh-100">
+  <!-- Header -->
+  <header class="bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+    <h4 class="m-0">📊 Sistema de Reportes - AquiNomas</h4>
+     <!--<button class="btn btn-danger btn-sm" (click)="logout()">Cerrar sesión</button>-->
+  </header>
+
+  <div class="d-flex flex-grow-1">
+    <!-- Sidebar -->
+    <aside class="bg-dark text-white p-3" style="width: 220px;">
+      <nav class="d-grid gap-2">
+        <h6 class="text-white">📁 Módulos</h6>
+        <button class="btn custom-btn text-start text-white" routerLink="/productos">🛒 Productos</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/pedidos">📋 Pedidos</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/clientes">👥 Clientes</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/inventario">📦 Inventario</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/recetas">📈 Recetas</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/menus">📑 Menús</button>
+
+        <hr class="border-light" />
+
+        <h6 class="text-white">📊 Reportes</h6>
+        <button class="btn custom-btn text-start text-white" routerLink="/productos-rentables">💰 Productos rentables</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/ventas-por-periodo">📆 Ventas por periodo</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/inventario-usado">📦 Inventario más usado</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/platos-bebidas">🍽️ Platos y bebidas</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/insumos">🧪 Insumos (costo/cantidad)</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/comprobantes">🧾 Comprobantes usados</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/clientes-monto">👤 Clientes por monto</button>
+        <button class="btn custom-btn text-start text-white" routerLink="/reportes">📄 Ver todos los reportes</button>
+      </nav>
+    </aside>
+
+    <!-- Contenido de la página -->
+    <main class="p-4 flex-grow-1 bg-light">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

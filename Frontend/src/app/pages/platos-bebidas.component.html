@@ -1,0 +1,31 @@
+<h2>📈 Platos y Bebidas Más Pedidos</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Cantidad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of masPedidos">
+      <td>{{ item.nombre }}</td>
+      <td>{{ item.cantidad }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>📉 Platos y Bebidas Menos Pedidos</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Cantidad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of menosPedidos">
+      <td>{{ item.nombre }}</td>
+      <td>{{ item.cantidad }}</td>
+    </tr>
+  </tbody>
+</table>
