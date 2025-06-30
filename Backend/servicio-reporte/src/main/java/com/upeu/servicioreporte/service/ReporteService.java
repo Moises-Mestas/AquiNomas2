@@ -1,5 +1,6 @@
 package com.upeu.servicioreporte.service;
 
+import com.upeu.servicioreporte.dto.ReporteGeneralDto;
 import com.upeu.servicioreporte.entity.Reporte;
 
 import java.time.LocalDateTime;
@@ -24,8 +25,6 @@ public interface ReporteService {
     Map<String, Long> obtenerComprobantesMasUsados();
 
     Reporte guardarReporte(Reporte reporte);
-
-    List<ReporteGeneralDto> listarReportesFormateados();
 
     List<Reporte> listarReportes();
 

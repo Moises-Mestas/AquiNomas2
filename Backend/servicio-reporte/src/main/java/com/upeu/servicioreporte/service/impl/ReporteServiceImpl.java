@@ -242,40 +242,6 @@ public class ReporteServiceImpl implements ReporteService {
         return reporteRepository.findAll();
     }
 
-    @Override
-    public List<ReporteGeneralDto> listarReportesFormateados() {
-        List<Reporte> reportes = reporteRepository.findAll();
-
-        return reportes.stream().map(reporte -> {
-            ReporteGeneralDto dto = new ReporteGeneralDto();
-            dto.setId(reporte.getId());
-            dto.setTipo(reporte.getTipo().name());
-            dto.setDescripcion(reporte.getDescripcion());
-            dto.setDetalles(reporte.getDetalles());
-            dto.setFechaCreacion(reporte.getFechaCreacion().toString());
-
-            String cliente = "No Asignado";
-            String admin = "No Asignado";
-
-            try {
-                if (reporte.getClienteId() != null) {
-                    cliente = clienteAdministradorClient.obtenerClientePorId(reporte.getClienteId()).getNombre();
-                }
-            } catch (Exception ignored) {}
-
-            try {
-                if (reporte.getAdministradorId() != null) {
-                    admin = clienteAdministradorClient.obtenerAdministradorPorId(reporte.getAdministradorId()).getNombre();
-                }
-            } catch (Exception ignored) {}
-
-            dto.setCliente(cliente);
-            dto.setAdministrador(admin);
-
-            return dto;
-        }).toList();
-    }
-
 
 }
 

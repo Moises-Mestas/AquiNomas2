@@ -2,8 +2,10 @@ package com.upeu.servicioreporte.controller;
 
 import com.upeu.servicioreporte.dto.ReporteGeneralDto;
 import com.upeu.servicioreporte.entity.Reporte;
+import com.upeu.servicioreporte.feign.ClienteAdministradorClient;
 import com.upeu.servicioreporte.service.ReporteService;
 import com.upeu.servicioreporte.util.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.io.InputStreamResource;
@@ -26,9 +28,11 @@ import java.util.Map;
 public class ReporteController {
 
     private final ReporteService reporteService;
+    private final ClienteAdministradorClient clienteAdministradorClient;
 
-    public ReporteController(ReporteService reporteService) {
+    public ReporteController(ReporteService reporteService, @Qualifier("com.upeu.servicioreporte.feign.ClienteAdministradorClient") ClienteAdministradorClient clienteAdministradorClient) {
         this.reporteService = reporteService;
+        this.clienteAdministradorClient = clienteAdministradorClient;
     }
 
     @GetMapping("/productos-mas-rentables/pdf")
@@ -150,13 +154,47 @@ public class ReporteController {
         return reporteService.guardarReporte(reporte);
     }
 
-    @GetMapping("/pdf/reportes")
-    public ResponseEntity<Resource> exportarListaReportesPDF() {
+    @GetMapping("/pdf")
+    public ResponseEntity<Resource> exportarReporteGeneralPDF() {
         try {
-            List<ReporteGeneralDto> reportes = reporteService.listarReportesFormateados();
-            File pdf = ListaReportesPdf.exportar(reportes);
+            List<Reporte> reportes = reporteService.listarReportes();
 
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(pdf));
+            List<Map<String, Object>> datosFormateados = reportes.stream()
+                    .map(reporte -> {
+                        Map<String, Object> map = new java.util.HashMap<>();
+                        map.put("id", reporte.getId());
+                        map.put("descripcion", reporte.getDescripcion());
+                        map.put("detalles", reporte.getDetalles());
+                        map.put("tipo", reporte.getTipo().name());
+                        map.put("fechaCreacion", reporte.getFechaCreacion().toString());
+
+                        // Obtener nombres reales desde Feign Client
+                        String clienteNombre = "No Asignado";
+                        String adminNombre = "No Asignado";
+                        try {
+                            if (reporte.getClienteId() != null) {
+                                clienteNombre = clienteAdministradorClient
+                                        .obtenerClientePorId(reporte.getClienteId())
+                                        .getNombre();
+                            }
+                        } catch (Exception ignored) {}
+
+                        try {
+                            if (reporte.getAdministradorId() != null) {
+                                adminNombre = clienteAdministradorClient
+                                        .obtenerAdministradorPorId(reporte.getAdministradorId())
+                                        .getNombre();
+                            }
+                        } catch (Exception ignored) {}
+
+                        map.put("cliente", clienteNombre);
+                        map.put("admin", adminNombre);
+                        return map;
+                    }).toList();
+
+            File pdf = ListaReportesPdf.exportar(datosFormateados); // Actualiza también esta clase
+
+            InputStreamResource resource = new InputStreamResource(new java.io.FileInputStream(pdf));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + pdf.getName())
                     .contentType(MediaType.APPLICATION_PDF)
@@ -167,6 +205,7 @@ public class ReporteController {
             return ResponseEntity.status(500).build();
         }
     }
+
 
 
     @GetMapping

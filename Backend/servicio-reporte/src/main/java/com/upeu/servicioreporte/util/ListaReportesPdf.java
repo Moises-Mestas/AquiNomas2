@@ -2,16 +2,15 @@ package com.upeu.servicioreporte.util;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import com.upeu.servicioreporte.dto.ReporteGeneralDto;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class ListaReportesPdf {
-
-    public static File exportar(List<ReporteGeneralDto> reportes) throws IOException, DocumentException {
+    public static File exportar(List<Map<String, Object>> reportes) throws IOException, DocumentException {
         Document document = new Document();
         File pdfFile = File.createTempFile("lista_reportes", ".pdf");
         PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
@@ -32,14 +31,14 @@ public class ListaReportesPdf {
 
         addHeader(table, headerFont, "ID", "Cliente", "Admin", "Tipo", "Descripción", "Detalles", "Fecha");
 
-        for (ReporteGeneralDto dto : reportes) {
-            table.addCell(new Phrase(String.valueOf(dto.getId()), cellFont));
-            table.addCell(new Phrase(dto.getCliente(), cellFont));
-            table.addCell(new Phrase(dto.getAdministrador(), cellFont));
-            table.addCell(new Phrase(dto.getTipo(), cellFont));
-            table.addCell(new Phrase(dto.getDescripcion(), cellFont));
-            table.addCell(new Phrase(dto.getDetalles(), cellFont));
-            table.addCell(new Phrase(dto.getFechaCreacion(), cellFont));
+        for (Map<String, Object> item : reportes) {
+            table.addCell(new Phrase(String.valueOf(item.get("id")), cellFont));
+            table.addCell(new Phrase(String.valueOf(item.get("cliente")), cellFont));
+            table.addCell(new Phrase(String.valueOf(item.get("admin")), cellFont));
+            table.addCell(new Phrase(String.valueOf(item.get("tipo")), cellFont));
+            table.addCell(new Phrase(String.valueOf(item.get("descripcion")), cellFont));
+            table.addCell(new Phrase(String.valueOf(item.get("detalles")), cellFont));
+            table.addCell(new Phrase(String.valueOf(item.get("fechaCreacion")), cellFont));
         }
 
         document.add(table);
