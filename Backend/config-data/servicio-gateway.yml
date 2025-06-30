@@ -9,6 +9,15 @@ eureka:
 spring:
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+            - "http://localhost:4200"
+            - "http://127.0.0.1:4200"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
       discovery:
         locator:
           enabled: true
@@ -17,29 +26,50 @@ spring:
         - id: servicio-auth
           uri: lb://servicio-auth
           predicates:
-            - Path=/auth/**
+            - Path=/auth/
+
+        #========servicio pedido=======#
+        - id: servicio-pedido2
+          uri: lb://servicio-pedido2
+          predicates:
+            - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**, /upload/**
+
         #========servicio cliente=======#
         - id: servicio-cliente
           uri: lb://servicio-cliente
           predicates:
             - Path=/clientes/**, /administradores/**
-        #========servicio reportes=======#
-        - id: servicio-reportes
-          uri: lb://servicio-reportes
+
+        #========servicio proveedor=======#
+        - id: servicio-proveedor
+          uri: lb://servicio-proveedor
           predicates:
-            - Path=/reportes/**
-        #========servicio pedido=======#
-        - id: servicio-pedido2
-          uri: lb://servicio-pedido2
-          predicates:
-            - Path=/detalle-pedidos/**, /menus/**, /pedidos/**, /recetas/**
-        #========servicio venta=============#
-        - id: servicio-venta
-          uri: lb://servicio-venta
-          predicates:
-            - Path=/ventas/**, /promociones/**, /comprobantes/**
+            - Path=/productos/**, /proveedores/**, /compras-proveedores
+
         #========servicio inventario=======#
         - id: servicio-inventario
           uri: lb://servicio-inventario
           predicates:
             - Path=/bodega/**, /inventario-cocina/**, /inventario-barra/**
+
+        #========servicio venta=======#
+        - id: servicio-venta
+          uri: lb://servicio-venta
+          predicates:
+            - Path=/ventas/**, /promociones/**, /comprobantes/**
+
+        #========servicio reportes=======#
+        - id: servicio-reportes
+          uri: lb://servicio-reportes
+          predicates:
+            - Path=/reportes/**
+
+
+            #filters:
+            #- AuthFilter
+            #filters:
+            #- AuthFilter
+            #filters:
+            #- AuthFilter
+            #filters:
+            #- AuthFilter
