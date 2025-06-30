@@ -1,6 +1,6 @@
 spring:
   application:
-    name: servicio-reportes
+    name: servicio-reporte
   profiles:
     active: development
   config:
