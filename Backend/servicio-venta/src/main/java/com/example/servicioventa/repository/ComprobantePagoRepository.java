@@ -14,5 +14,7 @@ public interface ComprobantePagoRepository extends JpaRepository<ComprobantePago
     List<ComprobantePago> findByFechaEmisionBetween(LocalDateTime inicio, LocalDateTime fin);
     List<ComprobantePago> findByTipo(ComprobantePago.TipoComprobante tipo);
     List<ComprobantePago> findByVenta(Venta venta);
+
+
     Venta venta(Venta venta);
 }

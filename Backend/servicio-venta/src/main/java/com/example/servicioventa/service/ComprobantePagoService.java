@@ -19,12 +19,9 @@ public interface ComprobantePagoService {
     @Transactional
     ComprobantePago guardarComprobante(Long ventaId, ComprobantePago.TipoComprobante tipo);
 
-    @Transactional
-    ComprobantePago guardarComprobante(Integer ventaId, ComprobantePago.TipoComprobante tipo);
-
     byte[] generarComprobantePDF(Long comprobanteId) throws IOException;
 
     List<ComprobantePago> filtrarComprobantes(String tipo, LocalDateTime inicio, LocalDateTime fin);
 
-    List<ComprobantePago> listarPorVenta(Integer ventaId); // ✅ Nuevo metodo para buscar comprobantes por venta
+    List<ComprobantePago> listarPorVenta(Long ventaId); // ✅ Nuevo método para buscar comprobantes por venta
 }

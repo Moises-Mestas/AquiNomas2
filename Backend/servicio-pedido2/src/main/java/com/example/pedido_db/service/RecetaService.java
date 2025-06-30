@@ -1,5 +1,6 @@
 package com.example.pedido_db.service;
 
+import com.example.pedido_db.dto.Producto;
 import com.example.pedido_db.entity.Receta;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface RecetaService {
     Receta guardar(Receta receta);
     Receta actualizar(Receta receta);
     void eliminar(Integer id);
+    void sincronizarDesdeInventario(Integer productoId);
+
 }

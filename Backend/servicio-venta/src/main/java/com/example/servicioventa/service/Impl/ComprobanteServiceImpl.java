@@ -5,10 +5,15 @@ import com.example.servicioventa.entity.Venta;
 import com.example.servicioventa.repository.ComprobantePagoRepository;
 import com.example.servicioventa.repository.VentaRepository;
 import com.example.servicioventa.service.ComprobantePagoService;
-
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,9 +33,9 @@ public class ComprobanteServiceImpl implements ComprobantePagoService {
         this.ventaRepository = ventaRepository;
     }
 
-    @Transactional
     @Override
-    public ComprobantePago guardarComprobante(Integer ventaId, ComprobantePago.TipoComprobante tipo) {
+    @Transactional
+    public ComprobantePago guardarComprobante(Long ventaId, ComprobantePago.TipoComprobante tipo) {
         Optional<Venta> ventaOpt = ventaRepository.findById(ventaId);
         if (ventaOpt.isEmpty()) {
             throw new RuntimeException("❌ La venta con ID " + ventaId + " no existe.");
@@ -57,34 +62,34 @@ public class ComprobanteServiceImpl implements ComprobantePagoService {
     @Override
     public byte[] generarComprobantePDF(Long comprobanteId) throws IOException {
         Optional<ComprobantePago> comprobanteOpt = comprobanteRepository.findById(comprobanteId);
-//        if (comprobanteOpt.isEmpty()) {
-//            throw new RuntimeException("❌ El comprobante con ID " + comprobanteId + " no existe.");
-//        }
-//
-//        ComprobantePago comprobante = comprobanteOpt.get();
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        PdfWriter writer = new PdfWriter(outputStream);
-//        PdfDocument pdfDoc = new PdfDocument(writer);
-//        Document document = new Document(pdfDoc);
-//
-//        document.add(new Paragraph("Comprobante de Venta"));
-//        document.add(new Paragraph("Tipo: " + comprobante.getTipo()));
-//        document.add(new Paragraph("Número Serie: " + comprobante.getNumeroSerie()));
-//        document.add(new Paragraph("Número Comprobante: " + comprobante.getNumeroComprobante()));
-//        document.add(new Paragraph("Fecha Emisión: " + comprobante.getFechaEmision()));
-//        document.add(new Paragraph("Total Venta: " + comprobante.getVenta().getTotal()));
-//        document.add(new Paragraph("Monto Neto: " + comprobante.getMontoNeto()));
-//        document.add(new Paragraph("IGV: " + comprobante.getIgv()));
-//
-//        document.close();
-//
-//        // ✅ Guardar PDF en carpeta
-//        String filePath = "C:/Users/NELSON/Documents/Comprobantes/comprobante_" + comprobanteId + ".pdf";
-//        try (FileOutputStream fos = new FileOutputStream(filePath)) {
-//            fos.write(outputStream.toByteArray());
-//        }
+        if (comprobanteOpt.isEmpty()) {
+            throw new RuntimeException("❌ El comprobante con ID " + comprobanteId + " no existe.");
+        }
 
-        return null;
+        ComprobantePago comprobante = comprobanteOpt.get();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc);
+
+        document.add(new Paragraph("Comprobante de Venta"));
+        document.add(new Paragraph("Tipo: " + comprobante.getTipo()));
+        document.add(new Paragraph("Número Serie: " + comprobante.getNumeroSerie()));
+        document.add(new Paragraph("Número Comprobante: " + comprobante.getNumeroComprobante()));
+        document.add(new Paragraph("Fecha Emisión: " + comprobante.getFechaEmision()));
+        document.add(new Paragraph("Total Venta: " + comprobante.getVenta().getTotal()));
+        document.add(new Paragraph("Monto Neto: " + comprobante.getMontoNeto()));
+        document.add(new Paragraph("IGV: " + comprobante.getIgv()));
+
+        document.close();
+
+        // ✅ Guardar PDF en carpeta
+        String filePath = "C:/Users/NELSON/Documents/Comprobantes/comprobante_" + comprobanteId + ".pdf";
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            fos.write(outputStream.toByteArray());
+        }
+
+        return outputStream.toByteArray();
     }
 
     @Override
@@ -103,17 +108,12 @@ public class ComprobanteServiceImpl implements ComprobantePagoService {
     }
 
     @Override
-    public ComprobantePago guardarComprobante(Long ventaId, ComprobantePago.TipoComprobante tipo) {
-        return null;
-    }
-
-    @Override
     public ComprobantePago actualizar(ComprobantePago comprobantePago) {
         return comprobanteRepository.save(comprobantePago);
     }
 
     @Override
-    public List<ComprobantePago> listarPorVenta(Integer ventaId) {
+    public List<ComprobantePago> listarPorVenta(Long ventaId) {
         Optional<Venta> ventaOpt = ventaRepository.findById(ventaId);
         return ventaOpt.map(comprobanteRepository::findByVenta).orElseGet(List::of);
     }

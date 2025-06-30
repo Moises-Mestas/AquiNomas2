@@ -1,32 +1,29 @@
 package com.example.pedido_db.dto;
 
-
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class InventarioCocina {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private Integer id;
 
+    @JsonProperty("bodega_id")
+    private Integer bodegaId;
 
-    @Transient
-    private Producto Producto;  // Relación con Cliente, que se llena mediante Feign
+    @JsonProperty("producto_id")
     private Integer productoId;
 
-    @Column(name = "cantidad_disponible", nullable = true, columnDefinition = "DECIMAL(10,3)")
+    @JsonProperty("cantidad_disponible")
     private BigDecimal cantidadDisponible;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "unidad_medida", nullable = true)
-    private UnidadMedida unidadMedida;  // Enum para las unidades de medida
+    @JsonProperty("unidad_medida")
+    private String unidadMedida; // cambia de Enum a String para que no falle al deserializar
 
-
-    // Constructor vacío
     public InventarioCocina() {
+
     }
 
     public Integer getId() {
@@ -37,12 +34,12 @@ public class InventarioCocina {
         this.id = id;
     }
 
-    public com.example.pedido_db.dto.Producto getProducto() {
-        return Producto;
+    public Integer getBodegaId() {
+        return bodegaId;
     }
 
-    public void setProducto(com.example.pedido_db.dto.Producto producto) {
-        Producto = producto;
+    public void setBodegaId(Integer bodegaId) {
+        this.bodegaId = bodegaId;
     }
 
     public Integer getProductoId() {
@@ -61,17 +58,17 @@ public class InventarioCocina {
         this.cantidadDisponible = cantidadDisponible;
     }
 
-    public UnidadMedida getUnidadMedida() {
+    public String getUnidadMedida() {
         return unidadMedida;
     }
 
-    public void setUnidadMedida(UnidadMedida unidadMedida) {
+    public void setUnidadMedida(String unidadMedida) {
         this.unidadMedida = unidadMedida;
     }
 
-    public InventarioCocina(Integer id, com.example.pedido_db.dto.Producto producto, Integer productoId, BigDecimal cantidadDisponible, UnidadMedida unidadMedida) {
+    public InventarioCocina(Integer id, Integer bodegaId, Integer productoId, BigDecimal cantidadDisponible, String unidadMedida) {
         this.id = id;
-        Producto = producto;
+        this.bodegaId = bodegaId;
         this.productoId = productoId;
         this.cantidadDisponible = cantidadDisponible;
         this.unidadMedida = unidadMedida;
@@ -79,18 +76,12 @@ public class InventarioCocina {
 
     @Override
     public String toString() {
-        return "InventarioCocina{" +
+        return "InventarioCocinaDTO{" +
                 "id=" + id +
-                ", Producto=" + Producto +
+                ", bodegaId=" + bodegaId +
                 ", productoId=" + productoId +
                 ", cantidadDisponible=" + cantidadDisponible +
-                ", unidadMedida=" + unidadMedida +
+                ", unidadMedida='" + unidadMedida + '\'' +
                 '}';
     }
-
-    // Enum para las unidades de medida
-    public enum UnidadMedida {
-        KG, G, L, ML, UNIDAD
-    }
-
 }

@@ -1,7 +1,25 @@
 spring:
   application:
     name: servicio-pedido2
-  profiles:
-    active: development
+
   config:
     import: optional:configserver:http://root:123456@localhost:7070
+
+  # Configuración para desarrollo
+  profiles:
+    active: development
+
+  # Configuración de archivos y límites de carga
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # Configuración de recursos estáticos
+  web:
+    resources:
+      static-locations:
+        - file:./uploads/  # Cambié a "uploads/" para almacenar las imágenes subidas
+
+media:
+  location: uploads/  # Ruta donde se almacenarán los archivos subidos

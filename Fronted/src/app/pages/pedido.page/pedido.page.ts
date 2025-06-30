@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PedidoServices } from '../../core/services/pedido.services';
-import {ClienteService} from '../../core/services/cliente.services';
+import { ClienteService } from '../../core/services/cliente.services';
 
 @Component({
   selector: 'app-pedido',
@@ -29,11 +29,12 @@ export class PedidoPage {
     private pedidoService: PedidoServices,
     private clienteService: ClienteService  // Inyectar el servicio Cliente
   ) {}
+
   ngOnInit() {
     this.getPedidos();
     this.getClientes();  // Obtener los clientes al iniciar la página
-
   }
+
   getClientes() {
     this.clienteService.getClientes().subscribe(
       (response) => {
@@ -43,49 +44,36 @@ export class PedidoPage {
       (err) => console.error('Error al obtener los clientes:', err)
     );
   }
-  // Obtener todos los pedidos
-  // Obtener todos los pedidos
+
+  // Obtener todos los pedidos o filtrarlos por estado
   getPedidos() {
     if (this.estadoFiltro) {
-      // Si hay un filtro por estado, pasamos el estado
+      // Si hay un filtro por estado, usamos el método getPedidosPorEstado
       this.pedidoService.getPedidosPorEstado(this.estadoFiltro).subscribe(
         (response) => {
-          // Ordenar los pedidos por ID de manera descendente
-          this.pedidos = response.sort((a: any, b: any) => b.id - a.id);
-
-          // Calcular el número total de páginas
-          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
-
-          // Cargar los pedidos de la página actual
-          this.loadPage(this.currentPage);
+          this.pedidos = response.sort((a: any, b: any) => b.id - a.id); // Ordenar por ID descendente
+          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage); // Calcular total de páginas
+          this.loadPage(this.currentPage); // Cargar los pedidos de la página actual
         },
-        (err) => console.error('Error al obtener los pedidos:', err)
+        (err) => console.error('Error al obtener los pedidos filtrados:', err)
       );
     } else {
       // Si no hay filtro, traemos todos los pedidos
       this.pedidoService.getPedidos().subscribe(
         (response) => {
-          // Ordenar los pedidos por ID de manera descendente
-          this.pedidos = response.sort((a: any, b: any) => b.id - a.id);
-
-          // Calcular el número total de páginas
-          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
-
-          // Cargar los pedidos de la página actual
-          this.loadPage(this.currentPage);
+          this.pedidos = response.sort((a: any, b: any) => b.id - a.id); // Ordenar por ID descendente
+          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage); // Calcular total de páginas
+          this.loadPage(this.currentPage); // Cargar los pedidos de la página actual
         },
         (err) => console.error('Error al obtener los pedidos:', err)
       );
     }
   }
 
-
   // Filtrar pedidos por estado
   filterPedidos() {
     this.getPedidos();  // Vuelve a llamar a getPedidos con el estado seleccionado
   }
-
-
 
   // Cambiar la página actual
   changePage(page: number) {

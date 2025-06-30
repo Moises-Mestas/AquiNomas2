@@ -1,7 +1,9 @@
 package com.example.pedido_db.service.impl;
 
+import com.example.pedido_db.dto.InventarioCocina;
 import com.example.pedido_db.dto.Producto;
 import com.example.pedido_db.entity.Receta;
+import com.example.pedido_db.feign.InventarioCocinaFeign;
 import com.example.pedido_db.feign.ProductoFeign;
 import com.example.pedido_db.repository.RecetaRepository;
 import com.example.pedido_db.service.DetallePedidoService;
@@ -9,9 +11,13 @@ import com.example.pedido_db.service.RecetaService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -22,12 +28,9 @@ public class RecetaServiceImpl implements RecetaService {
 
     @Autowired
     private ProductoFeign productoFeign;  // Feign client to fetch Producto data
-
-
     @Autowired
-    public RecetaServiceImpl(RecetaRepository recetaRepository) {
-        this.recetaRepository = recetaRepository;
-    }
+    private InventarioCocinaFeign inventarioCocinaFeign;
+
 
     @CircuitBreaker(name = "productoCircuitBreaker", fallbackMethod = "fallbackCProductoById")
     public List<Receta> listar() {
@@ -59,7 +62,6 @@ public class RecetaServiceImpl implements RecetaService {
     }
 
 
-
     @CircuitBreaker(name = "productoCircuitBreaker", fallbackMethod = "fallbackCProductoById")
     @Override
     public Optional<Receta> listarPorId(Integer id) {
@@ -86,26 +88,159 @@ public class RecetaServiceImpl implements RecetaService {
         return Optional.empty();
     }
 
-
-    // Método fallback que se invoca si hay una falla en la llamada al servicio de Producto
-    public Optional<Receta> fallbackCProductoById(Integer id, Exception ex) {
-        // En caso de error, devolver un Optional vacío o alguna lógica de manejo de fallos
-        return Optional.empty();  // Retornar Optional vacío en caso de error
-    }
-
-
     @Override
+    @Transactional
     public Receta guardar(Receta receta) {
-        return recetaRepository.save(receta);
+        if (receta.getProductoId() == null) {
+            throw new RuntimeException("ProductoId no puede ser nulo en receta");
+        }
+
+        ResponseEntity<List<InventarioCocina>> response = inventarioCocinaFeign.listarInventarios();
+        List<InventarioCocina> inventarios = response.getBody();
+
+        System.out.println("🧾 Inventarios obtenidos del FeignClient:");
+        inventarios.forEach(inv -> System.out.println("➡️ " + inv));
+
+
+        if (inventarios == null || inventarios.isEmpty()) {
+            throw new RuntimeException("No se pudieron recuperar inventarios del servicio remoto.");
+        }
+
+        // Buscar todos los inventarios con ese productoId
+        List<InventarioCocina> coincidencias = inventarios.stream()
+                .filter(inv -> Objects.equals(inv.getProductoId(), receta.getProductoId()))
+                .toList();
+        System.out.println("🔍 Buscando coincidencias para productoId: " + receta.getProductoId());
+
+        if (coincidencias.isEmpty()) {
+            throw new RuntimeException("No se encontró inventario para producto ID: " + receta.getProductoId());
+        }
+
+        // Tomar el primero o aplicar lógica (ej. sumar todos)
+        InventarioCocina inventarioSeleccionado = coincidencias.get(0);
+
+        if (inventarioSeleccionado.getCantidadDisponible() == null) {
+            throw new RuntimeException("Inventario sin cantidad_disponible para producto ID: " + receta.getProductoId());
+        }
+
+        receta.setCantidadDisponible(inventarioSeleccionado.getCantidadDisponible());
+
+        Receta recetaGuardada = recetaRepository.save(receta);
+
+        // (Opcional) actualizar solo ese inventario
+// NO ACTUALIZAR INVENTARIO EN ESTA ETAPA
+
+
+        return recetaGuardada;
+    }
+
+
+    @Override
+    @Transactional
+    public Receta actualizar(Receta receta) {
+        if (receta.getId() == null || !recetaRepository.existsById(receta.getId())) {
+            throw new RuntimeException("Receta no encontrada");
+        }
+
+        if (receta.getProductoId() == null) {
+            throw new RuntimeException("ProductoId no puede ser nulo en receta");
+        }
+
+        ResponseEntity<List<InventarioCocina>> response = inventarioCocinaFeign.listarInventarios();
+        List<InventarioCocina> inventarios = response.getBody();
+
+
+        System.out.println("🧾 Inventarios obtenidos (actualizar):");
+        inventarios.forEach(inv -> System.out.println("➡️ " + inv));
+
+        if (inventarios == null || inventarios.isEmpty()) {
+            throw new RuntimeException("No hay inventarios disponibles.");
+        }
+
+        List<InventarioCocina> coincidencias = inventarios.stream()
+                .filter(inv -> Objects.equals(inv.getProductoId(), receta.getProductoId()))
+                .toList();
+
+        System.out.println("🔍 Buscando coincidencias para productoId (actualizar): " + receta.getProductoId());
+
+        if (coincidencias.isEmpty()) {
+            throw new RuntimeException("No se encontró inventario para producto ID: " + receta.getProductoId());
+        }
+
+        InventarioCocina inventarioSeleccionado = coincidencias.get(0);
+
+        if (inventarioSeleccionado.getCantidadDisponible() == null) {
+            throw new RuntimeException("Inventario sin cantidad_disponible para producto ID: " + receta.getProductoId());
+        }
+
+        receta.setCantidadDisponible(inventarioSeleccionado.getCantidadDisponible());
+
+        Receta recetaActualizada = recetaRepository.save(receta);
+
+// Restar la cantidad usada en la receta
+        BigDecimal cantidadRestante = inventarioSeleccionado.getCantidadDisponible().subtract(receta.getCantidad());
+
+// Asignar la nueva cantidad restante al inventario
+        inventarioSeleccionado.setCantidadDisponible(cantidadRestante);
+
+// Actualizar el inventario
+        inventarioCocinaFeign.updateInventarioCocina(inventarioSeleccionado.getId(), inventarioSeleccionado);
+
+
+        return recetaActualizada;
     }
 
     @Override
-    public Receta actualizar(Receta receta) {
-        if (receta.getId() != null && recetaRepository.existsById(receta.getId())) {
-            return recetaRepository.save(receta);
+    @Transactional
+    public void sincronizarDesdeInventario(Integer productoId) {
+        if (productoId == null) {
+            throw new RuntimeException("ProductoId no puede ser nulo");
         }
-        throw new RuntimeException("Receta no encontrada");
+
+        Receta receta = recetaRepository.findByProductoId(productoId)
+                .orElseThrow(() -> new RuntimeException("Receta no encontrada para producto ID: " + productoId));
+
+        ResponseEntity<List<InventarioCocina>> response = inventarioCocinaFeign.listarInventarios();
+        List<InventarioCocina> inventarios = response.getBody();
+
+        System.out.println("🧾 Inventarios obtenidos (sincronizar):");
+        inventarios.forEach(inv -> System.out.println("➡️ " + inv));
+
+        if (inventarios == null || inventarios.isEmpty()) {
+            throw new RuntimeException("No hay inventarios disponibles.");
+        }
+
+        List<InventarioCocina> coincidencias = inventarios.stream()
+                .filter(inv -> Objects.equals(inv.getProductoId(), productoId))
+                .toList();
+
+        System.out.println("🔍 Buscando coincidencias para productoId (sincronizar): " + productoId);
+
+        if (coincidencias.isEmpty()) {
+            throw new RuntimeException("No se encontró inventario para producto ID: " + productoId);
+        }
+
+        InventarioCocina inventarioSeleccionado = coincidencias.get(0);
+
+        if (inventarioSeleccionado.getCantidadDisponible() == null) {
+            throw new RuntimeException("Inventario sin cantidad_disponible para producto ID: " + productoId);
+        }
+
+        // Convertimos el stock del inventario a la unidad de la receta (sin modificar el inventario)
+        BigDecimal stockConvertido = receta.convertirUnidad(
+                inventarioSeleccionado.getCantidadDisponible(),
+                inventarioSeleccionado.getUnidadMedida(),
+                receta.getUnidadMedida()
+        );
+
+        receta.setCantidadDisponible(stockConvertido);
+        recetaRepository.save(receta); // Solo se actualiza la receta, no el inventario
     }
+
+
+
+
+
 
     @Override
     public void eliminar(Integer id) {

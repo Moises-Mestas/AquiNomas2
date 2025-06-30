@@ -1,431 +1,193 @@
 package com.example.servicioventa.service.Impl;
 
-import com.example.servicioventa.dto.*;
-import com.example.servicioventa.entity.MenuPromocion;
+import com.example.servicioventa.dto.Pedido;
+import com.example.servicioventa.dto.VentaDTO;
 import com.example.servicioventa.entity.Promocion;
 import com.example.servicioventa.entity.Venta;
 import com.example.servicioventa.feing.PedidoClient;
 import com.example.servicioventa.repository.PromocionRepository;
 import com.example.servicioventa.repository.VentaRepository;
 import com.example.servicioventa.service.VentaService;
-import org.springframework.beans.factory.annotation.Autowired;
+import feign.FeignException;
+import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class VentaServiceImpl implements VentaService {
 
-    @Autowired
-    private VentaRepository ventaRepository;
+    private final VentaRepository ventaRepository;
+    private final PromocionRepository promocionRepository;
+    private final PedidoClient pedidoClient;
 
-    @Autowired
-    private PedidoClient pedidoClient;
-
-    @Autowired
-    private PromocionRepository promocionRepository;
-
-    @Override
-    public VentaDTO crearVenta(Venta venta) {
-        if (venta == null || venta.getPedidoId() == null) {
-            throw new IllegalArgumentException("❌ La venta o el pedido no pueden ser nulos.");
-        }
-
-        if (existeVentaPorPedidoId(venta.getPedidoId())) {
-            throw new IllegalStateException("⚠️ El pedido ya tiene una venta registrada.");
-        }
-
-        PedidoDTO pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
-        validarPedido(pedido);
-
-        // 1️⃣ Obtener promociones completas por ID
-        List<Promocion> promocionesSolicitadas = Optional.ofNullable(venta.getPromociones()).orElse(List.of());
-
-        List<Promocion> promocionesCompletas = promocionesSolicitadas.stream()
-                .map(p -> promocionRepository.findById(p.getId()).orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 2️⃣ Analizar y validar promociones aplicables
-        ResultadoAnalisisPromocionesDTO resultado = analizarPromocionesAplicables(pedido, promocionesCompletas);
-
-        if (!resultado.getPromocionesRechazadas().isEmpty()) {
-            String error = "❌ Promociones inválidas para el pedido:\n" +
-                    String.join("\n", resultado.getPromocionesRechazadas());
-            throw new IllegalArgumentException(error);
-        }
-
-        venta.setPromociones(resultado.getPromocionesAplicables());
-
-        // 3️⃣ Guardar y retornar la venta procesada
-        Venta guardada = procesarVenta(venta, pedido);
-        return new VentaDTO(guardada, pedido);
+    public VentaServiceImpl(VentaRepository ventaRepository, PromocionRepository promocionRepository, PedidoClient pedidoClient) {
+        this.ventaRepository = ventaRepository;
+        this.promocionRepository = promocionRepository;
+        this.pedidoClient = pedidoClient;
     }
 
     @Override
-    public VentaDTO actualizarVenta(Integer id, Venta nuevaVenta) {
-        Venta venta = ventaRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Venta no encontrada."));
+    public List<VentaDTO> listar() {
+        List<Venta> ventas = ventaRepository.findAll();
 
-        PedidoDTO pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
-
-        venta.setMetodoPago(nuevaVenta.getMetodoPago());
-        venta.setFechaVenta(nuevaVenta.getFechaVenta());
-        venta.setPromociones(nuevaVenta.getPromociones());
-
-        validarLimitePromociones(nuevaVenta);
-        Venta actualizada = procesarVenta(venta, pedido);
-
-        return new VentaDTO(actualizada, pedido);
-    }
-
-    public List<Promocion> obtenerPromocionesAplicables(Integer pedidoId) {
-        PedidoDTO pedido = pedidoClient.obtenerPedidoPorId(pedidoId);
-        List<Promocion> promocionesDisponibles = promocionRepository.findAll(); // o desde Feign
-
-        return promocionesDisponibles.stream()
-                .filter(promo -> cumpleCondiciones(pedido, promo))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public ResultadoAnalisisPromocionesDTO analizarPromocionesAplicables(PedidoDTO pedido, List<Promocion> promociones) {
-        if (pedido == null) {
-            System.out.println("❌ Pedido nulo recibido. No se puede analizar promociones.");
-            throw new IllegalArgumentException("El pedido es nulo. No se puede analizar promociones.");
-        }
-
-        if (promociones == null || promociones.isEmpty()) {
-            System.out.println("⚠️ Lista de promociones vacía. No hay nada que evaluar.");
-            return new ResultadoAnalisisPromocionesDTO(List.of(), List.of("⚠️ No hay promociones registradas para evaluar."));
-        }
-
-        List<Promocion> aplicables = new ArrayList<>();
-        List<String> rechazadas = new ArrayList<>();
-
-        BigDecimal total = pedido.getTotal() != null ? pedido.getTotal() : BigDecimal.ZERO;
-
-        Map<Integer, Integer> resumenMenu = pedido.getDetalles() != null
-                ? pedido.getDetalles().stream()
-                .filter(d -> d.getMenuId() != null && d.getCantidad() != null)
-                .collect(Collectors.toMap(
-                        DetallePedidoDTO::getMenuId,
-                        DetallePedidoDTO::getCantidad,
-                        Integer::sum
-                ))
-                : new HashMap<>();
-
-        System.out.println("→ Analizando " + promociones.size() + " promociones para pedido ID " + pedido.getId());
-
-        for (Promocion promo : promociones) {
-            boolean tieneCondiciones = false;
-            boolean aplica = true;
-            StringBuilder motivo = new StringBuilder();
-
-            System.out.println("🔎 Evaluando promoción ID " + promo.getId() + ": " + promo.getNombre());
-
-            // 🔸 Monto mínimo
-            if (promo.getMontoMinimo() != null) {
-                tieneCondiciones = true;
-                if (total.compareTo(promo.getMontoMinimo()) < 0) {
-                    aplica = false;
-                    motivo.append("Total (S/").append(total)
-                            .append(") menor al mínimo requerido (S/")
-                            .append(promo.getMontoMinimo()).append("). ");
-                }
+        return ventas.stream().map(venta -> {
+            Pedido pedido = null;
+            try {
+                pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+            } catch (FeignException e) {
+                System.out.println("Error al obtener el pedido ID " + venta.getPedidoId() + ": " + e.getMessage());
             }
 
-            // 🔸 Menú requerido
-            if (promo.getMenu() != null && !promo.getMenu().isEmpty()) {
-                tieneCondiciones = true;
-                for (MenuPromocion req : promo.getMenu()) {
-                    int compradas = resumenMenu.getOrDefault(req.getMenuId(), 0);
-                    if (compradas < req.getCantidadRequerida()) {
-                        aplica = false;
-                        motivo.append("Se requieren ")
-                                .append(req.getCantidadRequerida())
-                                .append(" unidades de menú ID ")
-                                .append(req.getMenuId())
-                                .append(", pero solo hay ")
-                                .append(compradas).append(". ");
-                    }
-                }
-            }
+            // Validación para evitar errores
+            String nombreCliente = (pedido != null && pedido.getDetallePedido() != null) ? pedido.getDetallePedido().getNombreCliente() : "Cliente desconocido";
+            String nombreMenu = (pedido != null && pedido.getDetallePedido() != null) ? pedido.getDetallePedido().getNombreMenu() : "Menú no disponible";
+            int cantidad = (pedido != null && pedido.getDetallePedido() != null) ? pedido.getDetallePedido().getCantidad() : 0;
 
-            // 🎯 Resultado
-            if (!tieneCondiciones) {
-                aplicables.add(promo);
-                System.out.println("✅ Promo ID " + promo.getId() + " no tiene condiciones. Se aplica por defecto.");
-            } else if (aplica) {
-                aplicables.add(promo);
-                System.out.println("✅ Promo ID " + promo.getId() + " aplica correctamente.");
-            } else {
-                String motivoTexto = motivo.toString().trim();
-                rechazadas.add("⚠️ Promo ID " + promo.getId() + ": " + motivoTexto);
-                System.out.println("❌ Promo ID " + promo.getId() + " rechazada: " + motivoTexto);
-            }
-        }
+            String metodoPagoStr = (venta.getMetodoPago() != null) ? venta.getMetodoPago().name() : "SIN DEFINIR";
 
-        System.out.println("✅ Promociones aplicables: " + aplicables.stream().map(Promocion::getId).toList());
-        System.out.println("❌ Promociones rechazadas: " + rechazadas.size());
-
-        return new ResultadoAnalisisPromocionesDTO(aplicables, rechazadas);
+            return new VentaDTO(
+                    venta.getId(),
+                    metodoPagoStr,
+                    venta.getFechaVenta(),
+                    venta.getTotal(),
+                    nombreCliente,
+                    nombreMenu,
+                    cantidad
+            );
+        }).collect(Collectors.toList());
     }
 
-    private Venta procesarVenta(Venta venta, PedidoDTO pedido) {
-        normalizarPreciosPedido(pedido);
 
-        BigDecimal totalPedido = calcularTotalPedido(pedido.getDetalles());
-        venta.setTotal(totalPedido);
+    @Override
+    @Transactional
+    public ResponseEntity<?> guardarVenta(Venta venta) {
+        try {
+            Pedido pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
 
-        aplicarDescuentos(venta); // Aquí ya aplica sobre el total bruto
+            if (pedido == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ El pedido con ID " + venta.getPedidoId() + " no existe.");
+            }
 
-        if (venta.getFechaVenta() == null) {
-            venta.setFechaVenta(OffsetDateTime.now());
+            if (!"COMPLETADO".equalsIgnoreCase(pedido.getEstado())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("⚠ No se puede procesar la venta. El pedido está en estado '" + pedido.getEstado() + "'.");
+            }
+
+            // ✅ Calcular el total basado en el detalle del pedido
+            BigDecimal totalCalculado = pedido.getDetallePedido().getPrecioUnitario()
+                    .multiply(BigDecimal.valueOf(pedido.getDetallePedido().getCantidad()));
+
+            venta.setTotal(totalCalculado);
+
+            aplicarDescuentoSiCorresponde(venta);
+
+            Venta nuevaVenta = ventaRepository.save(venta);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaVenta);
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ El pedido con ID " + venta.getPedidoId() + " no existe en el microservicio de pedidos.");
+        }
+    }
+
+
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> actualizar(Long id, Venta venta) {
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ El ID de la venta no puede ser nulo.");
         }
 
-        if (venta.getCliente() == null && pedido.getCliente() != null) {
-            venta.setCliente(pedido.getCliente().getId());
+        Optional<Venta> ventaExistenteOpt = ventaRepository.findById(id);
+
+        if (ventaExistenteOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ La venta con ID " + id + " no existe.");
         }
 
-        return ventaRepository.save(venta);
+        Venta ventaExistente = ventaExistenteOpt.get();
+
+        ventaExistente.setMetodoPago(venta.getMetodoPago());
+        ventaExistente.setFechaVenta(venta.getFechaVenta());
+
+        // ✅ Obtener los datos originales del pedido para calcular el total base
+        Pedido pedido = pedidoClient.obtenerPedidoPorId(ventaExistente.getPedidoId());
+        BigDecimal totalBase = pedido.getDetallePedido().getPrecioUnitario()
+                .multiply(BigDecimal.valueOf(pedido.getDetallePedido().getCantidad()));
+
+        // ✅ Si la promoción se eliminó, restauramos el total original
+        if (venta.getPromocionId() == null) {
+            ventaExistente.setPromocionId(null);
+            ventaExistente.setTotal(totalBase);
+        }
+        // ✅ Si se asignó una promoción o cambió, aplicamos el nuevo descuento
+        else if (!Objects.equals(ventaExistente.getPromocionId(), venta.getPromocionId())) {
+            ventaExistente.setPromocionId(venta.getPromocionId());
+            aplicarDescuentoSiCorresponde(ventaExistente);
+        }
+
+        Venta ventaActualizada = ventaRepository.save(ventaExistente);
+        return ResponseEntity.ok(ventaActualizada);
+    }
+
+
+    @Override
+    public List<Venta> buscarPorNombreCliente(String nombreCliente) {
+        List<Pedido> pedidos = pedidoClient.buscarPedidosPorNombreCliente(nombreCliente);
+        List<Long> pedidoIds = pedidos.stream().map(Pedido::getId).toList();
+        return ventaRepository.findByPedidoIdIn(pedidoIds);
     }
 
     @Override
-    public Optional<Venta> obtenerPorId(Integer id) {
+    public List<Venta> buscarPorFecha(LocalDateTime inicio, LocalDateTime fin) {
+        return ventaRepository.findByFechaVentaBetween(inicio, fin);
+    }
+
+    @Override
+    public Optional<Venta> listarPorId(Long id) {
         return ventaRepository.findById(id);
     }
 
     @Override
-    public void eliminarPorId(Integer id) {
+    public void eliminarPorId(Long id) {
         ventaRepository.deleteById(id);
     }
 
-    @Override
-    public List<Venta> listarPorCliente(Integer cliente) {
-        return ventaRepository.findByCliente(cliente);
-    }
-
-//    @Override
-//    public List<Venta> listarPorRangoFecha(OffsetDateTime desde, OffsetDateTime hasta) {
-//        return ventaRepository.findByFechaVentaBetween(desde, hasta);
-//    }
-
-    @Override
-    public List<Venta> listarPorMetodoPago(Venta.MetodoPago metodo) {
-        return ventaRepository.findByMetodoPago(metodo);
-    }
-
-    @Override
-    public List<Venta> listarPorPromocion(Integer promocionId) {
-        return ventaRepository.findByPromocionId(promocionId);
-    }
-
-    @Override
-    public BigDecimal calcularTotalVentasPorCliente(Integer clienteId) {
-        return ventaRepository.totalVentasPorCliente(clienteId).orElse(BigDecimal.ZERO);
-    }
-
-    @Override
-    public boolean existeVentaPorPedidoId(Integer pedidoId) {
-        return ventaRepository.existsByPedidoId(pedidoId);
-    }
-
-    @Override
-    public List<VentaDTO> listarVentas() {
-        return ventaRepository.findAll().stream()
-                .map(v -> new VentaDTO(v, pedidoClient.obtenerPedidoPorId(v.getPedidoId())))
-                .toList();
-    }
-
-    @Override
-    public List<VentaDTO> buscarVentasPorFecha(OffsetDateTime inicio, OffsetDateTime fin) {
-        return ventaRepository.findByFechaVentaBetween(inicio, fin)
-                .stream()
-                .map(v -> new VentaDTO(v, pedidoClient.obtenerPedidoPorId(v.getPedidoId())))
-                .toList();
-    }
-
-    @Override
-    public List<VentaDTO> buscarPorNombreCliente(String nombreCliente) {
-        // 1. Traer los pedidos del cliente
-        List<PedidoDTO> pedidos = pedidoClient.buscarPedidosPorNombreCliente(nombreCliente);
-
-        if (pedidos == null || pedidos.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // 2. Obtener los IDs de los pedidos
-        List<Integer> pedidoIds = pedidos.stream()
-                .map(PedidoDTO::getId)
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 3. Buscar las ventas cuyos pedidos coincidan
-        List<Venta> ventas = ventaRepository.findByPedidoIdIn(pedidoIds);
-
-        // 4. Envolver en DTO y devolver
-        return ventas.stream()
-                .map(v -> new VentaDTO(v,
-                        pedidos.stream()
-                                .filter(p -> p.getId().equals(v.getPedidoId()))
-                                .findFirst()
-                                .orElse(null)))
-                .toList();
-    }
-
-    @Override
-    public PedidoDTO obtenerPedidoPorId(Integer pedidoId) {
+    public void eliminarPedido(Long pedidoId) {
         try {
-            PedidoDTO pedido = pedidoClient.obtenerPedidoPorId(pedidoId);
-            if (pedido == null) {
-                throw new IllegalArgumentException("No se encontró el pedido con ID " + pedidoId);
-            }
-
-            // Enriquecer detalles del menú si están disponibles
-            if (pedido.getDetalles() != null) {
-                for (DetallePedidoDTO d : pedido.getDetalles()) {
-                    if (d.getMenu() != null) {
-                        d.setNombreMenu(d.getMenu().getNombre());
-                        d.setDescripcionMenu(d.getMenu().getDescripcion());
-                        d.setPrecioUnitario(d.getMenu().getPrecio());
-                    }
-                }
-            }
-
-            return pedido;
+            pedidoClient.eliminarPedidoPorId(pedidoId);
         } catch (Exception e) {
-            throw new IllegalStateException("Error al obtener el pedido con ID " + pedidoId + ": " + e.getMessage(), e);
+            throw new RuntimeException("❌ Error al eliminar el pedido con ID " + pedidoId, e);
         }
     }
 
-    @Override
-    public List<Promocion> obtenerTodasLasPromociones() {
-        return promocionRepository.findAll();
-    }
+    private void aplicarDescuentoSiCorresponde(Venta venta) {
+        if (venta.getPromocionId() != null) {
+            Optional<Promocion> promocionOpt = promocionRepository.findById(venta.getPromocionId());
 
-    // Utilidades internas
+            if (promocionOpt.isPresent()) {
+                BigDecimal descuento = promocionOpt.get().getValorDescuento();
 
-    private void validarPedido(PedidoDTO pedido) {
-        if (pedido == null) throw new IllegalArgumentException("Pedido no encontrado.");
-        if (!"COMPLETADO".equalsIgnoreCase(pedido.getEstadoPedido())) {
-            throw new IllegalStateException("El pedido debe estar COMPLETADO para registrar la venta.");
-        }
-        if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
-            throw new IllegalStateException("El pedido no contiene detalles. No se puede registrar una venta vacía.");
-        }
-    }
-
-    private BigDecimal calcularTotalPedido(List<DetallePedidoDTO> detalles) {
-        return detalles.stream()
-                .filter(d -> d.getPrecioUnitario() != null)
-                .map(d -> d.getPrecioUnitario().multiply(BigDecimal.valueOf(d.getCantidad())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private void normalizarPreciosPedido(PedidoDTO pedido) {
-        if (pedido == null || pedido.getDetalles() == null) {
-            System.out.println("⚠️ Pedido o detalles nulos. No se puede normalizar precios.");
-            return;
-        }
-
-        for (DetallePedidoDTO d : pedido.getDetalles()) {
-            if (d.getPrecioUnitario() == null) {
-                // 1️⃣ Recuperar desde el objeto embebido si está disponible
-                if (d.getMenu() != null && d.getMenu().getPrecio() != null) {
-                    d.setPrecioUnitario(d.getMenu().getPrecio());
-                    System.out.println("✅ Precio asignado desde objeto menú para detalle ID " + d.getId());
+                // ✅ Evitar error si venta.getTotal() es null
+                if (venta.getTotal() == null) {
+                    venta.setTotal(BigDecimal.ZERO);
                 }
 
-                // 2️⃣ Recuperar usando menuId a través de Feign
-                else if (d.getMenuId() != null) {
-                    try {
-                        MenuDTO menu = pedidoClient.obtenerMenuPorId(d.getMenuId());
-                        if (menu != null && menu.getPrecio() != null) {
-                            d.setPrecioUnitario(menu.getPrecio());
-                            d.setNombreMenu(menu.getNombre()); // opcional
-                            d.setDescripcionMenu(menu.getDescripcion());
-                            System.out.println("✅ Precio obtenido vía Feign para menú ID " + d.getMenuId());
-                        } else {
-                            d.setPrecioUnitario(BigDecimal.ZERO);
-                            System.out.println("⚠️ Menú ID " + d.getMenuId() + " sin precio válido.");
-                        }
-                    } catch (Exception e) {
-                        d.setPrecioUnitario(BigDecimal.ZERO);
-                        System.out.println("❌ Error al consultar menú ID " + d.getMenuId() + ": " + e.getMessage());
-                    }
+                if (venta.getTotal().compareTo(descuento) < 0) {
+                    throw new RuntimeException("❌ El total de la venta no puede ser menor que el descuento aplicado.");
                 }
 
-                // 3️⃣ Sin información de menú
-                else {
-                    d.setPrecioUnitario(BigDecimal.ZERO);
-                    System.out.println("⚠️ Detalle sin menu ni menuId. Se asigna precio cero al detalle ID " + d.getId());
-                }
+                venta.setTotal(venta.getTotal().subtract(descuento));
+            } else {
+                throw new RuntimeException("❌ La promoción con ID " + venta.getPromocionId() + " no existe.");
             }
         }
     }
 
-    private boolean cumpleCondiciones(PedidoDTO pedido, Promocion promo) {
-        BigDecimal total = pedido.getTotal();
-        Map<Integer, Integer> resumenMenu = pedido.getDetalles().stream()
-                .collect(Collectors.toMap(
-                        DetallePedidoDTO::getMenuId,
-                        DetallePedidoDTO::getCantidad,
-                        Integer::sum
-                ));
-
-        if (promo.getMontoMinimo() != null && total.compareTo(promo.getMontoMinimo()) < 0)
-            return false;
-
-        if (promo.getMenu() != null && !promo.getMenu().isEmpty()) {
-            for (MenuPromocion req : promo.getMenu()) {
-                int cantidad = resumenMenu.getOrDefault(req.getMenuId(), 0);
-                if (cantidad < req.getCantidadRequerida()) return false;
-            }
-        }
-
-        return true;
-    }
-
-    private void validarLimitePromociones(Venta venta) {
-        int max = venta.getMaximoPromocionesPermitidas() != null
-                ? venta.getMaximoPromocionesPermitidas()
-                : 1;
-
-        int actual = (venta.getPromociones() != null) ? venta.getPromociones().size() : 0;
-
-        if (actual > max) {
-            throw new IllegalArgumentException("Se excedió el máximo de promociones permitidas (" + max + "). Proporcionadas: " + actual);
-        }
-    }
-
-    private void aplicarDescuentos(Venta venta) {
-        List<Promocion> promociones = venta.getPromociones();
-        if (promociones == null || promociones.isEmpty()) return;
-
-        BigDecimal totalOriginal = venta.getTotal();
-        BigDecimal totalDescuento = BigDecimal.ZERO;
-        LocalDate hoy = LocalDate.now();
-
-        for (Promocion promo : promociones) {
-            if (promo.getValorDescuento() == null) continue;
-            if (promo.getFechaInicio() != null && promo.getFechaFin() != null) {
-                if (hoy.isBefore(promo.getFechaInicio()) || hoy.isAfter(promo.getFechaFin())) continue;
-            }
-
-            BigDecimal descuento = promo.getTipoDescuento() == Promocion.TipoDescuento.PORCENTAJE
-                    ? totalOriginal.multiply(promo.getValorDescuento()).divide(BigDecimal.valueOf(100))
-                    : promo.getValorDescuento();
-
-            totalDescuento = totalDescuento.add(descuento);
-        }
-
-        venta.setTotal(totalDescuento.compareTo(totalOriginal) >= 0
-                ? BigDecimal.ZERO
-                : totalOriginal.subtract(totalDescuento));
-    }
 }

@@ -1,7 +1,5 @@
 package com.example.pedido_db.entity;
 
-import com.example.pedido_db.dto.Cliente;
-import com.example.pedido_db.dto.Producto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -85,5 +83,7 @@ public class DetallePedido {
                 ", cantidad=" + cantidad +
                 '}';
     }
+
+
 }
 

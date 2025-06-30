@@ -1,6 +1,5 @@
 package com.example.pedido_db.entity;
 
-import com.example.pedido_db.dto.Cliente;
 import com.example.pedido_db.dto.Producto;
 import jakarta.persistence.*;
 
@@ -19,8 +18,6 @@ public class Receta {
     private Producto producto;  // Relación con Cliente, que se llena mediante Feign
 
 
-
-
     @Column(name = "descripcion", nullable = true, columnDefinition = "TEXT")
     private String descripcion;
 
@@ -33,6 +30,9 @@ public class Receta {
     @ManyToOne
     @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
     private Menu menu;
+
+    @Column(name = "cantidad_disponible", nullable = false, columnDefinition = "DECIMAL(10,3)")
+    private BigDecimal cantidadDisponible;  // Cambiado a BigDecimal
 
     public Receta() {
 
@@ -115,7 +115,15 @@ public class Receta {
         this.menu = menu;
     }
 
-    public Receta(Integer id, Integer productoId, Producto producto, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu) {
+    public BigDecimal getCantidadDisponible() {
+        return cantidadDisponible;
+    }
+
+    public void setCantidadDisponible(BigDecimal cantidadDisponible) {
+        this.cantidadDisponible = cantidadDisponible;
+    }
+
+    public Receta(Integer id, Integer productoId, Producto producto, String descripcion, BigDecimal cantidad, String unidadMedida, Menu menu, BigDecimal cantidadDisponible) {
         this.id = id;
         this.productoId = productoId;
         this.producto = producto;
@@ -123,8 +131,8 @@ public class Receta {
         this.cantidad = cantidad;
         this.unidadMedida = unidadMedida;
         this.menu = menu;
+        this.cantidadDisponible = cantidadDisponible;
     }
-
 
     @Override
     public String toString() {
@@ -136,6 +144,7 @@ public class Receta {
                 ", cantidad=" + cantidad +
                 ", unidadMedida='" + unidadMedida + '\'' +
                 ", menu=" + menu +
+                ", cantidadDisponible=" + cantidadDisponible +
                 '}';
     }
 }
