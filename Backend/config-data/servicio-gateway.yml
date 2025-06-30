@@ -45,6 +45,10 @@ spring:
           uri: lb://servicio-proveedor
           predicates:
             - Path=/productos/**, /proveedores/**, /compras-proveedores/**, /compras/fecha-especifica/**, /compras/fecha/**
+
+          filters:
+            - AuthFilter
+
         #========servicio inventario=======#
         - id: servicio-inventario
           uri: lb://servicio-inventario

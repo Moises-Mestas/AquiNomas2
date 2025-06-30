@@ -31,5 +31,12 @@ export const resources = {
   bodegaHistorial: (id: number) => `bodega/historial/${id}`,
 
   inventarioBarra: 'inventario-barra',
+  inventarioBarraPorId: (id: number) => `inventario-barra/${id}`,
+  inventarioBarraDesdeBodega: 'inventario-barra/desde-bodega',
+  inventarioBarraAlertaStockMinimo: 'inventario-barra/alerta-stock-minimo',
+
   inventarioCocina: 'inventario-cocina',
+  inventarioCocinaPorId: (id: number) => `inventario-cocina/${id}`,
+  inventarioCocinaCrear: 'inventario-cocina/crear',
+  inventarioCocinaAlertaStockMinimo: 'inventario-cocina/alerta-stock-minimo',
 };
