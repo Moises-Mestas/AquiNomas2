@@ -1,198 +1,183 @@
--- Base de datos proveedor_db
+-- Crear bases de datos primero
 CREATE DATABASE proveedor_db;
-USE proveedor_db;
+CREATE DATABASE inventario_db;
+CREATE DATABASE pedido_db;
+CREATE DATABASE cliente_db;
+CREATE DATABASE venta_db;
+CREATE DATABASE reportes_db;
 
+-- Proveedor DB
+USE proveedor_db;
 CREATE TABLE proveedor (
-    id INT PRIMARY KEY,
-    nombre VARCHAR(100),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
     telefono VARCHAR(20),
     direccion VARCHAR(255),
-    email VARCHAR(100)
+    email VARCHAR(100) UNIQUE
 );
 
 CREATE TABLE producto (
-    id INT PRIMARY KEY,
-    nombre VARCHAR(100),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    precio DECIMAL(10,2)
+    precio DECIMAL(10,2) CHECK (precio >= 0)
 );
 
 CREATE TABLE compra_proveedor (
-    id INT PRIMARY KEY,
-    proveedor_id INT,
-    producto_id INT,
-    cantidad INT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    proveedor_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT CHECK (cantidad > 0),
+    fecha_compra TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (proveedor_id) REFERENCES proveedor(id),
     FOREIGN KEY (producto_id) REFERENCES producto(id)
 );
 
+CREATE INDEX idx_proveedor_email ON proveedor(email);
 
-
-
-
--- Base de datos inventario_db
-CREATE DATABASE inventario_db;
-
+-- Inventario DB
 USE inventario_db;
-
 CREATE TABLE bodega (
-    id INT PRIMARY KEY,
-    compra_proveedor_id INT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    compra_proveedor_id INT NOT NULL,
     fecha_entrada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cantidad INT,
-    cantidad_minima INT,
-    unidad_medida VARCHAR(100),
+    cantidad INT CHECK (cantidad > 0),
+    unidad_medida VARCHAR(50),
     tipo_insumo VARCHAR(255),
     duracion_insumo VARCHAR(255),
     FOREIGN KEY (compra_proveedor_id) REFERENCES proveedor_db.compra_proveedor(id)
 );
 
-
-
 CREATE TABLE inventario_cocina (
-    id INT PRIMARY KEY,
-    bodega_id INT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bodega_id INT NOT NULL,
     cantidad_disponible DECIMAL(10,2),
     ultima_fecha_entrada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ultima_fecha_salida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cantidad_usada INT,
-    FOREIGN KEY (bodega_id) REFERENCES insumo_db.bodega(id)
+    FOREIGN KEY (bodega_id) REFERENCES bodega(id)
 );
 
 CREATE TABLE inventario_barra (
-    id INT PRIMARY KEY,
-    bodega_id INT,
-    insumos_disponibles DECIMAL(10,3),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bodega_id INT NOT NULL,
+    cantidad_disponible DECIMAL(10,2),
     fecha_entrada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_apertura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cantidad_usada INT,
-    FOREIGN KEY (bodega_id) REFERENCES insumo_db.bodega(id)
+    FOREIGN KEY (bodega_id) REFERENCES bodega(id)
 );
 
+CREATE INDEX idx_bodega_tipo_insumo ON bodega(tipo_insumo);
 
-
--- Base de datos pedido_db
-CREATE DATABASE pedido_db;
-USE pedido_db;
-
-CREATE TABLE pedido (
-    id INT PRIMARY KEY,
-    administrador_id INT,
-    detalle_pedido_id INT,
-    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_pedido VARCHAR(50),
-    FOREIGN KEY (administrador_id) REFERENCES cliente_db.administrador(id),
-    FOREIGN KEY (detalle_pedido_id) REFERENCES detalle_pedido(id)
-);
-
-CREATE TABLE detalle_pedido (
-    id INT PRIMARY KEY,
-    cliente_id INT,
-    menu_id INT,
-    cantidad INT,
-    precio_unitario DECIMAL(10,2),
-    FOREIGN KEY (cliente_id) REFERENCES cliente_db.cliente(id),
-    FOREIGN KEY (menu_id) REFERENCES inventario_db.menu(id)
-);
-
-CREATE TABLE receta (
-    id INT PRIMARY KEY,
-    inventario_cocina_id INT,
-    inventario_barra_id INT,
-    cantidad INT,
-    unidad_medida VARCHAR(100),
-    FOREIGN KEY (inventario_cocina_id) REFERENCES inventario_cocina(id),
-    FOREIGN KEY (inventario_barra_id) REFERENCES inventario_barra(id)
-);
-
-CREATE TABLE menu (
-    id INT PRIMARY KEY,
-    nombre VARCHAR(100),
-    recetas_id INT,
-    descripcion VARCHAR(100),
-    precio DECIMAL(10,2),
-    tipo VARCHAR(100),
-    imagen TEXT,
-    FOREIGN KEY (recetas_id) REFERENCES receta(id)
-);
-
--- Base de datos cliente_db
-CREATE DATABASE cliente_db;
+-- Cliente DB
 USE cliente_db;
-
 CREATE TABLE cliente (
-    id INT PRIMARY KEY,
-    nombre VARCHAR(100),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100),
     dni VARCHAR(15) UNIQUE,
-    ruc VARCHAR(15) UNIQUE,
     telefono VARCHAR(20),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     direccion VARCHAR(255),
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE administrador (
-    id INT PRIMARY KEY,
-    nombre VARCHAR(100),
-    fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total DECIMAL(10,2),
-    estado VARCHAR(50)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX idx_cliente_dni ON cliente(dni);
 
--- Base de datos venta_db
-CREATE DATABASE venta_db;
+-- Pedido DB
+USE pedido_db;
+CREATE TABLE receta (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    cantidad INT CHECK (cantidad > 0),
+    unidad_medida VARCHAR(50)
+);
+
+CREATE TABLE menu (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255),
+    precio DECIMAL(10,2),
+    tipo VARCHAR(100),
+    imagen TEXT,
+    receta_id INT NOT NULL,
+    FOREIGN KEY (receta_id) REFERENCES receta(id)
+);
+
+CREATE TABLE pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT NOT NULL,
+    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado_pedido ENUM('pendiente', 'en preparación', 'completado', 'cancelado') DEFAULT 'pendiente',
+    FOREIGN KEY (cliente_id) REFERENCES cliente_db.cliente(id)
+);
+
+CREATE TABLE detalle_pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id INT NOT NULL,
+    menu_id INT NOT NULL,
+    cantidad INT CHECK (cantidad > 0),
+    precio_unitario DECIMAL(10,2),
+    FOREIGN KEY (pedido_id) REFERENCES pedido(id),
+    FOREIGN KEY (menu_id) REFERENCES menu(id)
+);
+
+CREATE INDEX idx_pedido_estado ON pedido(estado_pedido);
+
+-- Venta DB
 USE venta_db;
-
 CREATE TABLE venta (
-    id INT PRIMARY KEY,
-    pedido_id INT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id INT NOT NULL,
     fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    promociones_id INT,
     total DECIMAL(10,2),
-    metodo_pago VARCHAR(100),
-    FOREIGN KEY (pedido_id) REFERENCES pedido_db.pedido(id),
-    FOREIGN KEY (promociones_id) REFERENCES promociones(id)
+    metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia') NOT NULL,
+    FOREIGN KEY (pedido_id) REFERENCES pedido_db.pedido(id)
 );
 
 CREATE TABLE promociones (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     valor_descuento DECIMAL(10,2),
     motivo VARCHAR(100)
 );
 
 CREATE TABLE comprobante_pago (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     venta_id INT NOT NULL,
-    tipo VARCHAR(50) NOT NULL,
+    tipo ENUM('boleta', 'factura') NOT NULL,
     numeroSerie VARCHAR(10) NOT NULL,
     numeroComprobante VARCHAR(15) NOT NULL,
-    fechaEmision TIMESTAMP NOT NULL,
+    fechaEmision TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     igv DECIMAL(10,2),
     montoNeto DECIMAL(10,2),
     FOREIGN KEY (venta_id) REFERENCES venta(id)
 );
 
+CREATE INDEX idx_venta_metodo_pago ON venta(metodo_pago);
 
--- Base de datos reportes_db
-CREATE DATABASE reportes_db;
+-- Reportes DB
 USE reportes_db;
-
 CREATE TABLE reportes (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     administrador_id INT NULL,
     venta_id INT NULL,
     bodega_id INT NULL,
-    cliente_id INT,
+    cliente_id INT NULL,
     inventario_cocina_id INT NULL,
     inventario_barra_id INT NULL,
     detalle_pedido_id INT NULL,
-    descripcion VARCHAR(50) NOT NULL,
-    tipo VARCHAR(100),
+    descripcion VARCHAR(255) NOT NULL, 
+    detalles TEXT NULL,
+    tipo ENUM('ventas', 'clientes', 'inventario', 'administración') NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (administrador_id) REFERENCES cliente_db.administrador(id),
     FOREIGN KEY (venta_id) REFERENCES venta_db.venta(id),
-    FOREIGN KEY (bodega_id) REFERENCES insumo_db.bodega(id),
+    FOREIGN KEY (bodega_id) REFERENCES inventario_db.bodega(id),
     FOREIGN KEY (cliente_id) REFERENCES cliente_db.cliente(id),
     FOREIGN KEY (inventario_cocina_id) REFERENCES inventario_db.inventario_cocina(id),
     FOREIGN KEY (inventario_barra_id) REFERENCES inventario_db.inventario_barra(id),

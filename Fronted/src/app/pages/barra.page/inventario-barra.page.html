@@ -1,0 +1,113 @@
+<div class="card">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <span>Inventario Barra</span>
+    <button class="btn btn-success btn-sm" (click)="abrirModalInventario()">
+      Nuevo Inventario
+    </button>
+    <button class="btn btn-warning btn-sm" (click)="mostrarAlertaStockMinimo()">
+      Alerta Stock Mínimo
+    </button>
+  </div>
+  <div class="card-body">
+    <div *ngIf="mostrarAlertaStock" class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>Productos con stock bajo:</strong>
+      <ul>
+        <li *ngFor="let item of alertaStock">
+          {{ item.producto_nombre }} - Stock: {{ item.cantidad_disponible }}
+        </li>
+      </ul>
+      <button type="button" class="btn-close" (click)="ocultarAlertaStockMinimo()" aria-label="Close"></button>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Bodega ID</th>
+            <th>Cantidad Disponible</th>
+            <th>Stock Mínimo</th>
+            <th>Unidad Destino</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inv of inventarioBarra">
+            <td>{{ inv.id }}</td>
+            <td>{{ inv.bodega_id }}</td>
+            <td>{{ inv.cantidad_disponible }}</td>
+            <td>{{ inv.stock_minimo }}</td>
+            <td>{{ inv.unidad_destino }}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" (click)="abrirModalEliminar(inv.id)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar Inventario Barra -->
+<div class="modal fade" id="modalInventarioBarra" tabindex="-1" aria-labelledby="modalInventarioBarraLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" (ngSubmit)="saveInventario()">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalInventarioBarraLabel">
+          Agregar Inventario Barra
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalInventarioBarra')"
+          aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label>Bodega ID</label>
+          <input type="number" class="form-control" [(ngModel)]="newInventario.bodega_id" name="bodega_id" required />
+        </div>
+        <div class="mb-2">
+          <label>Cantidad Disponible</label>
+          <input type="number" class="form-control" [(ngModel)]="newInventario.cantidad_disponible"
+            name="cantidad_disponible" required />
+        </div>
+        <div class="mb-2">
+          <label>Stock Mínimo</label>
+          <input type="number" class="form-control" [(ngModel)]="newInventario.stock_minimo" name="stock_minimo"
+            required />
+        </div>
+        <div class="mb-2">
+          <label>Unidad Destino</label>
+          <input type="text" class="form-control" [(ngModel)]="newInventario.unidad_destino" name="unidad_destino"
+            required />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal('modalInventarioBarra')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Agregar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Eliminar Inventario Barra -->
+<div class="modal fade" id="modalEliminarInventarioBarra" tabindex="-1"
+  aria-labelledby="modalEliminarInventarioBarraLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalEliminarInventarioBarraLabel">¿Estás seguro?</h5>
+        <button type="button" class="btn-close" (click)="cerrarModal('modalEliminarInventarioBarra')"
+          aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Seguro que deseas eliminar este registro de inventario barra?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          (click)="cerrarModal('modalEliminarInventarioBarra')">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminar()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
