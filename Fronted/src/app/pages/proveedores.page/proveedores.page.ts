@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProveedorServices } from '../../core/services/proveedores.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-proveedor',
@@ -29,7 +30,14 @@ export class ProveedorPage {
   filtroNombre: string = '';
   filtroEstado: string = '';
 
-  constructor(private proveedorService: ProveedorServices) {}
+  constructor(
+    private proveedorService: ProveedorServices,
+    private authService: AuthService
+  ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getProveedores();

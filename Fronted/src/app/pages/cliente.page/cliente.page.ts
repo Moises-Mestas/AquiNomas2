@@ -2,17 +2,28 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClienteService } from '../../core/services/cliente.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-cliente',
   standalone: true,
   templateUrl: './cliente.page.html',
   imports: [CommonModule, FormsModule],
-  styleUrls: ['./cliente.page.css']
+  styleUrls: ['./cliente.page.css'],
 })
 export class ClientePage {
   clientes: any[] = []; // Lista de clientes
-  newCliente: any = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' }; // Cliente nuevo
+  newCliente: any = {
+    id: 0,
+    nombre: '',
+    apellido: '',
+    dni: '',
+    telefono: '',
+    email: '',
+    direccion: '',
+    ruc: '',
+    fechaRegistro: '',
+  }; // Cliente nuevo
   idAActualizar: number = 0; // ID del cliente a actualizar
   editing: boolean = false; // Control de edición
 
@@ -22,7 +33,14 @@ export class ClientePage {
   clientesPerPage: number = 10; // Limitar a 10 clientes por página
   totalPages: number = 1;
 
-  constructor(private clienteService: ClienteService) {}
+  constructor(
+    private clienteService: ClienteService,
+    private authService: AuthService
+  ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getClientes(); // Llama al método para cargar los clientes
@@ -36,7 +54,9 @@ export class ClientePage {
         this.clientes = response.sort((a: any, b: any) => b.id - a.id);
 
         // Calcular el número total de páginas
-        this.totalPages = Math.ceil(this.clientes.length / this.clientesPerPage);
+        this.totalPages = Math.ceil(
+          this.clientes.length / this.clientesPerPage
+        );
 
         // Cargar los clientes de la página actual
         this.loadPage(this.currentPage);
@@ -76,7 +96,7 @@ export class ClientePage {
 
   // Crear un nuevo cliente
   createCliente() {
-    console.log("Datos a crear:", this.newCliente); // Verificar datos
+    console.log('Datos a crear:', this.newCliente); // Verificar datos
 
     // Verificar que los campos obligatorios estén presentes
     if (!this.newCliente.nombre || !this.newCliente.apellido) {
@@ -102,8 +122,8 @@ export class ClientePage {
 
   // Actualizar un cliente
   updateCliente() {
-    console.log("Datos a actualizar:", this.newCliente);  // Verificar datos de nuevo cliente
-    console.log("ID a actualizar:", this.idAActualizar);  // Verificar el ID
+    console.log('Datos a actualizar:', this.newCliente); // Verificar datos de nuevo cliente
+    console.log('ID a actualizar:', this.idAActualizar); // Verificar el ID
 
     if (!this.idAActualizar) {
       console.error('No se especificó el ID del cliente');
@@ -122,18 +142,20 @@ export class ClientePage {
     this.newCliente.id = this.idAActualizar;
 
     // Actualizar el cliente
-    this.clienteService.updateCliente(this.idAActualizar, this.newCliente).subscribe(
-      (res) => {
-        console.log('Cliente actualizado:', res);
-        alert('¡Actualización exitosa del cliente!');
-        this.getClientes(); // Refrescar la lista de clientes
-        this.clearForm(); // Limpiar el formulario
-      },
-      (err) => {
-        console.error('Error al actualizar el cliente:', err);
-        alert('Hubo un error al actualizar el cliente');
-      }
-    );
+    this.clienteService
+      .updateCliente(this.idAActualizar, this.newCliente)
+      .subscribe(
+        (res) => {
+          console.log('Cliente actualizado:', res);
+          alert('¡Actualización exitosa del cliente!');
+          this.getClientes(); // Refrescar la lista de clientes
+          this.clearForm(); // Limpiar el formulario
+        },
+        (err) => {
+          console.error('Error al actualizar el cliente:', err);
+          alert('Hubo un error al actualizar el cliente');
+        }
+      );
   }
 
   // Eliminar un cliente
@@ -170,7 +192,7 @@ export class ClientePage {
       email: cliente.email,
       direccion: cliente.direccion,
       ruc: cliente.ruc,
-      fechaRegistro: cliente.fechaRegistro
+      fechaRegistro: cliente.fechaRegistro,
     };
 
     console.log('Cliente a editar:', this.newCliente);
@@ -179,7 +201,17 @@ export class ClientePage {
 
   // Limpiar el formulario después de una operación
   clearForm() {
-    this.newCliente = { id: 0, nombre: '', apellido: '', dni: '', telefono: '', email: '', direccion: '', ruc: '', fechaRegistro: '' };
+    this.newCliente = {
+      id: 0,
+      nombre: '',
+      apellido: '',
+      dni: '',
+      telefono: '',
+      email: '',
+      direccion: '',
+      ruc: '',
+      fechaRegistro: '',
+    };
     this.idAActualizar = 0; // Reiniciamos el ID
     this.editing = false; // Desactivamos el modo de edición
   }

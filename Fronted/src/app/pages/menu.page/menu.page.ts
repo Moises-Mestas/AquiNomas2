@@ -3,44 +3,60 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuService } from '../../core/services/menu.services';
 import { CurrencyPipe } from '@angular/common';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
   templateUrl: './menu.page.html',
   imports: [CommonModule, FormsModule, CurrencyPipe],
-  styleUrls: ['./menu.page.css']
+  styleUrls: ['./menu.page.css'],
 })
 export class MenuPage {
   menus: any[] = [];
   filteredMenus: any[] = [];
-  newMenu: any = { nombre: '', descripcion: '', precio: 0, tipo: '', imagen: '' };
+  newMenu: any = {
+    nombre: '',
+    descripcion: '',
+    precio: 0,
+    tipo: '',
+    imagen: '',
+  };
   idAActualizar: number = 0;
   editing: boolean = false;
   searchText: string = '';
   showModal: boolean = false;
   selectedFile: File | null = null;
-  uploadStatus: { success: boolean, message: string } | null = null;
+  uploadStatus: { success: boolean; message: string } | null = null;
 
   minPrice: number = 0; // Precio mínimo
   maxPrice: number = 0; // Precio máximo
 
-  constructor(private menuService: MenuService) {}
+  constructor(
+    private menuService: MenuService,
+    private authService: AuthService
+  ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getMenus();
-    this.loadStoredImages();  // Cargar imágenes guardadas en localStorage
+    this.loadStoredImages(); // Cargar imágenes guardadas en localStorage
   }
   filterByPriceRange() {
     if (this.minPrice || this.maxPrice) {
-      this.menuService.filterMenusByPriceRange(this.minPrice, this.maxPrice).subscribe(
-        (response) => {
-          // Cargar las imágenes para los menús filtrados
-          this.filteredMenus = response;
-          this.loadStoredImagesForFilteredMenus();
-        },
-        (err) => console.error('Error filtering menus by price range:', err)
-      );
+      this.menuService
+        .filterMenusByPriceRange(this.minPrice, this.maxPrice)
+        .subscribe(
+          (response) => {
+            // Cargar las imágenes para los menús filtrados
+            this.filteredMenus = response;
+            this.loadStoredImagesForFilteredMenus();
+          },
+          (err) => console.error('Error filtering menus by price range:', err)
+        );
     } else {
       // Si no se ha ingresado un rango, mostrar todos los menús
       this.filteredMenus = this.menus;
@@ -50,7 +66,7 @@ export class MenuPage {
 
   loadStoredImagesForFilteredMenus() {
     // Cargar las imágenes de los menús filtrados desde el localStorage
-    this.filteredMenus.forEach(menu => {
+    this.filteredMenus.forEach((menu) => {
       const storedImage = localStorage.getItem(`menu-image-${menu.id}`);
       if (storedImage) {
         menu.imagen = storedImage;
@@ -104,7 +120,7 @@ export class MenuPage {
     if (this.idAActualizar) {
       this.updateMenu(formData);
     } else {
-      this.createMenu(formData);  // Aquí se envía el FormData con la imagen
+      this.createMenu(formData); // Aquí se envía el FormData con la imagen
     }
   }
 
@@ -149,11 +165,11 @@ export class MenuPage {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.readAsDataURL(file);  // Leer la imagen como base64
+      reader.readAsDataURL(file); // Leer la imagen como base64
       reader.onload = () => {
-        menu.imagen = reader.result as string;  // Asignar la imagen al menú
-        menu.imagenSubida = true;  // Marcar que se ha subido una imagen
-        localStorage.setItem(`menu-image-${menu.id}`, menu.imagen);  // Guardar la imagen en localStorage
+        menu.imagen = reader.result as string; // Asignar la imagen al menú
+        menu.imagenSubida = true; // Marcar que se ha subido una imagen
+        localStorage.setItem(`menu-image-${menu.id}`, menu.imagen); // Guardar la imagen en localStorage
       };
     }
   }
@@ -162,12 +178,12 @@ export class MenuPage {
     // Resetea la imagen para permitir al usuario subir una nueva
     menu.imagenSubida = false;
     menu.imagen = null;
-    localStorage.removeItem(`menu-image-${menu.id}`);  // Eliminar imagen de localStorage
+    localStorage.removeItem(`menu-image-${menu.id}`); // Eliminar imagen de localStorage
   }
 
   loadStoredImages() {
     // Cargar todas las imágenes almacenadas en localStorage al cargar la página
-    this.menus.forEach(menu => {
+    this.menus.forEach((menu) => {
       const storedImage = localStorage.getItem(`menu-image-${menu.id}`);
       if (storedImage) {
         menu.imagen = storedImage;
@@ -177,12 +193,18 @@ export class MenuPage {
   }
 
   clearForm() {
-    this.newMenu = { nombre: '', descripcion: '', precio: 0, tipo: '', imagen: '' };
+    this.newMenu = {
+      nombre: '',
+      descripcion: '',
+      precio: 0,
+      tipo: '',
+      imagen: '',
+    };
     this.idAActualizar = 0;
     this.editing = false;
   }
 
   getSavedImage(menuId: number): string | null {
-    return localStorage.getItem(`menu-image-${menuId}`);  // Recuperar imagen desde localStorage
+    return localStorage.getItem(`menu-image-${menuId}`); // Recuperar imagen desde localStorage
   }
 }

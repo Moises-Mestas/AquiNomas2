@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PedidoServices } from '../../core/services/pedido.services';
 import { ClienteService } from '../../core/services/cliente.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-pedido',
@@ -16,8 +17,8 @@ export class PedidoPage {
   newPedido: any = { clienteId: 0, estadoPedido: '', fechaPedido: '' };
   idAActualizar: number = 0;
   editing: boolean = false;
-  clientes: any[] = [];  // Lista de clientes
-  estadoFiltro: string = '';  // Variable para almacenar el filtro de estado
+  clientes: any[] = []; // Lista de clientes
+  estadoFiltro: string = ''; // Variable para almacenar el filtro de estado
 
   // Paginación
   displayedPedidos: any[] = []; // Pedidos mostrados en la página actual
@@ -27,12 +28,17 @@ export class PedidoPage {
 
   constructor(
     private pedidoService: PedidoServices,
-    private clienteService: ClienteService  // Inyectar el servicio Cliente
+    private clienteService: ClienteService, // Inyectar el servicio Cliente
+    private authService: AuthService
   ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getPedidos();
-    this.getClientes();  // Obtener los clientes al iniciar la página
+    this.getClientes(); // Obtener los clientes al iniciar la página
   }
 
   getClientes() {
@@ -52,7 +58,9 @@ export class PedidoPage {
       this.pedidoService.getPedidosPorEstado(this.estadoFiltro).subscribe(
         (response) => {
           this.pedidos = response.sort((a: any, b: any) => b.id - a.id); // Ordenar por ID descendente
-          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage); // Calcular total de páginas
+          this.totalPages = Math.ceil(
+            this.pedidos.length / this.pedidosPerPage
+          ); // Calcular total de páginas
           this.loadPage(this.currentPage); // Cargar los pedidos de la página actual
         },
         (err) => console.error('Error al obtener los pedidos filtrados:', err)
@@ -62,7 +70,9 @@ export class PedidoPage {
       this.pedidoService.getPedidos().subscribe(
         (response) => {
           this.pedidos = response.sort((a: any, b: any) => b.id - a.id); // Ordenar por ID descendente
-          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage); // Calcular total de páginas
+          this.totalPages = Math.ceil(
+            this.pedidos.length / this.pedidosPerPage
+          ); // Calcular total de páginas
           this.loadPage(this.currentPage); // Cargar los pedidos de la página actual
         },
         (err) => console.error('Error al obtener los pedidos:', err)
@@ -72,7 +82,7 @@ export class PedidoPage {
 
   // Filtrar pedidos por estado
   filterPedidos() {
-    this.getPedidos();  // Vuelve a llamar a getPedidos con el estado seleccionado
+    this.getPedidos(); // Vuelve a llamar a getPedidos con el estado seleccionado
   }
 
   // Cambiar la página actual
@@ -102,7 +112,11 @@ export class PedidoPage {
 
   // Crear pedido
   createPedido() {
-    if (!this.newPedido.clienteId || !this.newPedido.estadoPedido || !this.newPedido.fechaPedido) {
+    if (
+      !this.newPedido.clienteId ||
+      !this.newPedido.estadoPedido ||
+      !this.newPedido.fechaPedido
+    ) {
       alert('Faltan campos requeridos.');
       return;
     }
@@ -122,22 +136,28 @@ export class PedidoPage {
 
   // Actualizar pedido
   updatePedido() {
-    if (!this.newPedido.clienteId || !this.newPedido.estadoPedido || !this.newPedido.fechaPedido) {
+    if (
+      !this.newPedido.clienteId ||
+      !this.newPedido.estadoPedido ||
+      !this.newPedido.fechaPedido
+    ) {
       alert('Faltan campos requeridos.');
       return;
     }
 
-    this.pedidoService.updatePedido(this.idAActualizar, this.newPedido).subscribe(
-      (res) => {
-        console.log('Pedido actualizado:', res);
-        this.getPedidos();
-        this.clearForm();
-      },
-      (err) => {
-        console.error('Error al actualizar el pedido:', err);
-        alert('Hubo un error al actualizar el pedido');
-      }
-    );
+    this.pedidoService
+      .updatePedido(this.idAActualizar, this.newPedido)
+      .subscribe(
+        (res) => {
+          console.log('Pedido actualizado:', res);
+          this.getPedidos();
+          this.clearForm();
+        },
+        (err) => {
+          console.error('Error al actualizar el pedido:', err);
+          alert('Hubo un error al actualizar el pedido');
+        }
+      );
   }
 
   // Eliminar pedido

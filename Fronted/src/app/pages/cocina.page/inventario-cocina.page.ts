@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InventarioCocinaServices } from '../../core/services/inventario-cocina.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-inventario-cocina',
@@ -25,7 +26,14 @@ export class InventarioCocinaPage {
   mostrarAlertaStock: boolean = false;
   alertaStock: any[] = [];
 
-  constructor(private inventarioCocinaService: InventarioCocinaServices) {}
+  constructor(
+    private inventarioCocinaService: InventarioCocinaServices,
+    private authService: AuthService
+  ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getInventarioCocina();

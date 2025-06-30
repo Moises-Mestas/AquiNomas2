@@ -3,29 +3,35 @@ import { PedidoServices } from '../../core/services/pedido.services';
 import { ClienteService } from '../../core/services/cliente.services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-pedido-completo',
   standalone: true,
   templateUrl: './pedidoCompleto.page.html',
   styleUrls: ['./pedidoCompleto.page.css'],
-  imports: [CommonModule, FormsModule]  // Asegúrate de agregar estos módulos
+  imports: [CommonModule, FormsModule], // Asegúrate de agregar estos módulos
 })
 export class PedidoCompletoPage {
   pedidos: any[] = []; // Todos los pedidos
   displayedPedidos: any[] = []; // Pedidos que se muestran en la página actual
-  estadoFiltro: string = '';  // Filtro para el estado de los pedidos
+  estadoFiltro: string = ''; // Filtro para el estado de los pedidos
   selectedPedido: any = null; // Pedido seleccionado para mostrar en el modal
 
   // Paginación
   currentPage: number = 1;
-  pedidosPerPage: number = 16;  // 4 pedidos por fila (en tarjetas)
+  pedidosPerPage: number = 16; // 4 pedidos por fila (en tarjetas)
   totalPages: number = 1;
 
   constructor(
     private pedidoService: PedidoServices,
-    private clienteService: ClienteService
+    private clienteService: ClienteService,
+    private authService: AuthService
   ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getPedidos(); // Cargar los pedidos al iniciar la página
@@ -42,7 +48,9 @@ export class PedidoCompletoPage {
           // Ordenar los pedidos por ID de manera descendente (más reciente a más antiguo)
           this.pedidos.sort((a: any, b: any) => b.id - a.id);
 
-          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
+          this.totalPages = Math.ceil(
+            this.pedidos.length / this.pedidosPerPage
+          );
           this.loadPage(this.currentPage);
         },
         (err) => console.error('Error al obtener los pedidos:', err)
@@ -56,7 +64,9 @@ export class PedidoCompletoPage {
           // Ordenar los pedidos por ID de manera descendente (más reciente a más antiguo)
           this.pedidos.sort((a: any, b: any) => b.id - a.id);
 
-          this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
+          this.totalPages = Math.ceil(
+            this.pedidos.length / this.pedidosPerPage
+          );
           this.loadPage(this.currentPage);
         },
         (err) => console.error('Error al obtener los pedidos:', err)

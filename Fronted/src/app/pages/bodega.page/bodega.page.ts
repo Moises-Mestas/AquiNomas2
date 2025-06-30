@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BodegaServices } from '../../core/services/bodega.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-bodega',
@@ -31,7 +32,14 @@ export class BodegaPage {
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
 
-  constructor(private bodegaService: BodegaServices) {}
+  constructor(
+    private bodegaService: BodegaServices,
+    private authService: AuthService
+  ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getBodegas();

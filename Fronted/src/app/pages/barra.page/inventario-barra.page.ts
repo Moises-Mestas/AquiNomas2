@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InventarioBarraServices } from '../../core/services/inventario-barra.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-inventario-barra',
@@ -25,8 +26,14 @@ export class InventarioBarraPage {
   mostrarAlertaStock: boolean = false;
   alertaStock: any[] = [];
 
-  constructor(private inventarioBarraService: InventarioBarraServices) {}
+  constructor(
+    private inventarioBarraService: InventarioBarraServices,
+    private authService: AuthService
+  ) {}
 
+  logout() {
+    this.authService.logout();
+  }
   ngOnInit() {
     this.getInventarioBarra();
   }

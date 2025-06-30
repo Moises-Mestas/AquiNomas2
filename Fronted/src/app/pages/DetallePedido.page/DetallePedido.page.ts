@@ -6,15 +6,18 @@ import { DetallePedidoService } from '../../core/services/detallePedido.services
 @Component({
   selector: 'app-detalle-pedido',
   standalone: true,
-  templateUrl: './detallePedido.page.html',
+  templateUrl: './DetallePedido.page.html',
   imports: [CommonModule, FormsModule],
-  styleUrls: ['./detallePedido.page.css']
+  styleUrls: ['./DetallePedido.page.css'],
 })
 export class DetallePedidoPage {
   detallePedidos: any[] = [];
-  newDetallePedido: { pedido_id: number, items: Array<{ menu_id: number, cantidad: number }> } = {
+  newDetallePedido: {
+    pedido_id: number;
+    items: Array<{ menu_id: number; cantidad: number }>;
+  } = {
     pedido_id: 0,
-    items: [{ menu_id: 0, cantidad: 0 }]
+    items: [{ menu_id: 0, cantidad: 0 }],
   };
   idAActualizar: number = 0;
   editing: boolean = false;
@@ -39,7 +42,9 @@ export class DetallePedidoPage {
         this.detallePedidos = response.sort((a: any, b: any) => b.id - a.id);
 
         // Calcular el número total de páginas
-        this.totalPages = Math.ceil(this.detallePedidos.length / this.detallePedidosPerPage);
+        this.totalPages = Math.ceil(
+          this.detallePedidos.length / this.detallePedidosPerPage
+        );
 
         // Cargar los detalles de pedido de la página actual
         this.loadPage(this.currentPage);
@@ -61,7 +66,10 @@ export class DetallePedidoPage {
   loadPage(page: number) {
     const startIndex = (page - 1) * this.detallePedidosPerPage;
     const endIndex = page * this.detallePedidosPerPage;
-    this.displayedDetallePedidos = this.detallePedidos.slice(startIndex, endIndex); // Mostrar solo los detalles de pedido de la página actual
+    this.displayedDetallePedidos = this.detallePedidos.slice(
+      startIndex,
+      endIndex
+    ); // Mostrar solo los detalles de pedido de la página actual
   }
 
   // Crear o actualizar detalle de pedido
@@ -81,8 +89,8 @@ export class DetallePedidoPage {
       pedidoId: this.newDetallePedido.pedido_id,
       items: this.newDetallePedido.items.map((item: any) => ({
         menu: { id: item.menu_id },
-        cantidad: item.cantidad
-      }))
+        cantidad: item.cantidad,
+      })),
     };
 
     this.detallePedidoService.createDetallePedido(detallePedidoData).subscribe(
@@ -104,21 +112,23 @@ export class DetallePedidoPage {
       pedidoId: this.newDetallePedido.pedido_id,
       items: this.newDetallePedido.items.map((item: any) => ({
         menu: { id: item.menu_id },
-        cantidad: item.cantidad
-      }))
+        cantidad: item.cantidad,
+      })),
     };
 
-    this.detallePedidoService.updateDetallePedido(this.idAActualizar, detallePedidoData).subscribe(
-      (res) => {
-        console.log('DetallePedido actualizado:', res);
-        this.getDetallePedidos();
-        this.clearForm();
-      },
-      (err) => {
-        console.error('Error al actualizar el detalle de pedido:', err);
-        alert('Hubo un error al actualizar el detalle de pedido');
-      }
-    );
+    this.detallePedidoService
+      .updateDetallePedido(this.idAActualizar, detallePedidoData)
+      .subscribe(
+        (res) => {
+          console.log('DetallePedido actualizado:', res);
+          this.getDetallePedidos();
+          this.clearForm();
+        },
+        (err) => {
+          console.error('Error al actualizar el detalle de pedido:', err);
+          alert('Hubo un error al actualizar el detalle de pedido');
+        }
+      );
   }
 
   // Eliminar detalle de pedido
@@ -139,8 +149,8 @@ export class DetallePedidoPage {
       pedido_id: detallePedido.pedido.id,
       items: detallePedido.items.map((item: any) => ({
         menu_id: item.menu.id,
-        cantidad: item.cantidad
-      }))
+        cantidad: item.cantidad,
+      })),
     };
     this.editing = true;
   }
@@ -157,7 +167,10 @@ export class DetallePedidoPage {
 
   // Limpiar formulario
   clearForm() {
-    this.newDetallePedido = { pedido_id: 0, items: [{ menu_id: 0, cantidad: 0 }] };
+    this.newDetallePedido = {
+      pedido_id: 0,
+      items: [{ menu_id: 0, cantidad: 0 }],
+    };
     this.idAActualizar = 0;
     this.editing = false;
   }

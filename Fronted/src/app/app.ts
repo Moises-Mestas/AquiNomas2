@@ -4,9 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MenuService } from './core/services/menu.services';
 import { RecetaService } from './core/services/receta.services';
-import { ClienteService } from './core/services/cliente.services';
+import { MenuPage } from './pages/menu.page/menu.page';
+import { RecetaPage } from './pages/receta.page/receta.page';
 import { PedidoServices } from './core/services/pedido.services';
 import { DetallePedidoService } from './core/services/detallePedido.services';
+import { ProductoServices } from './core/services/producto.services';
 
 @Component({
   selector: 'app-root',
@@ -18,23 +20,7 @@ import { DetallePedidoService } from './core/services/detallePedido.services';
 export class App {
   protected title = 'Fronted';
 
-  // Declaración de las variables para Clientes
-  idAEliminarCliente: number = 0;
-  idAActualizarCliente: number = 0;
-  newCliente: any = {
-    nombre: '',
-    apellido: '',
-    dni: '',
-    telefono: '',
-    email: '',
-    direccion: '',
-    ruc: '',
-    fechaRegistro: '',
-  }; // Datos de cliente
-  clientes: any[] = []; // Lista de clientes
-  editing: boolean = false; // Control de edición
-
-  // Declaración de las variables para menús
+  // Menús
   idAEliminar: number = 0;
   idAActualizar: number = 0;
   newMenu: any = {
@@ -87,89 +73,19 @@ export class App {
     private menuService: MenuService,
     private recetaService: RecetaService,
     private pedidoService: PedidoServices,
-    private detallePedidoService: DetallePedidoService, // Servicio de detallePedido
-    private clienteService: ClienteService
+    private detallePedidoService: DetallePedidoService,
+    private productoService: ProductoServices
   ) {}
 
   ngOnInit() {
-    this.getMenus(); // Cargar menús
-    this.getRecetas(); // Cargar recetas
-    this.getPedidos(); // Cargar pedidos
-    this.getDetallePedidos(); // Cargar detallePedidos
-    this.getClientes(); // Llamamos al método para obtener los clientes
-  }
-  clearForm() {
-    this.newCliente = {
-      id: 0,
-      nombre: '',
-      apellido: '',
-      dni: '',
-      telefono: '',
-      email: '',
-      direccion: '',
-      ruc: '',
-      fechaRegistro: '',
-    };
-    this.idAActualizar = 0; // Reiniciamos el ID
-    this.editing = false; // Desactivamos el modo de edición
-  }
-  getClientes() {
-    this.clienteService.getClientes().subscribe(
-      (response) => {
-        this.clientes = response; // Guardamos los clientes obtenidos
-        console.log(this.clientes); // Verificamos los datos en consola
-      },
-      (err) => console.error('Error al obtener los clientes:', err)
-    );
+    this.getMenus();
+    this.getRecetas();
+    this.getPedidos();
+    this.getDetallePedidos();
+    this.getProductos();
   }
 
-  createCliente() {
-    this.clienteService.createCliente(this.newCliente).subscribe(
-      (res) => {
-        console.log('Cliente creado:', res);
-        this.getClientes(); // Refresca la lista de clientes
-        this.newCliente = {
-          nombre: '',
-          apellido: '',
-          dni: '',
-          telefono: '',
-          email: '',
-          direccion: '',
-          ruc: '',
-          fechaRegistro: '',
-        }; // Limpia el formulario
-      },
-      (err) => console.error('Error al crear el cliente:', err)
-    );
-  }
-
-  // Actualizar un cliente
-  updateCliente() {
-    this.clienteService
-      .updateCliente(this.idAActualizarCliente, this.newCliente)
-      .subscribe(
-        (res) => {
-          console.log('Cliente actualizado:', res);
-          this.getClientes(); // Refresca la lista de clientes
-          this.clearForm(); // Limpiar el formulario
-        },
-        (err) => console.error('Error al actualizar el cliente:', err)
-      );
-  }
-
-  // Eliminar un cliente
-  deleteCliente(id: number) {
-    if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
-      this.clienteService.deleteCliente(id).subscribe(
-        (res) => {
-          console.log('Cliente eliminado:', res);
-          this.getClientes(); // Refresca la lista de clientes
-        },
-        (err) => console.error('Error al eliminar cliente:', err)
-      );
-    }
-  }
-  // Método para obtener todos los menús
+  // Menús
   getMenus() {
     this.menuService.getMenus().subscribe(
       (response) => {
