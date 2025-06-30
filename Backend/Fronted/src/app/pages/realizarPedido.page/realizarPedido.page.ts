@@ -6,18 +6,20 @@ import { FormsModule } from '@angular/forms';
 import { ClientePage } from '../cliente.page/cliente.page';
 import { PedidoPage } from '../pedido.page/pedido.page';  // Ruta correcta
 import { DetallePedidoPage } from '../DetallePedido.page/DetallePedido.page';
-import {ClienteService} from '../../core/services/cliente.services';
-import {PedidoServices} from '../../core/services/pedido.services';
-import {DetallePedidoService} from '../../core/services/detallePedido.services';  // Ruta correcta
+import { PedidoCompletoPage } from '../pedidoCompleto.page/pedidoCompleto.page'; // Importa el nuevo componente
+
+import { ClienteService } from '../../core/services/cliente.services';
+import { PedidoServices } from '../../core/services/pedido.services';
+import { DetallePedidoService } from '../../core/services/detallePedido.services';
 
 @Component({
   selector: 'app-realizar-pedido',
   standalone: true,
   templateUrl: './realizarPedido.page.html',
-  imports: [CommonModule, FormsModule, ClientePage, PedidoPage, DetallePedidoPage]  // Asegúrate de incluir los componentes aquí
+  imports: [CommonModule, FormsModule, ClientePage, PedidoPage, DetallePedidoPage, PedidoCompletoPage]  // Asegúrate de incluir los componentes aquí
 })
 export class RealizarPedidoPage {
-  currentView: string = 'cliente'; // Controla la vista actual (cliente, pedido, detallePedido)
+  currentView: string = 'cliente'; // Controla la vista actual (cliente, pedido, detallePedido, pedidoCompleto)
 
   // Aquí puedes agregar las propiedades necesarias
   clientes: any[] = [];

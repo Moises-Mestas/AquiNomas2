@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { PedidoServices } from '../../core/services/pedido.services';
 import { ClienteService } from '../../core/services/cliente.services';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-pedido-completo',
@@ -11,8 +11,6 @@ import {FormsModule} from '@angular/forms';
   styleUrls: ['./pedidoCompleto.page.css'],
   imports: [CommonModule, FormsModule]  // Asegúrate de agregar estos módulos
 })
-
-
 export class PedidoCompletoPage {
   pedidos: any[] = []; // Todos los pedidos
   displayedPedidos: any[] = []; // Pedidos que se muestran en la página actual
@@ -40,6 +38,10 @@ export class PedidoCompletoPage {
       this.pedidoService.getPedidosPorEstado(this.estadoFiltro).subscribe(
         (response) => {
           this.pedidos = response;
+
+          // Ordenar los pedidos por ID de manera descendente (más reciente a más antiguo)
+          this.pedidos.sort((a: any, b: any) => b.id - a.id);
+
           this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
           this.loadPage(this.currentPage);
         },
@@ -50,6 +52,10 @@ export class PedidoCompletoPage {
       this.pedidoService.getPedidos().subscribe(
         (response) => {
           this.pedidos = response;
+
+          // Ordenar los pedidos por ID de manera descendente (más reciente a más antiguo)
+          this.pedidos.sort((a: any, b: any) => b.id - a.id);
+
           this.totalPages = Math.ceil(this.pedidos.length / this.pedidosPerPage);
           this.loadPage(this.currentPage);
         },

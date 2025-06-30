@@ -6,6 +6,7 @@
     <button class="btn btn-primary" (click)="showView('cliente')">Cliente</button>
     <button class="btn btn-primary" (click)="showView('pedido')">Pedido</button>
     <button class="btn btn-primary" (click)="showView('detallePedido')">Detalle de Pedido</button>
+    <button class="btn btn-primary" (click)="showView('pedidoCompleto')">Pedido Completo</button> <!-- Nuevo botón -->
   </div>
 
   <!-- Vista de Cliente -->
@@ -23,4 +24,8 @@
     <app-detalle-pedido></app-detalle-pedido> <!-- Incluye el componente Detalle de Pedido -->
   </div>
 
+  <!-- Vista de Pedido Completo -->
+  <div *ngIf="currentView === 'pedidoCompleto'">
+    <app-pedido-completo></app-pedido-completo> <!-- Incluye el componente Pedido Completo -->
+  </div>
 </div>
