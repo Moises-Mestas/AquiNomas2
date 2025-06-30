@@ -156,9 +156,15 @@ public class ComprobanteServiceImpl implements ComprobantePagoService {
 
                     // 💰 Montos finales
                     escribir(cs, "----------------------------------------------");
-                    escribir(cs, String.format("%-28s S/%7.2f", "Monto Neto:", comprobante.getMontoNeto()));
-                    escribir(cs, String.format("%-28s S/%7.2f", "IGV (18%):", comprobante.getIgv()));
-                    escribir(cs, String.format("%-28s S/%7.2f", "TOTAL A PAGAR:", venta.getTotal()));
+
+                    if (comprobante.getTipo() == ComprobantePago.TipoComprobante.FACTURA) {
+                        escribir(cs, String.format("%-28s S/%7.2f", "Monto Neto:", comprobante.getMontoNeto()));
+                        escribir(cs, String.format("%-28s S/%7.2f", "IGV (18%):", comprobante.getIgv()));
+                        escribir(cs, String.format("%-28s S/%7.2f", "TOTAL A PAGAR:", venta.getTotal()));
+                    } else {
+                        escribir(cs, String.format("%-28s S/%7.2f", "TOTAL A PAGAR:", venta.getTotal()));
+                    }
+
                     escribir(cs, "----------------------------------------------");
                     escribir(cs, "");
                     escribir(cs, "_____________________________");

@@ -1,8 +1,16 @@
-import { Component } from '@angular/core';
+import {ApplicationConfig, Component} from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComprobanteService } from '../../core/services/comprobante.services';
 import { VentaService } from '../../core/services/venta.services';
+import {provideRouter} from '@angular/router';
+import {routes} from '../../app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+  ]
+};
 
 @Component({
   selector: 'app-comprobante',
@@ -12,6 +20,7 @@ import { VentaService } from '../../core/services/venta.services';
   styleUrls: ['./comprobante.page.css']
 })
 export class ComprobantePage {
+  comprobanteSeleccionado: any = null;
   comprobantes: any[] = [];
   comprobanteForm: any = {
     ventaId: null,
@@ -90,5 +99,13 @@ export class ComprobantePage {
   cancelar(): void {
     this.vista = 'listar';
     this.comprobanteForm = { ventaId: null, tipo: 'BOLETA' };
+  }
+
+  verDetalle(comprobante: any): void {
+    this.comprobanteSeleccionado = comprobante;
+  }
+
+  cerrarDetalle(): void {
+    this.comprobanteSeleccionado = null;
   }
 }

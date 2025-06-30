@@ -9,6 +9,7 @@ export const routes: Route[] = [
   { path: 'ventas', component: VentaPage},
   { path: 'promociones', component: PromocionPage},
   { path: 'comprobantes', component: ComprobantePage},
-
+  { path: '', redirectTo: 'ventas', pathMatch: 'full' },
+  { path: '**', redirectTo: 'ventas' }
   // Otras rutas de tu aplicación...
 ];

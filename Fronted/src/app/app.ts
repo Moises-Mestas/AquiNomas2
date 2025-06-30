@@ -3,12 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // ✅ Importa FormsModule
 import { ApiService } from './core/services/api.services';
 import { MenuService } from './core/services/menu.services';
-import {MenuPage} from './pages/menu.page/menu.page'; // ✅ Importar MenuService
 
 @Component({
   selector: 'app-root',
   standalone: true, // ✅ Standalone component
-  imports: [RouterOutlet, FormsModule, MenuPage], // ✅ Incluye MenuPage en los imports
+  imports: [RouterOutlet], // ✅ Incluye MenuPage en los imports
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })
