@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PromocionService } from '../../core/services/promocion.services';
+import { MenuService } from '../../core/services/menu.services';
 
 @Component({
   selector: 'app-promocion',
@@ -12,20 +13,33 @@ import { PromocionService } from '../../core/services/promocion.services';
 })
 export class PromocionPage {
   promociones: any[] = [];
+  listaMenus: any[] = [];
+  promocionSeleccionada: any = null;
+
   promocionForm: any = {
     nombre: '',
-    tipo: '',
-    descuento: 0,
+    tipoDescuento: '',
+    valorDescuento: 0,
+    montoMinimo: null,
+    cantidadMinima: null,
     fechaInicio: '',
-    fechaFin: ''
+    fechaFin: '',
+    menuSeleccionado: []
   };
+
   idEditando: number | null = null;
   vista: 'listar' | 'crear' | 'editar' = 'listar';
   filtroNombre = '';
 
-  constructor(private promocionService: PromocionService) {}
+  constructor(
+    private promocionService: PromocionService,
+    private menuService: MenuService
+  ) {}
 
   ngOnInit(): void {
+    this.menuService.getMenus().subscribe(res => {
+      this.listaMenus = res.map(menu => ({ ...menu, cantidad: 0 }));
+    });
     this.listarPromociones();
   }
 
@@ -34,8 +48,9 @@ export class PromocionPage {
   }
 
   buscarPorNombre(): void {
-    if (this.filtroNombre.trim()) {
-      this.promocionService.buscarPorNombrePromocion(this.filtroNombre.trim()).subscribe(res => {
+    const nombre = this.filtroNombre.trim();
+    if (nombre) {
+      this.promocionService.buscarPorNombrePromocion(nombre).subscribe(res => {
         this.promociones = res;
       });
     } else {
@@ -43,16 +58,56 @@ export class PromocionPage {
     }
   }
 
-  guardar(): void {
-    if (this.vista === 'editar' && this.idEditando) {
-      this.promocionService.actualizarPromocion(this.idEditando, this.promocionForm).subscribe(() => this.reiniciar());
+  obtenerCantidad(menuId: number): number {
+    const encontrado = this.promocionForm.menuSeleccionado.find((m: any) => m.menuId === menuId);
+    return encontrado?.cantidadRequerida || 1;
+  }
+
+  toggleMenuSeleccionado(menu: any): void {
+    const index = this.promocionForm.menuSeleccionado.findIndex((m: any) => m.menuId === menu.id);
+    if (index !== -1) {
+      this.promocionForm.menuSeleccionado.splice(index, 1);
     } else {
-      this.promocionService.crearPromocion(this.promocionForm).subscribe(() => this.reiniciar());
+      this.promocionForm.menuSeleccionado.push({ menuId: menu.id, cantidadRequerida: menu.cantidad || 1 });
+    }
+  }
+
+  yaSeleccionado(menuId: number): boolean {
+    return this.promocionForm.menuSeleccionado.some((m: any) => m.menuId === menuId);
+  }
+
+  actualizarCantidad(menu: any): void {
+    const i = this.promocionForm.menuSeleccionado.findIndex((m: any) => m.menuId === menu.id);
+    if (i !== -1) {
+      this.promocionForm.menuSeleccionado[i].cantidadRequerida = menu.cantidad || 1;
+    }
+  }
+
+
+  guardar(): void {
+    const payload = {
+      ...this.promocionForm,
+      menu: this.promocionForm.menuSeleccionado // 👈 se alinea con backend
+    };
+
+    if (this.vista === 'editar' && this.idEditando) {
+      this.promocionService.actualizarPromocion(this.idEditando, payload).subscribe(() => this.reiniciar());
+    } else {
+      this.promocionService.crearPromocion(payload).subscribe(() => this.reiniciar());
     }
   }
 
   editar(promo: any): void {
-    this.promocionForm = { ...promo };
+    this.promocionForm = {
+      nombre: promo.nombre,
+      tipoDescuento: promo.tipoDescuento,
+      valorDescuento: promo.valorDescuento,
+      montoMinimo: promo.montoMinimo,
+      cantidadMinima: promo.cantidadMinima,
+      fechaInicio: promo.fechaInicio,
+      fechaFin: promo.fechaFin,
+      menuSeleccionado: promo.menu || []
+    };
     this.idEditando = promo.id;
     this.vista = 'editar';
   }
@@ -70,14 +125,25 @@ export class PromocionPage {
   reiniciar(): void {
     this.promocionForm = {
       nombre: '',
-      tipo: '',
-      descuento: 0,
+      tipoDescuento: '',
+      valorDescuento: 0,
+      montoMinimo: null,
+      cantidadMinima: null,
       fechaInicio: '',
-      fechaFin: ''
+      fechaFin: '',
+      menuSeleccionado: []
     };
     this.idEditando = null;
     this.vista = 'listar';
     this.filtroNombre = '';
     this.listarPromociones();
+  }
+
+  abrirVistaDetalle(promo: any): void {
+    this.promocionSeleccionada = promo;
+  }
+
+  cerrarVistaDetalle(): void {
+    this.promocionSeleccionada = null;
   }
 }

@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComprobanteService } from '../../core/services/comprobante.services';
+import { VentaService } from '../../core/services/venta.services';
 
 @Component({
   selector: 'app-comprobante',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe],
   templateUrl: './comprobante.page.html',
   styleUrls: ['./comprobante.page.css']
 })
@@ -22,15 +23,26 @@ export class ComprobantePage {
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
 
-  constructor(private comprobanteService: ComprobanteService) {}
+  constructor(
+    private comprobanteService: ComprobanteService,
+    private ventaService: VentaService
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.obtenerComprobantes();
   }
 
   obtenerComprobantes(): void {
-    this.comprobanteService.listarComprobantes().subscribe(res => {
-      this.comprobantes = res;
+    this.comprobanteService.listarComprobantes().subscribe(comprobantes => {
+      this.comprobantes = comprobantes;
+
+      this.comprobantes.forEach(c => {
+        if (!c.venta || !c.venta.pedido?.cliente) {
+          this.ventaService.getVentaById(c.ventaId).subscribe(venta => {
+            c.venta = venta;
+          });
+        }
+      });
     });
   }
 
@@ -47,7 +59,15 @@ export class ComprobantePage {
   filtrar(): void {
     this.comprobanteService
       .filtrarComprobante(this.filtroTipo, this.filtroFechaInicio, this.filtroFechaFin)
-      .subscribe(res => (this.comprobantes = res));
+      .subscribe(res => {
+        this.comprobantes = res;
+
+        this.comprobantes.forEach(c => {
+          this.ventaService.getVentaById(c.ventaId).subscribe(venta => {
+            c.venta = venta;
+          });
+        });
+      });
   }
 
   descargarPDF(id: number): void {

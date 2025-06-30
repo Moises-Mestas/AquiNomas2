@@ -38,14 +38,18 @@
           <tr *ngFor="let p of promociones">
             <td>{{ p.id }}</td>
             <td>{{ p.nombre }}</td>
-            <td>{{ p.tipo }}</td>
-            <td>{{ p.descuento }}%</td>
+            <td>{{ p.tipoDescuento }}</td>
+            <td>
+              <span *ngIf="p.tipoDescuento === 'MONTO'">S/ {{ p.valorDescuento }}</span>
+              <span *ngIf="p.tipoDescuento === 'PORCENTAJE'">{{ p.valorDescuento }}%</span>
+            </td>
             <td>{{ p.fechaInicio | date }}</td>
             <td>{{ p.fechaFin | date }}</td>
             <td>
-              <div class="d-flex">
-                <button class="btn btn-sm btn-warning me-1" (click)="editar(p)">✏️</button>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-warning" (click)="editar(p)">✏️</button>
                 <button class="btn btn-sm btn-danger" (click)="eliminar(p.id)">🗑️</button>
+                <button class="btn btn-sm btn-outline-primary" (click)="abrirVistaDetalle(p)">👁️ Ver</button>
               </div>
             </td>
           </tr>
@@ -53,6 +57,56 @@
         </table>
       </div>
     </div>
+
+    <!-- Vista Detallada Modal -->
+    <div *ngIf="promocionSeleccionada" class="modal-overlay" (click)="cerrarVistaDetalle()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h5 class="mb-3">🎁 Detalles de la Promoción: {{ promocionSeleccionada.nombre }}</h5>
+
+        <p><strong>Tipo:</strong> {{ promocionSeleccionada.tipoDescuento }}</p>
+
+        <p><strong>Descuento:</strong>
+          <span *ngIf="promocionSeleccionada.tipoDescuento === 'MONTO'">
+        S/ {{ promocionSeleccionada.valorDescuento }}
+      </span>
+          <span *ngIf="promocionSeleccionada.tipoDescuento === 'PORCENTAJE'">
+        {{ promocionSeleccionada.valorDescuento }}%
+      </span>
+        </p>
+
+        <p><strong>Descripción:</strong> {{ promocionSeleccionada.descripcion || '—' }}</p>
+
+        <div *ngIf="promocionSeleccionada.menu?.length">
+          <p><strong>Menús asociados:</strong></p>
+          <ul>
+            <li *ngFor="let item of promocionSeleccionada.menu">
+              {{ item.cantidadRequerida }}x {{ item.nombre }} - S/ {{ item.precio }}
+            </li>
+          </ul>
+        </div>
+
+        <p><strong>Condición mínima:</strong>
+          <ng-container *ngIf="promocionSeleccionada.cantidadMinima">
+            {{ promocionSeleccionada.cantidadMinima }} ítems
+          </ng-container>
+          <ng-container *ngIf="promocionSeleccionada.montoMinimo">
+            {{ promocionSeleccionada.cantidadMinima ? ' y ' : '' }}S/ {{ promocionSeleccionada.montoMinimo }}
+          </ng-container>
+          <ng-container *ngIf="!promocionSeleccionada.cantidadMinima && !promocionSeleccionada.montoMinimo">
+            —
+          </ng-container>
+        </p>
+
+        <p><strong>Vigencia:</strong>
+          {{ promocionSeleccionada.fechaInicio || '—' }} al {{ promocionSeleccionada.fechaFin || '—' }}
+        </p>
+
+        <div class="text-end mt-4">
+          <button class="btn btn-secondary" (click)="cerrarVistaDetalle()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Formulario crear / editar -->
@@ -62,31 +116,84 @@
     </div>
     <div class="card-body">
       <form (ngSubmit)="guardar()" class="row g-3">
+        <!-- Nombre y Tipo -->
         <div class="col-md-6">
           <label class="form-label">Nombre</label>
           <input class="form-control" [(ngModel)]="promocionForm.nombre" name="nombre" required />
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Tipo</label>
-          <input class="form-control" [(ngModel)]="promocionForm.tipo" name="tipo" />
+          <label class="form-label">Tipo de Descuento</label>
+          <select class="form-select" [(ngModel)]="promocionForm.tipoDescuento" name="tipoDescuento" required>
+            <option value="">Seleccione</option>
+            <option value="MONTO">Monto Fijo</option>
+            <option value="PORCENTAJE">Porcentaje</option>
+          </select>
+        </div>
+
+        <!-- Descuento, Monto y Cantidad mínima -->
+        <div class="col-md-4">
+          <label class="form-label">Valor del Descuento</label>
+          <input class="form-control" type="number" step="0.01" [(ngModel)]="promocionForm.valorDescuento" name="valorDescuento" />
         </div>
 
         <div class="col-md-4">
-          <label class="form-label">Descuento (%)</label>
-          <input class="form-control" type="number" [(ngModel)]="promocionForm.descuento" name="descuento" />
+          <label class="form-label">Monto Mínimo (opcional)</label>
+          <input class="form-control" type="number" min="0" step="0.01" [(ngModel)]="promocionForm.montoMinimo" name="montoMinimo" />
         </div>
 
         <div class="col-md-4">
-          <label class="form-label">Fecha Inicio</label>
+          <label class="form-label">Cantidad Mínima (opcional)</label>
+          <input class="form-control" type="number" min="0" [(ngModel)]="promocionForm.cantidadMinima" name="cantidadMinima" />
+        </div>
+
+        <!-- Fechas -->
+        <div class="col-md-6">
+          <label class="form-label">Fecha de Inicio</label>
           <input class="form-control" type="date" [(ngModel)]="promocionForm.fechaInicio" name="fechaInicio" />
         </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Fecha Fin</label>
+        <div class="col-md-6">
+          <label class="form-label">Fecha de Fin</label>
           <input class="form-control" type="date" [(ngModel)]="promocionForm.fechaFin" name="fechaFin" />
         </div>
 
+        <!-- Menús Asociados -->
+        <div class="col-12">
+          <label class="form-label">Seleccionar productos para la promoción</label>
+          <div class="row">
+            <div class="col-md-6 mb-2" *ngFor="let item of listaMenus">
+              <div class="border rounded p-2 d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ item.nombre }}</strong><br />
+                  <small>S/ {{ item.precio }}</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <!-- Checkbox para marcar si entra -->
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-3"
+                    [checked]="yaSeleccionado(item.id)"
+                    (change)="toggleMenuSeleccionado(item)"
+                  />
+
+                  <!-- Input visible solo si está seleccionado -->
+                  <input
+                    *ngIf="yaSeleccionado(item.id)"
+                    type="number"
+                    min="1"
+                    [(ngModel)]="item.cantidad"
+                    class="form-control w-50"
+                    (ngModelChange)="actualizarCantidad(item)"
+                    name="cantidad_{{ item.id }}"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
         <div class="col-12 mt-3">
           <button type="submit" class="btn btn-success me-2">
             {{ vista === 'crear' ? 'Registrar' : 'Actualizar' }}
@@ -96,4 +203,5 @@
       </form>
     </div>
   </div>
+
 </div>

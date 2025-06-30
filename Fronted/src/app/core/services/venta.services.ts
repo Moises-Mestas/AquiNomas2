@@ -52,8 +52,8 @@ export class VentaService {
     return this.http.get<any[]>(`${resources.ventas}/pedidos/cliente`, { params });
   }
 
-  getPedidosNoVendidosPorCliente(clienteId: number): Observable<any[]> {
-    const params = new HttpParams().set('clienteId', clienteId.toString());
+  getPedidosNoVendidosPorCliente(nombreCliente: string): Observable<any[]> {
+    const params = new HttpParams().set('nombre', nombreCliente);
     return this.http.get<any[]>(`${resources.ventas}/pedidos/no-vendidos`, { params });
   }
 }

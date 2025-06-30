@@ -43,19 +43,21 @@
             <th>Tipo</th>
             <th>Total</th>
             <th>Fecha</th>
+            <th>Venta ID</th>
             <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
           <tr *ngFor="let c of comprobantes">
             <td>{{ c.id }}</td>
-            <td>{{ c.nombreCliente }}</td>
+            <td>{{ c.venta?.pedido?.cliente?.nombre || 'Cliente no disponible' }}</td>
             <td>{{ c.tipo }}</td>
-            <td>{{ c.total | currency: 'PEN' }}</td>
-            <td>{{ c.fechaEmision | date:'short' }}</td>
+            <td>S/ {{ c.venta?.total?.toFixed(2) || '—' }}</td>
+            <td>{{ c.fechaEmision | date: 'short' }}</td>
+            <td>{{ c.venta?.id  }}</td>
             <td>
-              <div class="d-flex">
-                <button class="btn btn-info btn-sm me-1" (click)="descargarPDF(c.id)">📥</button>
+              <div class="d-flex gap-1">
+                <button class="btn btn-info btn-sm" (click)="descargarPDF(c.id)">📥</button>
                 <button class="btn btn-danger btn-sm" (click)="eliminarComprobante(c.id)">🗑️</button>
               </div>
             </td>
@@ -89,4 +91,5 @@
       </form>
     </div>
   </div>
+
 </div>
