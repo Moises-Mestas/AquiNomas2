@@ -26,7 +26,7 @@ spring:
         - id: servicio-auth
           uri: lb://servicio-auth
           predicates:
-            - Path=/auth/
+            - Path=/auth/**
 
         #========servicio pedido=======#
         - id: servicio-pedido2
