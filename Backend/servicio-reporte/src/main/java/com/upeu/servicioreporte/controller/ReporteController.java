@@ -25,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/reportes")
+
 public class ReporteController {
 
     private final ReporteService reporteService;

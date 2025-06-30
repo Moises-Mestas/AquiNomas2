@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { resources } from '../resources/resources'; // Asegúrate de tener `clientes` definido
+import { resources } from '../resources/resources';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
@@ -11,34 +11,19 @@ export class ClienteService {
     return this.http.get<any[]>(resources.clientes);
   }
 
-  getClienteById(id: number): Observable<any> {
-    return this.http.get(`${resources.clientes}/${id}`);
+  createCliente(cliente: FormData): Observable<any> {
+    return this.http.post<any>(resources.clientes, cliente);
   }
 
-  crear(cliente: any): Observable<any> {
-    return this.http.post(resources.clientes, cliente);
+  updateCliente(id: number, cliente: FormData): Observable<any> {
+    return this.http.put<any>(`${resources.clientes}/${id}`, cliente);
   }
 
-  actualizar(cliente: any): Observable<any> {
-    return this.http.put(resources.clientes, cliente);
+  deleteCliente(id: number): Observable<any> {
+    return this.http.delete(`${resources.clientes}/${id}`);
   }
 
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${resources.clientes}/${id}`);
-  }
 
-  buscarPorNombre(nombre: string): Observable<any[]> {
-    const params = new HttpParams().set('nombre', nombre);
-    return this.http.get<any[]>(`${resources.clientes}/buscar-nombre`, { params });
-  }
 
-  buscarPorDni(dni: string): Observable<any> {
-    const params = new HttpParams().set('dni', dni);
-    return this.http.get(`${resources.clientes}/buscar-dni`, { params });
-  }
 
-  listarRecientes(dias: number = 30): Observable<any[]> {
-    const params = new HttpParams().set('dias', dias);
-    return this.http.get<any[]>(`${resources.clientes}/recientes`, { params });
-  }
 }
