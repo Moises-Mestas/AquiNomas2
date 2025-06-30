@@ -45,4 +45,10 @@ export const resources = {
   authLogin: 'auth/login',
   authRegister: 'auth/register',
   authLogout: 'auth/logout',
+
+  ventas: 'ventas',
+  promociones: 'promociones',
+  comprobantes: 'comprobantes',
+
+
 };

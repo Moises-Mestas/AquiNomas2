@@ -1,0 +1,168 @@
+<div class="container py-4">
+  <h1 class="mb-4 text-primary">Gestión de Comprobantes</h1>
+
+  <!-- Navegación -->
+  <div class="mb-3 d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-primary" (click)="vista = 'listar'">📋 Listar</button>
+    <button class="btn btn-outline-success" (click)="vista = 'crear'">➕ Generar Comprobante</button>
+  </div>
+
+  <!-- Sección de Filtros -->
+  <div *ngIf="vista === 'listar'" class="card mb-3">
+    <div class="card-header">Filtros</div>
+    <div class="card-body row g-2">
+      <div class="col-md-4">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" [(ngModel)]="filtroTipo">
+          <option value="">Todos</option>
+          <option value="BOLETA">Boleta</option>
+          <option value="FACTURA">Factura</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Desde</label>
+        <input class="form-control" type="datetime-local" [(ngModel)]="filtroFechaInicio" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Hasta</label>
+        <input class="form-control" type="datetime-local" [(ngModel)]="filtroFechaFin" />
+      </div>
+      <div class="col-md-2 d-grid">
+        <label class="form-label invisible">.</label>
+        <button class="btn btn-dark w-100" (click)="filtrar()">🔍 Filtrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Comprobantes -->
+  <div *ngIf="vista === 'listar'" class="card">
+    <div class="card-header bg-dark text-white">Comprobantes Emitidos</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0 align-middle">
+          <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Tipo</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Venta ID</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let c of comprobantes">
+            <td>{{ c.id }}</td>
+            <td>{{ c.venta?.pedido?.cliente?.nombre || 'Cliente no disponible' }}</td>
+            <td>{{ c.tipo }}</td>
+            <td>S/ {{ c.venta?.total?.toFixed(2) || '—' }}</td>
+            <td>{{ c.fechaEmision | date: 'short' }}</td>
+            <td>{{ c.venta?.id }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <button class="btn btn-secondary btn-sm" (click)="verDetalle(c)">👁️</button>
+                <button class="btn btn-info btn-sm" (click)="descargarPDF(c.id)">📥</button>
+                <button class="btn btn-danger btn-sm" (click)="eliminarComprobante(c.id)">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario para Crear Comprobante -->
+  <div *ngIf="vista === 'crear'" class="card mt-4">
+    <div class="card-header">Generar Comprobante</div>
+    <div class="card-body">
+      <form (ngSubmit)="generar()" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">ID de Venta</label>
+          <input
+            class="form-control"
+            type="number"
+            [(ngModel)]="comprobanteForm.ventaId"
+            name="ventaId"
+            required
+          />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Tipo de Comprobante</label>
+          <select class="form-select" [(ngModel)]="comprobanteForm.tipo" name="tipo">
+            <option value="BOLETA">Boleta</option>
+            <option value="FACTURA">Factura</option>
+          </select>
+        </div>
+        <div class="col-12 text-end mt-3">
+          <button type="submit" class="btn btn-success me-2">✅ Generar</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelar()">❌ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div
+    *ngIf="comprobanteSeleccionado"
+    class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center"
+    style="z-index: 9999;"
+  >
+    <div
+      style="width: 360px; background: #fff; border: 1px dashed #888; padding: 16px; font-family: monospace; position: relative;"
+    >
+      <button (click)="cerrarDetalle()" style="position: absolute; top: 4px; right: 4px;" class="btn-close"></button>
+
+      <h5 style="text-align: center; margin: 0;">AQUÍNOMÁS</h5>
+      <p style="text-align: center; margin: 0;">RUC: 20481234567</p>
+      <p style="text-align: center; margin: 0;">Av. Principal 123, Juliaca</p>
+      <p style="text-align: center; margin: 8px 0;">Telf: (051) 321-0000</p>
+
+      <hr />
+      <p><strong>Tipo:</strong> {{ comprobanteSeleccionado.tipo }}</p>
+      <p><strong>Serie:</strong> {{ comprobanteSeleccionado.numeroSerie }}</p>
+      <p><strong>Comprobante #:</strong> {{ comprobanteSeleccionado.numeroComprobante }}</p>
+      <p><strong>Fecha emisión:</strong> {{ comprobanteSeleccionado.fechaEmision | date: 'short' }}</p>
+
+      <hr />
+      <p><strong>Cliente:</strong> {{ comprobanteSeleccionado.venta?.pedido?.cliente?.nombre || '—' }}</p>
+      <p><strong>DNI:</strong> {{ comprobanteSeleccionado.venta?.pedido?.cliente?.dni || '—' }}</p>
+      <p><strong>Dirección:</strong> {{ comprobanteSeleccionado.venta?.pedido?.cliente?.direccion || '—' }}</p>
+
+      <hr />
+      <table style="width: 100%; font-size: 14px;">
+        <thead>
+        <tr>
+          <th style="text-align: left;">Menú</th>
+          <th style="text-align: center;">Cant</th>
+          <th style="text-align: right;">Subt</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr
+          *ngFor="let item of comprobanteSeleccionado.venta?.pedido?.detalles"
+        >
+          <td>{{ item.menu.nombre }}</td>
+          <td style="text-align: center;">{{ item.cantidad }}</td>
+          <td style="text-align: right;">
+            S/ {{
+              ((item.precioUnitario ?? item.menu.precio) * item.cantidad)
+                | number: '1.2-2'
+            }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <hr />
+      <p><strong>Subtotal:</strong> S/ {{ comprobanteSeleccionado.montoNeto | number: '1.2-2' }}</p>
+      <p><strong>IGV:</strong> S/ {{ comprobanteSeleccionado.igv | number: '1.2-2' }}</p>
+      <p style="text-align: right;"><strong>Total:</strong> S/ {{ comprobanteSeleccionado.venta?.total | number: '1.2-2' }}</p>
+
+      <hr />
+      <p style="text-align: center;">¡Gracias por su preferencia!</p>
+    </div>
+  </div>
+
+
+</div>

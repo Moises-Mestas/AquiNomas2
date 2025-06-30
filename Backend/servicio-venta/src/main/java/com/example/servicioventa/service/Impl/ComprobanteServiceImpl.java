@@ -1,19 +1,26 @@
 package com.example.servicioventa.service.Impl;
 
+import com.example.servicioventa.dto.ClienteDTO;
+import com.example.servicioventa.dto.DetallePedidoDTO;
+import com.example.servicioventa.dto.MenuDTO;
+import com.example.servicioventa.dto.PedidoDTO;
 import com.example.servicioventa.entity.ComprobantePago;
 import com.example.servicioventa.entity.Venta;
+import com.example.servicioventa.feing.PedidoClient;
 import com.example.servicioventa.repository.ComprobantePagoRepository;
 import com.example.servicioventa.repository.VentaRepository;
 import com.example.servicioventa.service.ComprobantePagoService;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
+
 import jakarta.transaction.Transactional;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,69 +34,180 @@ public class ComprobanteServiceImpl implements ComprobantePagoService {
 
     private final ComprobantePagoRepository comprobanteRepository;
     private final VentaRepository ventaRepository;
+    private final PedidoClient pedidoClient;
 
-    public ComprobanteServiceImpl(ComprobantePagoRepository comprobanteRepository, VentaRepository ventaRepository) {
+    public ComprobanteServiceImpl(ComprobantePagoRepository comprobanteRepository, VentaRepository ventaRepository, @Qualifier("com.example.servicioventa.feing.PedidoClient") PedidoClient pedidoClient) {
         this.comprobanteRepository = comprobanteRepository;
         this.ventaRepository = ventaRepository;
+        this.pedidoClient = pedidoClient;
     }
 
-    @Override
     @Transactional
-    public ComprobantePago guardarComprobante(Long ventaId, ComprobantePago.TipoComprobante tipo) {
-        Optional<Venta> ventaOpt = ventaRepository.findById(ventaId);
-        if (ventaOpt.isEmpty()) {
-            throw new RuntimeException("❌ La venta con ID " + ventaId + " no existe.");
+    @Override
+    public ComprobantePago guardarComprobante(Integer ventaId, ComprobantePago.TipoComprobante tipo) {
+        Venta venta = ventaRepository.findById(ventaId)
+                .orElseThrow(() -> new RuntimeException("❌ La venta con ID " + ventaId + " no existe."));
+
+        PedidoDTO pedido = pedidoClient .obtenerPedidoPorId(venta.getPedidoId());
+        ClienteDTO cliente = pedido.getCliente();
+
+        // 🔒 Validación para factura
+        if (tipo == ComprobantePago.TipoComprobante.FACTURA) {
+            if (cliente == null || cliente.getRuc() == null || cliente.getRuc().isBlank()) {
+                throw new IllegalArgumentException("⚠️ No se puede emitir una FACTURA sin RUC válido del cliente.");
+            }
         }
 
-        Venta venta = ventaOpt.get();
-
-        // ✅ Calcular montos basado en el total de la venta
         BigDecimal montoNeto = venta.getTotal().divide(BigDecimal.valueOf(1.18), 2, RoundingMode.HALF_UP);
         BigDecimal igv = venta.getTotal().subtract(montoNeto);
 
         ComprobantePago comprobante = new ComprobantePago();
         comprobante.setVenta(venta);
         comprobante.setTipo(tipo);
-        comprobante.setNumeroSerie("B001");
+        comprobante.setNumeroSerie(tipo == ComprobantePago.TipoComprobante.FACTURA ? "F001" : "B001");
         comprobante.setNumeroComprobante(UUID.randomUUID().toString().substring(0, 8));
         comprobante.setFechaEmision(LocalDateTime.now());
         comprobante.setMontoNeto(montoNeto);
         comprobante.setIgv(igv);
 
+        // 🧾 Solo si es FACTURA, se registran datos fiscales
+        if (tipo == ComprobantePago.TipoComprobante.FACTURA) {
+            comprobante.setRazonSocial(cliente.getNombre());
+            comprobante.setDireccionFiscal(cliente.getDireccion());
+        }
         return comprobanteRepository.save(comprobante);
     }
 
     @Override
     public byte[] generarComprobantePDF(Long comprobanteId) throws IOException {
-        Optional<ComprobantePago> comprobanteOpt = comprobanteRepository.findById(comprobanteId);
-        if (comprobanteOpt.isEmpty()) {
-            throw new RuntimeException("❌ El comprobante con ID " + comprobanteId + " no existe.");
+        ComprobantePago comprobante = comprobanteRepository.findById(comprobanteId)
+                .orElseThrow(() -> new RuntimeException("❌ El comprobante con ID " + comprobanteId + " no existe."));
+
+        Venta venta = comprobante.getVenta();
+        PedidoDTO pedido = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+        ClienteDTO cliente = pedido.getCliente();
+
+        String nombreCliente = (cliente != null)
+                ? cliente.getNombre() + " " + cliente.getApellido()
+                : "Cliente desconocido";
+        String nombreArchivo = comprobante.getTipo() + "_" + comprobante.getNumeroComprobante() + ".pdf";
+        String rutaCarpeta = System.getProperty("user.dir") + "/comprobantes/";
+        String rutaCompleta = rutaCarpeta + nombreArchivo;
+
+        File carpeta = new File(rutaCarpeta);
+        if (!carpeta.exists() && carpeta.mkdirs()) {
+            System.out.println("📁 Carpeta creada en: " + carpeta.getAbsolutePath());
         }
 
-        ComprobantePago comprobante = comprobanteOpt.get();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PdfWriter writer = new PdfWriter(outputStream);
-        PdfDocument pdfDoc = new PdfDocument(writer);
-        Document document = new Document(pdfDoc);
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
 
-        document.add(new Paragraph("Comprobante de Venta"));
-        document.add(new Paragraph("Tipo: " + comprobante.getTipo()));
-        document.add(new Paragraph("Número Serie: " + comprobante.getNumeroSerie()));
-        document.add(new Paragraph("Número Comprobante: " + comprobante.getNumeroComprobante()));
-        document.add(new Paragraph("Fecha Emisión: " + comprobante.getFechaEmision()));
-        document.add(new Paragraph("Total Venta: " + comprobante.getVenta().getTotal()));
-        document.add(new Paragraph("Monto Neto: " + comprobante.getMontoNeto()));
-        document.add(new Paragraph("IGV: " + comprobante.getIgv()));
+            try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 11);
+                cs.setLeading(14.5f);
 
-        document.close();
+                boolean textoIniciado = false;
+                try {
+                    cs.beginText();
+                    textoIniciado = true;
+                    cs.newLineAtOffset(60, 740);
 
-        // ✅ Guardar PDF en carpeta
-        String filePath = "C:/Users/NELSON/Documents/Comprobantes/comprobante_" + comprobanteId + ".pdf";
-        try (FileOutputStream fos = new FileOutputStream(filePath)) {
-            fos.write(outputStream.toByteArray());
+                    // 🏢 Encabezado de la empresa
+                    escribir(cs, "AQUÍNOMÁS");
+                    escribir(cs, "RUC: 20481234567");
+                    escribir(cs, "Av. Principal 123, Juliaca - Puno");
+                    escribir(cs, "Telf: (051) 321-0000");
+                    escribir(cs, "----------------------------------------------");
+
+                    // 📄 Datos del comprobante
+                    escribir(cs, "COMPROBANTE DE PAGO - " + comprobante.getTipo());
+                    escribir(cs, "N°: " + comprobante.getNumeroSerie() + "-" + comprobante.getNumeroComprobante());
+                    escribir(cs, "Fecha de Emisión: " + comprobante.getFechaEmision());
+                    escribir(cs, "----------------------------------------------");
+
+                    // 👤 Cliente
+                    escribir(cs, "Cliente: " + safe(nombreCliente));
+                    if (cliente != null && comprobante.getTipo() == ComprobantePago.TipoComprobante.FACTURA) {
+                        escribir(cs, "RUC/DNI: " + Optional.ofNullable(cliente.getRuc()).orElse("-"));
+                        escribir(cs, "Dirección: " + Optional.ofNullable(cliente.getDireccion()).orElse("-"));
+                    }
+                    escribir(cs, "----------------------------------------------");
+
+                    // 🛒 Detalle del pedido
+                    escribir(cs, String.format("%-5s %-18s %9s %9s", "Cant", "Producto", "P.Unit", "Subtotal"));
+                    escribir(cs, "----------------------------------------------");
+
+                    for (DetallePedidoDTO d : Optional.ofNullable(pedido.getDetalles()).orElse(List.of())) {
+                        if (d.getPrecioUnitario() == null && d.getMenu() != null) {
+                            d.setPrecioUnitario(d.getMenu().getPrecio());
+                        }
+
+                        BigDecimal unitario = Optional.ofNullable(d.getPrecioUnitario()).orElse(BigDecimal.ZERO);
+                        BigDecimal subtotal = d.getSubtotal();
+                        String nombreProducto = Optional.ofNullable(d.getMenu()).map(MenuDTO::getNombre).orElse("Producto");
+
+                        escribir(cs, String.format("%-5d %-18s S/%7.2f S/%8.2f",
+                                d.getCantidad(),
+                                recortar(nombreProducto, 18),
+                                unitario,
+                                subtotal));
+                    }
+
+                    // 💰 Montos finales
+                    escribir(cs, "----------------------------------------------");
+
+                    if (comprobante.getTipo() == ComprobantePago.TipoComprobante.FACTURA) {
+                        escribir(cs, String.format("%-28s S/%7.2f", "Monto Neto:", comprobante.getMontoNeto()));
+                        escribir(cs, String.format("%-28s S/%7.2f", "IGV (18%):", comprobante.getIgv()));
+                        escribir(cs, String.format("%-28s S/%7.2f", "TOTAL A PAGAR:", venta.getTotal()));
+                    } else {
+                        escribir(cs, String.format("%-28s S/%7.2f", "TOTAL A PAGAR:", venta.getTotal()));
+                    }
+
+                    escribir(cs, "----------------------------------------------");
+                    escribir(cs, "");
+                    escribir(cs, "_____________________________");
+                    escribir(cs, "Firma del cliente: " + safe(nombreCliente));
+
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error durante la escritura del comprobante: " + e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    if (textoIniciado) {
+                        try {
+                            cs.endText();
+                        } catch (IOException e) {
+                            System.err.println("⚠️ Error al cerrar el bloque de texto: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            document.save(rutaCompleta);
+            System.out.println("✅ PDF guardado en: " + new File(rutaCompleta).getAbsolutePath());
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                document.save(outputStream);
+                return outputStream.toByteArray();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("❌ Error al generar el PDF: " + e.getMessage(), e);
         }
+    }
 
-        return outputStream.toByteArray();
+    private void escribir(PDPageContentStream cs, String texto) throws IOException {
+        cs.showText(texto != null ? texto.replaceAll("[\\n\\r]", "") : "");
+        cs.newLine();
+    }
+
+    private String safe(Object valor) {
+        return valor != null ? valor.toString() : "";
+    }
+
+    private String recortar(String texto, int max) {
+        return texto.length() > max ? texto.substring(0, max - 1) + "…" : texto;
     }
 
     @Override
@@ -113,7 +231,7 @@ public class ComprobanteServiceImpl implements ComprobantePagoService {
     }
 
     @Override
-    public List<ComprobantePago> listarPorVenta(Long ventaId) {
+    public List<ComprobantePago> listarPorVenta(Integer ventaId) {
         Optional<Venta> ventaOpt = ventaRepository.findById(ventaId);
         return ventaOpt.map(comprobanteRepository::findByVenta).orElseGet(List::of);
     }

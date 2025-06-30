@@ -11,17 +11,15 @@ import java.util.Optional;
 
 public interface ComprobantePagoService {
     List<ComprobantePago> listar();
-    //ComprobantePago guardar(ComprobantePago comprobantePago);
     ComprobantePago actualizar(ComprobantePago comprobantePago);
     Optional<ComprobantePago> obtenerPorId(Long id);
     void eliminarPorId(Long id);
-
     @Transactional
-    ComprobantePago guardarComprobante(Long ventaId, ComprobantePago.TipoComprobante tipo);
+    ComprobantePago guardarComprobante(Integer ventaId, ComprobantePago.TipoComprobante tipo);
 
     byte[] generarComprobantePDF(Long comprobanteId) throws IOException;
 
     List<ComprobantePago> filtrarComprobantes(String tipo, LocalDateTime inicio, LocalDateTime fin);
 
-    List<ComprobantePago> listarPorVenta(Long ventaId); // ✅ Nuevo método para buscar comprobantes por venta
+    List<ComprobantePago> listarPorVenta(Integer ventaId);
 }

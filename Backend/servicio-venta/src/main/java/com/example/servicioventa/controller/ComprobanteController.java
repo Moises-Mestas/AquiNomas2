@@ -1,9 +1,14 @@
 package com.example.servicioventa.controller;
 
-
+import com.example.servicioventa.dto.ClienteDTO;
+import com.example.servicioventa.dto.ComprobanteDTO;
+import com.example.servicioventa.dto.PedidoDTO;
 import com.example.servicioventa.entity.ComprobantePago;
+import com.example.servicioventa.entity.Venta;
+import com.example.servicioventa.feing.PedidoClient;
+import com.example.servicioventa.mapper.ComprobanteMapper;
 import com.example.servicioventa.service.ComprobantePagoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,68 +26,131 @@ import java.util.Optional;
 public class ComprobanteController {
 
     private final ComprobantePagoService comprobanteService;
+    private final ComprobanteMapper comprobanteMapper;
+    private final PedidoClient pedidoClient;
 
-    public ComprobanteController(ComprobantePagoService comprobanteService) {
+    public ComprobanteController(ComprobantePagoService comprobanteService, ComprobanteMapper comprobanteMapper, @Qualifier("com.example.servicioventa.feing.PedidoClient") PedidoClient pedidoClient) {
         this.comprobanteService = comprobanteService;
+        this.comprobanteMapper = comprobanteMapper;
+        this.pedidoClient = pedidoClient;
     }
 
-    // ✅ Generar comprobante a partir de una venta
-    @PostMapping("/{ventaId}/generar")
-    public ResponseEntity<?> generarComprobante(@PathVariable Long ventaId, @RequestParam ComprobantePago.TipoComprobante tipo) {
+    @PostMapping("/venta/{ventaId}")
+    public ResponseEntity<?> generarComprobante(
+            @PathVariable Integer ventaId,
+            @RequestParam ComprobantePago.TipoComprobante tipo
+    ) {
         try {
             ComprobantePago comprobante = comprobanteService.guardarComprobante(ventaId, tipo);
             return ResponseEntity.status(HttpStatus.CREATED).body(comprobante);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("⚠️ " + e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ " + e.getMessage());
         }
     }
 
-    // ✅ Descargar comprobante en PDF
     @GetMapping("/{id}/descargar")
-    public ResponseEntity<byte[]> descargarComprobante(@PathVariable Long id) {
+    public ResponseEntity<byte[]> descargarPDF(@PathVariable Long id) {
         try {
             byte[] pdfBytes = comprobanteService.generarComprobantePDF(id);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=comprobante_" + id + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
-        } catch (RuntimeException | IOException e) {
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
-    // ✅ Listar todos los comprobantes
     @GetMapping
-    public ResponseEntity<List<ComprobantePago>> listarComprobantes() {
-        return ResponseEntity.ok(comprobanteService.listar());
+    public ResponseEntity<List<ComprobanteDTO>> listarComprobantes() {
+        List<ComprobantePago> comprobantes = comprobanteService.listar();
+
+        List<ComprobanteDTO> dtos = comprobantes.stream()
+                .map(comprobante -> {
+                    Venta venta = comprobante.getVenta();
+
+                    String nombreCliente = "Cliente desconocido";
+                    PedidoDTO pedidoDTO = null;
+
+                    if (venta != null) {
+                        // 🔎 Obtener ClienteDTO por Feign
+                        try {
+                            ClienteDTO clienteDTO = pedidoClient.obtenerClientePorId(venta.getCliente());
+                            if (clienteDTO != null) {
+                                nombreCliente = clienteDTO.getNombre() + " " + clienteDTO.getApellido();
+                            }
+                        } catch (Exception e) {
+                            // Loguear si querés: cliente no disponible
+                        }
+
+                        // 📦 Obtener PedidoDTO por Feign
+                        try {
+                            pedidoDTO = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+                        } catch (Exception e) {
+                            // Loguear si querés: pedido no disponible
+                        }
+                    }
+
+                    return comprobanteMapper.aDTO(comprobante, nombreCliente, pedidoDTO);
+                })
+                .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerComprobante(@PathVariable Long id) {
-        Optional<ComprobantePago> comprobante = comprobanteService.obtenerPorId(id);
+        Optional<ComprobantePago> comprobanteOpt = comprobanteService.obtenerPorId(id);
 
-        if (comprobante.isPresent()) {
-            return ResponseEntity.ok(comprobante.get());
-        } else {
+        if (comprobanteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ Comprobante no encontrado.");
         }
+
+        ComprobantePago comprobante = comprobanteOpt.get();
+        Venta venta = comprobante.getVenta();
+
+        String nombreCliente = "Cliente desconocido";
+        PedidoDTO pedidoDTO = null;
+
+        if (venta != null) {
+            // Obtener cliente vía Feign
+            try {
+                ClienteDTO cliente = pedidoClient.obtenerClientePorId(venta.getCliente());
+                if (cliente != null) {
+                    nombreCliente = cliente.getNombre() + " " + cliente.getApellido();
+                }
+            } catch (Exception e) {
+                // Podés loguear si querés
+            }
+
+            // Obtener pedido vía Feign
+            try {
+                pedidoDTO = pedidoClient.obtenerPedidoPorId(venta.getPedidoId());
+            } catch (Exception e) {
+                // Podés loguear si querés
+            }
+        }
+
+        ComprobanteDTO dto = comprobanteMapper.aDTO(comprobante, nombreCliente, pedidoDTO);
+        return ResponseEntity.ok(dto);
     }
 
-
-    // ✅ Filtrar comprobantes por tipo y fecha
     @GetMapping("/filtrar")
-    public ResponseEntity<List<ComprobantePago>> filtrarComprobantes(
+    public ResponseEntity<List<ComprobantePago>> filtrarComprobante(
             @RequestParam(required = false) String tipo,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-
-        List<ComprobantePago> comprobantes = comprobanteService.filtrarComprobantes(tipo, fechaInicio, fechaFin);
-        return ResponseEntity.ok(comprobantes);
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin
+    ) {
+        List<ComprobantePago> filtrados = comprobanteService.filtrarComprobantes(tipo, fechaInicio, fechaFin);
+        return ResponseEntity.ok(filtrados);
     }
 
-    // ✅ Eliminar comprobante por ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarComprobante(@PathVariable Long id) {
+    public ResponseEntity<String> eliminarComprobante(@PathVariable Long id) {
         comprobanteService.eliminarPorId(id);
         return ResponseEntity.ok("✅ Comprobante eliminado correctamente.");
     }
