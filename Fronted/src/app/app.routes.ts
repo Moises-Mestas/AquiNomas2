@@ -9,6 +9,7 @@ import { ComprasProveedoresPage } from './pages/comprasProveedores/compras-prove
 import { BodegaPage } from './pages/bodega.page/bodega.page';
 import { InventarioBarraPage } from './pages/barra.page/inventario-barra.page';
 import { InventarioCocinaPage } from './pages/cocina.page/inventario-cocina.page';
+import { AuthPage } from './pages/auth.page/auth.page';
 
 export const routes: Route[] = [
   { path: 'menus', component: MenuPage }, // Ruta para el CRUD de Menú
@@ -21,4 +22,5 @@ export const routes: Route[] = [
   { path: 'bodega', component: BodegaPage },
   { path: 'barra', component: InventarioBarraPage },
   { path: 'cocina', component: InventarioCocinaPage },
+  { path: 'login', component: AuthPage },
 ];

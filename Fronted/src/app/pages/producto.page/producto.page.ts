@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoServices } from '../../core/services/producto.services';
+import { AuthService } from '../../core/services/auth.services';
 
 @Component({
   selector: 'app-producto',
@@ -27,7 +28,14 @@ export class ProductoPage {
   filtroNombre: string = '';
   filtroTipo: string = '';
 
-  constructor(private productoService: ProductoServices) {}
+  constructor(
+    private productoService: ProductoServices,
+    private authService: AuthService
+  ) {}
+
+  logout() {
+    this.authService.logout();
+  }
 
   ngOnInit() {
     this.getProductos();

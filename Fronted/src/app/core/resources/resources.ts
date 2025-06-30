@@ -39,4 +39,9 @@ export const resources = {
   inventarioCocinaPorId: (id: number) => `inventario-cocina/${id}`,
   inventarioCocinaCrear: 'inventario-cocina/crear',
   inventarioCocinaAlertaStockMinimo: 'inventario-cocina/alerta-stock-minimo',
+
+  auth: 'auth',
+  authLogin: 'auth/login',
+  authRegister: 'auth/register',
+  authLogout: 'auth/logout',
 };
